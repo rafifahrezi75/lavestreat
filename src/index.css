@@ -1,0 +1,70 @@
+@import "tw-animate-css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ocean-navy: #0A3D66;
+  --color-splash-blue: #2F6FED;
+  --color-sky-wash: #8ED1F0;
+  --color-foam-blue: #BEE7FA;
+  --color-cloud-canvas: #EAF7FE;
+  --color-bubble-gold: #FDB813;
+  --color-sand-warm: #EFE7D8;
+  --color-snow-foam: #F5FAFF;
+  --color-slate-wet: #5B6B78;
+  --color-ink-deep: #0B1F2E;
+  --color-success-rinse: #1E9E6B;
+  --color-danger-stain: #D8402C;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #EAF7FE;
+    color: #0B1F2E;
+    font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  z-index: 10;
+}
+
+@keyframes floatSmooth {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-smooth {
+  animation: floatSmooth 4.5s ease-in-out infinite;
+}
+
+.page-smooth-enter {
+  animation: pageFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
