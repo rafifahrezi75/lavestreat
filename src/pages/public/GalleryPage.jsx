@@ -30,16 +30,16 @@ function LazyImage({ src, alt, className = '' }) {
   }, []);
 
   return (
-    <div ref={imgRef} className={`relative ${className}`}>
+    <div ref={imgRef} className={className} style={{ position: 'absolute', inset: 0 }}>
       {!loaded && (
-        <div className="absolute inset-0 bg-slate-200 animate-pulse rounded-inherit" />
+        <div className="absolute inset-0 bg-slate-200 animate-pulse" />
       )}
       {inView && (
         <img
           src={src}
           alt={alt}
           onLoad={() => setLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
       )}
     </div>
@@ -62,7 +62,6 @@ function GalleryCard({ item, onOpen }) {
             <LazyImage
               src={item.before_url}
               alt={`${item.caption} sebelum`}
-              className="absolute inset-0"
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-black/50 backdrop-blur-xs text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sebelum</span>
@@ -72,7 +71,6 @@ function GalleryCard({ item, onOpen }) {
             <LazyImage
               src={item.after_url}
               alt={`${item.caption} sesudah`}
-              className="absolute inset-0"
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/70 backdrop-blur-xs text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sesudah</span>
