@@ -8,44 +8,6 @@ import { galleryApi } from '../../lib/api';
 
 const ITEMS_PER_PAGE = 12;
 
-function LazyImage({ src, alt, className = '' }) {
-  const imgRef = useRef(null);
-  const [loaded, setLoaded] = useState(false);
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const el = imgRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          obs.disconnect();
-        }
-      },
-      { rootMargin: '200px' }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <div ref={imgRef} className={className} style={{ position: 'absolute', inset: 0 }}>
-      {!loaded && (
-        <div className="absolute inset-0 bg-slate-200 animate-pulse" />
-      )}
-      {inView && (
-        <img
-          src={src}
-          alt={alt}
-          onLoad={() => setLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        />
-      )}
-    </div>
-  );
-}
-
 function GalleryCard({ item, onOpen }) {
   const [hovered, setHovered] = useState(false);
 
@@ -58,19 +20,23 @@ function GalleryCard({ item, onOpen }) {
     >
       <div className="relative aspect-4/3 overflow-hidden bg-slate-100">
         <div className="absolute inset-0 grid grid-cols-2">
-          <div className="relative overflow-hidden border-r border-white/30">
-            <LazyImage
+          <div className="relative overflow-hidden border-r-2 border-white">
+            <img
               src={item.before_url}
               alt={`${item.caption} sebelum`}
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-black/50 backdrop-blur-xs text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sebelum</span>
             </div>
           </div>
           <div className="relative overflow-hidden">
-            <LazyImage
+            <img
               src={item.after_url}
               alt={`${item.caption} sesudah`}
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/70 backdrop-blur-xs text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sesudah</span>
