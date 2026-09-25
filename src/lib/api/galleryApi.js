@@ -11,7 +11,7 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialGallery } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_gallery_data_v7';
+const STORAGE_KEY = 'lavestreat_gallery_data_v8';
 
 function getLocalGallery() {
   const data = localStorage.getItem(STORAGE_KEY);
@@ -61,9 +61,12 @@ export const galleryApi = {
       order_id: payload.order_id || null,
       invoice: payload.invoice || payload.order_id || null,
       customer_name: payload.customer_name || payload.pelanggan || null,
+      shoe_brand: payload.shoe_brand || '',
+      shoe_type: payload.shoe_type || '',
       object_position: payload.object_position || '50% 50%',
       pos_y: payload.pos_y ?? 50,
       tampil_di_home: payload.tampil_di_home !== false,
+      slots: payload.slots || [],
       created_at: new Date().toISOString()
     };
 
@@ -95,9 +98,12 @@ export const galleryApi = {
       order_id: payload.order_id || null,
       invoice: payload.invoice || payload.order_id || null,
       customer_name: payload.customer_name || payload.pelanggan || null,
+      shoe_brand: payload.shoe_brand || '',
+      shoe_type: payload.shoe_type || '',
       object_position: payload.object_position || '50% 50%',
       pos_y: payload.pos_y ?? 50,
-      tampil_di_home: payload.tampil_di_home !== false
+      tampil_di_home: payload.tampil_di_home !== false,
+      slots: payload.slots || []
     };
 
     if (isFirebaseConfigured) {
