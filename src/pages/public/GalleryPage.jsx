@@ -18,7 +18,7 @@ function GalleryCard({ item, onOpen }) {
       onMouseLeave={() => setHovered(false)}
       onClick={() => onOpen(item)}
     >
-      <div className="relative aspect-4/3 overflow-hidden bg-slate-100">
+      <div className="relative w-full aspect-[4/3] min-h-[190px] overflow-hidden bg-slate-100">
         <div className="absolute inset-0 grid grid-cols-2">
           <div className="relative overflow-hidden border-r-2 border-white">
             <img
@@ -249,7 +249,7 @@ export function GalleryPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden">
-                <div className="aspect-4/3 bg-slate-200 animate-pulse" />
+                <div className="w-full aspect-[4/3] min-h-[190px] bg-slate-200 animate-pulse" />
                 <div className="bg-white p-4 space-y-2 border border-brand-200 border-t-0 rounded-b-2xl">
                   <div className="h-4 bg-slate-200 rounded w-3/4 animate-pulse" />
                   <div className="h-3 bg-slate-100 rounded w-1/2 animate-pulse" />
@@ -327,7 +327,7 @@ export function GalleryPage() {
               </button>
             </div>
 
-            <div className="relative w-full aspect-4/3 sm:aspect-16/10 bg-slate-900 overflow-hidden">
+            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] min-h-[300px] bg-slate-900 overflow-hidden">
               <BeforeAfterCompare
                 beforeUrl={activeItem.before_url}
                 afterUrl={activeItem.after_url}

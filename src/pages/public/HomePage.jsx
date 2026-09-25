@@ -138,7 +138,7 @@ export function HomePage() {
             </div>
 
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <div className="relative rounded-2xl sm:rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden bg-brand-900 group aspect-4/3 sm:aspect-16/10 lg:aspect-4/3 animate-float-smooth">
+              <div className="relative rounded-2xl sm:rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden bg-brand-900 group aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] min-h-[240px] animate-float-smooth">
                 <img
                   src="/hero-sneaker.jpg"
                   alt="Lave Streat Perawatan Sepatu Spesialis"
@@ -328,7 +328,7 @@ export function HomePage() {
             </div>
 
             <div className="lg:col-span-4 flex justify-center order-first lg:order-none mb-4 lg:mb-0">
-              <div className="relative w-full max-w-xs sm:max-w-sm aspect-3/4 rounded-3xl overflow-hidden border-2 border-brand-200 shadow-xl bg-brand-100 group">
+              <div className="relative w-full max-w-xs sm:max-w-sm aspect-[3/4] min-h-[300px] rounded-3xl overflow-hidden border-2 border-brand-200 shadow-xl bg-brand-100 group">
                 <img
                   src="/specialist.jpg"
                   alt="Teknisi Perawatan Sepatu Lave Streat"

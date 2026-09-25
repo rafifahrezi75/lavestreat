@@ -15,7 +15,7 @@ export function BeforeAfterCompare({
 
   return (
     <div className={`bg-white rounded-xl border border-brand-200 overflow-hidden shadow-subtle flex flex-col ${className}`}>
-      <div className="relative w-full aspect-4/3 sm:aspect-16/10 select-none overflow-hidden bg-slate-100">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] min-h-[260px] select-none overflow-hidden bg-slate-100">
         <img
           src={afterUrl}
           alt="Foto sesudah perawatan"
