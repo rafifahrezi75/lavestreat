@@ -20,7 +20,6 @@ export function ServicesPage() {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [settings, setSettings] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,10 +43,6 @@ export function ServicesPage() {
 
   const coreServices = services.filter(s => !addOnIds.includes(s.id));
   const addOnServices = services.filter(s => addOnIds.includes(s.id));
-
-  const filteredCoreServices = selectedCategory === 'all'
-    ? coreServices
-    : coreServices.filter(s => s.kategori === selectedCategory);
 
   const formatPrice = (val) => {
     return new Intl.NumberFormat('id-ID', {
@@ -81,44 +76,19 @@ export function ServicesPage() {
             </p>
           </div>
 
-          <div className="flex items-center justify-center flex-wrap gap-2 mb-10">
-            {[
-              { id: 'all', label: 'Semua Treatment' },
-              { id: 'cuci', label: 'Cuci Sepatu' },
-              { id: 'repaint', label: 'Repaint Sepatu' },
-              { id: 'sabun', label: 'Sabun & Perawatan' }
-            ].map((cat) => {
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 ${
-                    isActive
-                      ? 'bg-brand-600 text-white shadow-xs'
-                      : 'bg-white text-brand-900 hover:bg-brand-100 border border-brand-200'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              );
-            })}
-          </div>
-
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
             </div>
-          ) : filteredCoreServices.length === 0 ? (
+          ) : coreServices.length === 0 ? (
             <div className="text-center py-16 text-slate-wet bg-slate-50 rounded-xl border border-brand-200">
-              Belum ada layanan untuk kategori ini.
+              Belum ada layanan yang tersedia saat ini.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCoreServices.map((service) => (
+              {coreServices.map((service) => (
                 <ServiceCard
                   key={service.id}
                   service={service}

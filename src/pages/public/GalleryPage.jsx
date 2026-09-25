@@ -142,10 +142,17 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   );
 }
 
+const GALLERY_CATEGORIES = [
+  { id: 'all', label: 'Semua Treatment' },
+  { id: 'cuci', label: 'Cuci Sepatu' },
+  { id: 'repaint', label: 'Repaint Sepatu' },
+  { id: 'sabun', label: 'Sabun & Perawatan' }
+];
+
 export function GalleryPage() {
   const navigate = useNavigate();
   const [gallery, setGallery] = useState([]);
-  const [selectedTag, setSelectedTag] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -164,11 +171,17 @@ export function GalleryPage() {
     loadGallery();
   }, []);
 
-  const tags = ['all', ...Array.from(new Set(gallery.map((g) => g.layanan_terkait).filter(Boolean)))];
+  const getItemCategory = (item) => {
+    if (item.kategori) return item.kategori.toLowerCase();
+    const txt = `${item.layanan_terkait || ''} ${item.caption || ''}`.toLowerCase();
+    if (txt.includes('repaint')) return 'repaint';
+    if (txt.includes('sabun') || txt.includes('cleaner')) return 'sabun';
+    return 'cuci';
+  };
 
-  const filteredGallery = selectedTag === 'all'
+  const filteredGallery = selectedCategory === 'all'
     ? gallery
-    : gallery.filter((item) => item.layanan_terkait === selectedTag);
+    : gallery.filter((item) => getItemCategory(item) === selectedCategory);
 
   const totalPages = Math.ceil(filteredGallery.length / ITEMS_PER_PAGE);
   const paginatedItems = filteredGallery.slice(
@@ -176,8 +189,8 @@ export function GalleryPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleTagChange = useCallback((tag) => {
-    setSelectedTag(tag);
+  const handleCategoryChange = useCallback((catId) => {
+    setSelectedCategory(catId);
     setCurrentPage(1);
   }, []);
 
@@ -203,35 +216,25 @@ export function GalleryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
 
         <div ref={gridRef} className="scroll-mt-24">
-          {tags.length > 1 && (
-            <div className="flex items-center justify-center flex-wrap gap-2 mb-10">
-              {tags.map((tag) => {
-                const isActive = selectedTag === tag;
-                const count = tag === 'all'
-                  ? gallery.length
-                  : gallery.filter((i) => i.layanan_terkait === tag).length;
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => handleTagChange(tag)}
-                    className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer inline-flex items-center gap-1.5 ${
-                      isActive
-                        ? 'bg-brand-600 text-white shadow-xs'
-                        : 'bg-white text-brand-900 hover:bg-brand-100 border border-brand-200'
-                    }`}
-                  >
-                    <span>{tag === 'all' ? 'Semua' : tag}</span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-brand-100 text-brand-600'
-                    }`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <div className="flex items-center justify-center flex-wrap gap-2 mb-10">
+            {GALLERY_CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat.id)}
+                  className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer ${
+                    isActive
+                      ? 'bg-brand-600 text-white shadow-xs'
+                      : 'bg-white text-brand-900 hover:bg-brand-100 border border-brand-200'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
 
           {!loading && filteredGallery.length > 0 && (
             <div className="flex items-center justify-between mb-6 px-1">
