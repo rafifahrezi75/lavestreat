@@ -58,6 +58,9 @@ export const galleryApi = {
       after_url: payload.after_url,
       caption: payload.caption || '',
       layanan_terkait: payload.layanan_terkait || '',
+      order_id: payload.order_id || null,
+      invoice: payload.invoice || payload.order_id || null,
+      customer_name: payload.customer_name || payload.pelanggan || null,
       tampil_di_home: payload.tampil_di_home !== false,
       created_at: new Date().toISOString()
     };
@@ -87,6 +90,9 @@ export const galleryApi = {
       after_url: payload.after_url,
       caption: payload.caption || '',
       layanan_terkait: payload.layanan_terkait || '',
+      order_id: payload.order_id || null,
+      invoice: payload.invoice || payload.order_id || null,
+      customer_name: payload.customer_name || payload.pelanggan || null,
       tampil_di_home: payload.tampil_di_home !== false
     };
 

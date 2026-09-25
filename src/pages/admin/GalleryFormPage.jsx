@@ -24,6 +24,8 @@ export function GalleryFormPage() {
     after_url: '',
     caption: '',
     layanan_terkait: '',
+    invoice: '',
+    customer_name: '',
     tampil_di_home: true
   });
 
@@ -42,6 +44,8 @@ export function GalleryFormPage() {
               after_url: found.after_url,
               caption: found.caption,
               layanan_terkait: found.layanan_terkait || '',
+              invoice: found.invoice || found.order_id || '',
+              customer_name: found.customer_name || '',
               tampil_di_home: found.tampil_di_home !== false
             });
           } else {
@@ -123,6 +127,21 @@ export function GalleryFormPage() {
               value={formData.after_url}
               onChange={(url) => setFormData({ ...formData, after_url: url })}
               label="2. Foto Sesudah (After) *"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="No. Invoice / Pesanan (Opsional)"
+              value={formData.invoice}
+              onChange={(e) => setFormData({ ...formData, invoice: e.target.value })}
+              placeholder="Contoh: INV-2026-0012 atau ORD-1001"
+            />
+            <Input
+              label="Nama Pemilik / Pelanggan (Opsional)"
+              value={formData.customer_name}
+              onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+              placeholder="Contoh: Dimas Pratama"
             />
           </div>
 

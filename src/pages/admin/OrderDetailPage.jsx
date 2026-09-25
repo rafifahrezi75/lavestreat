@@ -125,7 +125,9 @@ export function OrderDetailPage() {
         caption: galleryData.caption || `Restorasi ${galleryData.layanan_terkait} - ${order.id}`,
         layanan_terkait: galleryData.layanan_terkait,
         tampil_di_home: true,
-        order_id: order.id
+        order_id: order.id,
+        invoice: order.invoice || order.id,
+        customer_name: order.pelanggan?.nama || 'Pelanggan Lave Streat'
       };
 
       await galleryApi.createGalleryItem(payload);

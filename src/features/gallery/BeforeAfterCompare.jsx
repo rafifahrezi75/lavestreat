@@ -5,7 +5,10 @@ export function BeforeAfterCompare({
   afterUrl,
   caption = '',
   serviceTag = '',
-  className = ''
+  className = '',
+  header,
+  footer,
+  children
 }) {
   const [sliderPosition, setSliderPosition] = useState(50);
 
@@ -56,8 +59,9 @@ export function BeforeAfterCompare({
         />
       </div>
 
-      {(caption || serviceTag) && (
-        <div className="p-4 flex flex-col justify-between gap-1 bg-white border-t border-brand-200/50">
+      {(caption || serviceTag || header || footer || children) && (
+        <div className="p-4 flex flex-col justify-between gap-2.5 bg-white border-t border-brand-200/50">
+          {header}
           {caption && (
             <p className="text-sm font-semibold text-brand-900 leading-snug">
               {caption}
@@ -68,6 +72,8 @@ export function BeforeAfterCompare({
               {serviceTag}
             </span>
           )}
+          {children}
+          {footer}
         </div>
       )}
     </div>
