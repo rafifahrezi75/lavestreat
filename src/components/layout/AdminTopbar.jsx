@@ -101,36 +101,31 @@ export function AdminTopbar({ title, onToggleSidebar, isSidebarOpen }) {
   const nav = getNavInfo(location.pathname);
 
   return (
-    <header className="min-h-16 bg-white border-b border-brand-200 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+    <header className="h-16 bg-white border-b border-brand-200 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="text-brand-900 p-2 rounded-lg hover:bg-brand-100 transition-colors focus:outline-hidden"
+          className="text-brand-900 p-2 rounded-lg hover:bg-brand-100 transition-colors focus:outline-hidden cursor-pointer"
           aria-label={isSidebarOpen ? 'Tutup sidebar' : 'Buka sidebar'}
           title={isSidebarOpen ? 'Tutup sidebar' : 'Buka sidebar'}
         >
           <PanelLeft className="w-4 h-4" />
         </button>
 
-        <div className="flex flex-col">
-          <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
-            {nav.title}
-          </h1>
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500 font-normal mt-0.5">
-            {nav.breadcrumbs.map((crumb, idx) => {
-              const isLast = idx === nav.breadcrumbs.length - 1;
-              return (
-                <React.Fragment key={idx}>
-                  {idx > 0 && <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />}
-                  <span className={isLast ? 'text-slate-700 font-medium' : 'text-slate-500'}>
-                    {crumb}
-                  </span>
-                </React.Fragment>
-              );
-            })}
-          </nav>
-        </div>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm">
+          {nav.breadcrumbs.map((crumb, idx) => {
+            const isLast = idx === nav.breadcrumbs.length - 1;
+            return (
+              <React.Fragment key={idx}>
+                {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
+                <span className={isLast ? 'text-brand-900 font-semibold' : 'text-slate-500'}>
+                  {crumb}
+                </span>
+              </React.Fragment>
+            );
+          })}
+        </nav>
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
