@@ -10,8 +10,10 @@ import {
   Settings,
   ExternalLink,
   PanelLeftClose,
+  LogOut,
   X
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard, end: true },
@@ -24,6 +26,8 @@ const navItems = [
 ];
 
 export function AdminSidebar({ isOpen, onClose }) {
+  const { logout } = useAuth();
+
   return (
     <>
       {isOpen && (
@@ -91,15 +95,23 @@ export function AdminSidebar({ isOpen, onClose }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10 shrink-0">
+        <div className="p-4 border-t border-white/10 shrink-0 flex flex-col gap-2">
           <Link
             to="/"
             target="_blank"
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-semibold text-sky-200 bg-white/5 hover:bg-white/10 transition-colors"
+            className="flex items-center justify-between px-3.5 py-2 rounded-lg text-sm font-semibold text-sky-200 bg-white/5 hover:bg-white/10 transition-colors"
           >
             <span>Lihat Website Publik</span>
             <ExternalLink className="w-4 h-4 shrink-0" />
           </Link>
+          <button
+            type="button"
+            onClick={logout}
+            className="flex items-center justify-between px-3.5 py-2 rounded-lg text-sm font-semibold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 transition-colors text-left cursor-pointer"
+          >
+            <span>Keluar Akun</span>
+            <LogOut className="w-4 h-4 shrink-0" />
+          </button>
         </div>
       </aside>
     </>
