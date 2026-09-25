@@ -4,7 +4,7 @@ import { ArrowRight, Check } from '@phosphor-icons/react';
 const PW = 55;
 const PH = 55;
 const KR = 9;
-const TOL = 8;
+const TOL = 16;
 
 const CAPTCHA_IMAGES = [
   'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=640&q=80',
@@ -36,6 +36,7 @@ export function SliderCaptcha({ onSuccess, onFail }) {
   const targetXRef = useRef(0);
   const isDraggingRef = useRef(false);
   const startDragXRef = useRef(0);
+  const currentPosRef = useRef(0);
 
   const [sliderPos, setSliderPos] = useState(0);
   const [maxSlider, setMaxSlider] = useState(250);
@@ -47,6 +48,7 @@ export function SliderCaptcha({ onSuccess, onFail }) {
   const initCaptcha = () => {
     setLoading(true);
     setHasError(false);
+    currentPosRef.current = 0;
     setSliderPos(0);
     isDraggingRef.current = false;
 
@@ -113,15 +115,21 @@ export function SliderCaptcha({ onSuccess, onFail }) {
   }, []);
 
   useEffect(() => {
-    if (trackRef.current) {
-      setMaxSlider(trackRef.current.clientWidth - 44);
-    }
+    const updateMax = () => {
+      if (trackRef.current) {
+        setMaxSlider(Math.max(100, trackRef.current.clientWidth - 44));
+      }
+    };
+    updateMax();
+    window.addEventListener('resize', updateMax);
+    return () => window.removeEventListener('resize', updateMax);
   }, [loading]);
 
   const handlePointerDown = (e) => {
     if (verified || loading) return;
     isDraggingRef.current = true;
-    startDragXRef.current = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    startDragXRef.current = clientX - currentPosRef.current;
     setHasError(false);
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -134,6 +142,7 @@ export function SliderCaptcha({ onSuccess, onFail }) {
     if (!isDraggingRef.current) return;
     const delta = clientX - startDragXRef.current;
     const newPos = Math.max(0, Math.min(delta, maxSlider));
+    currentPosRef.current = newPos;
     setSliderPos(newPos);
   };
 
@@ -160,26 +169,26 @@ export function SliderCaptcha({ onSuccess, onFail }) {
     const bgCanvas = bgCanvasRef.current;
     if (!bgCanvas) return;
 
-    const scale = bgCanvas.clientWidth / bgCanvas.width;
-    const currentInternalX = sliderPos / scale;
-    const error = Math.abs(currentInternalX - targetXRef.current);
+    const scale = bgCanvas.clientWidth / (bgCanvas.width || 300);
+    const targetScreenX = (targetXRef.current - 2) * scale;
+    const finalPos = currentPosRef.current;
+    const errorInPixels = Math.abs(finalPos - targetScreenX);
 
-    if (error <= TOL) {
+    if (errorInPixels <= TOL) {
       setVerified(true);
       if (onSuccess) onSuccess();
     } else {
       setHasError(true);
       if (onFail) onFail();
       setTimeout(() => {
+        currentPosRef.current = 0;
         setSliderPos(0);
         setHasError(false);
       }, 500);
     }
   };
 
-  const pieceLeftStyle = bgCanvasRef.current
-    ? `${(sliderPos / (bgCanvasRef.current.clientWidth || 1)) * 100}%`
-    : `${sliderPos}px`;
+  const pieceLeftStyle = `${sliderPos}px`;
 
   return (
     <div className="w-full select-none">
