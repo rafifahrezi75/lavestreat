@@ -102,17 +102,24 @@ export default function App() {
               <Route index element={<DashboardPage />} />
               <Route path="orders" element={<OrdersManagePage />} />
               <Route path="orders/:id" element={<OrderDetailPage />} />
+              <Route path="pesanan" element={<OrdersManagePage />} />
+              <Route path="pesanan/:id" element={<OrderDetailPage />} />
               <Route path="services" element={<ServicesManagePage />} />
               <Route path="services/new" element={<ServiceFormPage />} />
               <Route path="services/:id/edit" element={<ServiceFormPage />} />
+              <Route path="layanan" element={<ServicesManagePage />} />
               <Route path="gallery" element={<GalleryManagePage />} />
               <Route path="gallery/new" element={<GalleryFormPage />} />
               <Route path="gallery/:id/edit" element={<GalleryFormPage />} />
+              <Route path="galeri" element={<GalleryManagePage />} />
               <Route path="testimonials" element={<TestimonialsManagePage />} />
               <Route path="testimonials/new" element={<TestimonialFormPage />} />
               <Route path="testimonials/:id/edit" element={<TestimonialFormPage />} />
+              <Route path="testimoni" element={<TestimonialsManagePage />} />
               <Route path="content" element={<ContentManagePage />} />
+              <Route path="konten" element={<ContentManagePage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="pengaturan" element={<SettingsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

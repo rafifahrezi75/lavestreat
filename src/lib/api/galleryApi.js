@@ -11,11 +11,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialGallery } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_gallery_data_v11';
+const STORAGE_KEY = 'lavestreat_gallery_data_v12';
 
 function getLocalGallery() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || data.includes('unsplash') || !data.includes('INV-2609-1029')) {
+  if (!data || data.includes('unsplash') || !data.includes('1ceec53b')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialGallery));
     return initialGallery;
   }

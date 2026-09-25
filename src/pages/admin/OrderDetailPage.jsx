@@ -273,9 +273,12 @@ export function OrderDetailPage() {
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900">
-                Pesanan {order.id}
+                {order.invoice_number || order.invoice || order.id}
               </h1>
               {getStatusBadge(order.status)}
+              <span className="text-[11px] font-mono text-slate-wet bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                ID: {order.id}
+              </span>
             </div>
             <span className="text-xs text-slate-wet mt-1 block">
               Dibuat pada: {new Date(order.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
@@ -306,14 +309,17 @@ export function OrderDetailPage() {
 
               <div className="flex flex-col divide-y divide-brand-200/60">
                 {order.items?.map((item, idx) => (
-                  <div key={idx} className="py-3 flex items-center justify-between text-sm">
-                    <div>
+                  <div key={idx} className="py-3 flex items-start justify-between text-sm gap-2">
+                    <div className="min-w-0">
                       <span className="font-bold text-brand-900 block text-sm">{item.nama_snapshot}</span>
-                      <span className="text-xs sm:text-sm text-slate-wet">
+                      <span className="text-[10px] text-slate-wet font-mono block mt-0.5">
+                        ID Item: {item.id}
+                      </span>
+                      <span className="text-xs sm:text-sm text-slate-wet mt-0.5 block">
                         {formatPrice(item.harga_snapshot)} x {item.qty}
                       </span>
                     </div>
-                    <span className="font-bold text-brand-900 text-sm">
+                    <span className="font-bold text-brand-900 text-sm shrink-0">
                       {formatPrice(item.harga_snapshot * item.qty)}
                     </span>
                   </div>
@@ -459,13 +465,55 @@ export function OrderDetailPage() {
                       objectPosition={order.before_after.object_position || (order.before_after.pos_y != null ? `50% ${order.before_after.pos_y}%` : 'center')}
                     />
                   </div>
-                  <div className="flex items-center justify-between flex-wrap gap-2 pt-1 text-xs text-slate-wet">
-                    <span>
-                      Item: <strong className="text-brand-900">{currentPhotoItem?.shoe_brand ? `${currentPhotoItem.shoe_brand} ${currentPhotoItem.shoe_type}` : order.before_after.caption}</strong> ({currentPhotoItem?.layanan || order.before_after.layanan_terkait})
-                    </span>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                    {currentPhotoSlots.map((s, idx) => (
+                      <div
+                        key={s.slot || idx}
+                        onClick={() => setSelectedOrderSlot(idx)}
+                        className={`p-2 rounded-xl border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                          selectedOrderSlot === idx
+                            ? 'border-brand-600 bg-brand-100/50 shadow-xs ring-1 ring-brand-600'
+                            : 'border-brand-200 bg-white hover:border-brand-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[11px] font-bold text-brand-900">
+                          <span className="truncate">{s.label || `Sudut ${s.slot}`}</span>
+                          <span className="text-[10px] text-slate-wet shrink-0">Slot {s.slot}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 rounded overflow-hidden">
+                          <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
+                            <img src={s.before_url} alt="Before" className="w-full h-full object-cover" />
+                            <span className="absolute bottom-0.5 left-0.5 bg-black/75 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">Before</span>
+                          </div>
+                          <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
+                            <img src={s.after_url} alt="After" className="w-full h-full object-cover" />
+                            <span className="absolute bottom-0.5 left-0.5 bg-brand-600 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">After</span>
+                          </div>
+                        </div>
+                        {s.before_id && (
+                          <div className="text-[9px] font-mono text-slate-wet truncate">
+                            ID: {s.before_id.slice(0, 8)}...
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-brand-200/60 text-xs text-slate-wet">
+                    <div>
+                      <span>
+                        Item: <strong className="text-brand-900">{currentPhotoItem?.shoe_brand ? `${currentPhotoItem.shoe_brand} ${currentPhotoItem.shoe_type}` : order.before_after.caption}</strong> ({currentPhotoItem?.layanan || order.before_after.layanan_terkait})
+                      </span>
+                      {currentPhotoItem?.id && (
+                        <span className="ml-2 font-mono text-[10px] text-slate-wet bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                          ID Item: {currentPhotoItem.id}
+                        </span>
+                      )}
+                    </div>
                     <span className="inline-flex items-center gap-1 text-success font-medium">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Aktif di Galeri Publik</span>
+                      <span>Aktif di Galeri Publik ({currentPhotoSlots.length} Sudut)</span>
                     </span>
                   </div>
                 </div>

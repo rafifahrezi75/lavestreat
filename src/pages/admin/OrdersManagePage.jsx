@@ -47,9 +47,11 @@ export function OrdersManagePage() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.id.toLowerCase().includes(search.toLowerCase()) ||
-      order.pelanggan?.nama?.toLowerCase().includes(search.toLowerCase()) ||
-      order.pelanggan?.telepon?.includes(search);
+      (order.id && order.id.toLowerCase().includes(search.toLowerCase())) ||
+      (order.invoice_number && order.invoice_number.toLowerCase().includes(search.toLowerCase())) ||
+      (order.invoice && order.invoice.toLowerCase().includes(search.toLowerCase())) ||
+      (order.pelanggan?.nama && order.pelanggan.nama.toLowerCase().includes(search.toLowerCase())) ||
+      (order.pelanggan?.telepon && order.pelanggan.telepon.includes(search));
 
     if (!matchesSearch) return false;
 
@@ -151,8 +153,15 @@ export function OrdersManagePage() {
               ) : (
                 paginatedOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-brand-100/25 transition-colors">
-                    <td className="px-4 py-3 font-bold text-brand-900 whitespace-nowrap">
-                      {order.id}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="font-bold text-brand-900 text-xs sm:text-sm">
+                        {order.invoice_number || order.invoice || order.id}
+                      </div>
+                      {order.id && order.id !== order.invoice_number && (
+                        <div className="text-[10px] text-slate-wet font-mono truncate max-w-[130px]" title={order.id}>
+                          {order.id}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-brand-900 text-xs sm:text-sm">{order.pelanggan?.nama}</div>

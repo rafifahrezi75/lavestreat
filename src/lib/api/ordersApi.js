@@ -14,11 +14,11 @@ import { initialOrders } from './mockData';
 import { servicesApi } from './servicesApi';
 import { STATUS_TRANSITIONS } from '../constants';
 
-const STORAGE_KEY = 'lavestreat_orders_data_v11';
+const STORAGE_KEY = 'lavestreat_orders_data_v12';
 
 function getLocalOrders() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || data.includes('ord-1001') || !data.includes('INV-2609-1029')) {
+  if (!data || data.includes('ord-1001') || !data.includes('487712db')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialOrders));
     return initialOrders;
   }
@@ -64,7 +64,7 @@ export const ordersApi = {
     }
 
     const orders = getLocalOrders();
-    return orders.find(o => o.id === id || o.invoice === id || o.invoice_number === id || o.original_id === id) || null;
+    return orders.find(o => o.id === id || o.order_id === id || o.invoice === id || o.invoice_number === id || o.original_id === id) || null;
   },
 
   async createOrder(payload) {
@@ -135,7 +135,10 @@ export const ordersApi = {
     if (isFirebaseConfigured) {
       try {
         const createOrderFn = httpsCallable(functions, 'verifyCaptchaAndCreateOrder');
-        const result = await createOrderFn(payload);
+        const result = await Promise.race([
+          createOrderFn(payload),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
+        ]);
         return result.data;
       } catch {
         try {
@@ -185,7 +188,10 @@ export const ordersApi = {
     if (isFirebaseConfigured) {
       try {
         const updateFn = httpsCallable(functions, 'updateOrderStatus');
-        const result = await updateFn({ orderId, newStatus, catatan });
+        const result = await Promise.race([
+          updateFn({ orderId, newStatus, catatan }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
+        ]);
         return result.data;
       } catch {
         try {
