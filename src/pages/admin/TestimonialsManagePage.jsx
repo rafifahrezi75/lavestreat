@@ -4,13 +4,16 @@ import { Plus, Trash2, Pencil, Star } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
+import { Pagination } from '../../components/common/Pagination';
 import { useToast } from '../../context/ToastContext';
 import { testimonialsApi } from '../../lib/api';
 
 export function TestimonialsManagePage() {
   const { showToast } = useToast();
   const [testimonials, setTestimonials] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const pageSize = 10;
 
   const loadTestimonials = async () => {
     try {
@@ -38,6 +41,10 @@ export function TestimonialsManagePage() {
     }
   };
 
+  const totalPages = Math.ceil(testimonials.length / pageSize) || 1;
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedTestimonials = testimonials.slice((validCurrentPage - 1) * pageSize, validCurrentPage * pageSize);
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -53,7 +60,7 @@ export function TestimonialsManagePage() {
         </Link>
       </div>
 
-      <Card className="p-0 overflow-hidden w-full border-brand-200">
+      <Card noPadding rounded={false} className="w-full border-brand-200 overflow-hidden shadow-subtle">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
@@ -79,7 +86,7 @@ export function TestimonialsManagePage() {
                   </td>
                 </tr>
               ) : (
-                testimonials.map((testi) => (
+                paginatedTestimonials.map((testi) => (
                   <tr key={testi.id} className="hover:bg-brand-100/25 transition-colors">
                     <td className="px-4 py-3 font-bold text-brand-900 whitespace-nowrap">
                       {testi.nama_pelanggan}
@@ -133,6 +140,13 @@ export function TestimonialsManagePage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={validCurrentPage}
+          totalItems={testimonials.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </Card>
     </div>
   );

@@ -4,13 +4,16 @@ import { Plus, Pencil, Layers } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
+import { Pagination } from '../../components/common/Pagination';
 import { useToast } from '../../context/ToastContext';
 import { servicesApi } from '../../lib/api';
 
 export function ServicesManagePage() {
   const { showToast } = useToast();
   const [services, setServices] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const pageSize = 10;
 
   const loadServices = async () => {
     try {
@@ -46,6 +49,10 @@ export function ServicesManagePage() {
     }).format(val || 0);
   };
 
+  const totalPages = Math.ceil(services.length / pageSize) || 1;
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedServices = services.slice((validCurrentPage - 1) * pageSize, validCurrentPage * pageSize);
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -61,7 +68,7 @@ export function ServicesManagePage() {
         </Link>
       </div>
 
-      <Card className="p-0 overflow-hidden w-full border-brand-200">
+      <Card noPadding rounded={false} className="w-full border-brand-200 overflow-hidden shadow-subtle">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
@@ -89,7 +96,7 @@ export function ServicesManagePage() {
                   </td>
                 </tr>
               ) : (
-                services.map((service) => (
+                paginatedServices.map((service) => (
                   <tr key={service.id} className="hover:bg-brand-100/25 transition-colors">
                     <td className="px-4 py-3">
                       {service.foto ? (
@@ -151,6 +158,13 @@ export function ServicesManagePage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={validCurrentPage}
+          totalItems={services.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </Card>
     </div>
   );

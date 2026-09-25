@@ -264,7 +264,7 @@ export function DashboardPage() {
           </Link>
         </div>
 
-        <Card className="p-0 overflow-hidden w-full border-brand-200">
+        <Card noPadding rounded={false} className="w-full border-brand-200 overflow-hidden shadow-subtle">
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
