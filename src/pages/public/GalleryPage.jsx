@@ -280,24 +280,30 @@ export function GalleryPage() {
             />
           </>
         )}
-
-        <div className="mt-16 bg-brand-900 rounded-2xl p-8 sm:p-12 text-center text-white flex flex-col items-center shadow-subtle">
-          <h2 className="font-display font-bold text-2xl sm:text-3xl max-w-xl mb-3 tracking-tight">
-            Punya Sepatu dengan Kondisi Serupa?
-          </h2>
-          <p className="text-sm sm:text-base text-slate-300 max-w-lg mb-6 leading-relaxed">
-            Kurir Lave Streat siap mengambil sepatu kotor Anda langsung di rumah area Sidoarjo dan Surabaya.
-          </p>
-          <Button
-            onClick={() => navigate('/pesan')}
-            size="lg"
-            className="flex items-center gap-2"
-          >
-            <Truck className="w-4 h-4" />
-            <span>Pesan Penjemputan Sekarang</span>
-          </Button>
-        </div>
       </div>
+
+      <section className="py-14 sm:py-16 bg-brand-900 text-snow-foam w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-xl text-left">
+            <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight leading-snug">
+              Sepatu kotor atau warna mulai pudar?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
+              Jadwalkan penjemputan sekarang. Tim kurir kami siap menjemput dan merawat sepatu Anda di area Sidoarjo dan Surabaya.
+            </p>
+          </div>
+          <div className="shrink-0 flex items-center gap-3">
+            <Button
+              onClick={() => navigate('/pesan')}
+              size="lg"
+              className="shadow-md flex items-center gap-2"
+            >
+              <Truck className="w-4 h-4" />
+              <span>Pesan Penjemputan Sekarang</span>
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {activeItem && (
         <div
