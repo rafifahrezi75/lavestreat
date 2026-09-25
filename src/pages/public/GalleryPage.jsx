@@ -52,6 +52,12 @@ function GalleryCard({ item, onOpen }) {
             <Expand className="w-5 h-5 stroke-[2.5]" />
           </div>
         </div>
+
+        {item.slots && item.slots.length > 1 && (
+          <span className="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-brand-900/80 backdrop-blur-xs text-white text-[10px] font-semibold border border-white/20 shadow-xs">
+            {item.slots.length} Sudut Foto
+          </span>
+        )}
       </div>
 
       <div className="px-4 py-3.5 flex items-start justify-between gap-3">
@@ -158,8 +164,14 @@ export function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const gridRef = useRef(null);
+
+  const handleOpenItem = (item) => {
+    setSelectedSlotIndex(0);
+    setActiveItem(item);
+  };
 
   useEffect(() => {
     async function loadGallery() {
@@ -271,7 +283,7 @@ export function GalleryPage() {
                 <GalleryCard
                   key={item.id}
                   item={item}
-                  onOpen={setActiveItem}
+                  onOpen={handleOpenItem}
                 />
               ))}
             </div>
@@ -337,10 +349,29 @@ export function GalleryPage() {
             </div>
 
             <div className="p-3 sm:p-5 md:p-6 bg-slate-50/60 flex-1 min-h-0 flex flex-col justify-center">
+              {activeItem.slots && activeItem.slots.length > 1 && (
+                <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1">
+                  <span className="text-[11px] font-semibold text-slate-wet shrink-0 mr-1">Sudut Foto:</span>
+                  {activeItem.slots.map((s, idx) => (
+                    <button
+                      key={s.slot || idx}
+                      type="button"
+                      onClick={() => setSelectedSlotIndex(idx)}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                        selectedSlotIndex === idx
+                          ? 'bg-brand-600 text-white shadow-xs'
+                          : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                      }`}
+                    >
+                      {s.label || `Sudut ${s.slot || (idx + 1)}`}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="w-full rounded-xl overflow-hidden border border-brand-200/80 shadow-subtle bg-slate-100">
                 <BeforeAfterCompare
-                  beforeUrl={activeItem.before_url}
-                  afterUrl={activeItem.after_url}
+                  beforeUrl={activeItem.slots?.[selectedSlotIndex]?.before_url || activeItem.before_url}
+                  afterUrl={activeItem.slots?.[selectedSlotIndex]?.after_url || activeItem.after_url}
                   className="border-0 rounded-none shadow-none"
                   imageClassName="aspect-[4/3] sm:aspect-[16/10] max-h-[52vh] min-h-[220px]"
                   objectPosition={activeItem.object_position || (activeItem.pos_y != null ? `50% ${activeItem.pos_y}%` : 'center')}

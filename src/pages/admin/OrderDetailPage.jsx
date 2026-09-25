@@ -40,6 +40,8 @@ export function OrderDetailPage() {
 
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [savingGallery, setSavingGallery] = useState(false);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [selectedOrderSlot, setSelectedOrderSlot] = useState(0);
   const [galleryData, setGalleryData] = useState({
     before_url: '',
     after_url: '',
@@ -189,6 +191,25 @@ export function OrderDetailPage() {
     lng: settings?.outlet_lng || 112.7183,
     address: settings?.outlet_address || 'Outlet Lave Streat'
   };
+
+  const itemsWithPhotos = order?.items?.filter(it => it.photos && it.photos.length > 0) || [];
+  const currentPhotoItem = itemsWithPhotos[selectedItemIndex] || (order?.before_after ? {
+    layanan: order.before_after.layanan_terkait,
+    shoe_brand: '',
+    shoe_type: '',
+    photos: order.before_after.slots || [{
+      slot: 1,
+      label: 'Utama',
+      before_url: order.before_after.before_url,
+      after_url: order.before_after.after_url
+    }]
+  } : null);
+
+  const currentPhotoSlots = currentPhotoItem?.photos || [];
+  const currentSlotObj = currentPhotoSlots[selectedOrderSlot] || currentPhotoSlots[0] || (order?.before_after ? {
+    before_url: order.before_after.before_url,
+    after_url: order.before_after.after_url
+  } : null);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -346,17 +367,57 @@ export function OrderDetailPage() {
 
               {order.before_after && !showGalleryForm ? (
                 <div className="flex flex-col gap-3">
+                  {itemsWithPhotos.length > 1 && (
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                      <span className="text-xs font-semibold text-slate-wet shrink-0 mr-1">Pilih Item:</span>
+                      {itemsWithPhotos.map((it, idx) => (
+                        <button
+                          key={it.id || idx}
+                          type="button"
+                          onClick={() => { setSelectedItemIndex(idx); setSelectedOrderSlot(0); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                            selectedItemIndex === idx
+                              ? 'bg-brand-900 text-white shadow-xs'
+                              : 'bg-brand-100/70 text-brand-900 hover:bg-brand-200 border border-brand-200'
+                          }`}
+                        >
+                          {it.shoe_brand} {it.shoe_type} ({it.layanan})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {currentPhotoSlots.length > 1 && (
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                      <span className="text-[11px] font-semibold text-slate-wet shrink-0 mr-1">Sudut Foto:</span>
+                      {currentPhotoSlots.map((s, idx) => (
+                        <button
+                          key={s.slot || idx}
+                          type="button"
+                          onClick={() => setSelectedOrderSlot(idx)}
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                            selectedOrderSlot === idx
+                              ? 'bg-brand-600 text-white shadow-xs'
+                              : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                          }`}
+                        >
+                          {s.label || `Sudut ${s.slot || (idx + 1)}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="rounded-xl overflow-hidden border border-brand-200 bg-slate-900">
                     <BeforeAfterCompare
-                      beforeUrl={order.before_after.before_url}
-                      afterUrl={order.before_after.after_url}
+                      beforeUrl={currentSlotObj?.before_url || order.before_after.before_url}
+                      afterUrl={currentSlotObj?.after_url || order.before_after.after_url}
                       className="border-0 rounded-none shadow-none"
                       objectPosition={order.before_after.object_position || (order.before_after.pos_y != null ? `50% ${order.before_after.pos_y}%` : 'center')}
                     />
                   </div>
                   <div className="flex items-center justify-between flex-wrap gap-2 pt-1 text-xs text-slate-wet">
                     <span>
-                      Judul: <strong className="text-brand-900">{order.before_after.caption}</strong> ({order.before_after.layanan_terkait})
+                      Item: <strong className="text-brand-900">{currentPhotoItem?.shoe_brand ? `${currentPhotoItem.shoe_brand} ${currentPhotoItem.shoe_type}` : order.before_after.caption}</strong> ({currentPhotoItem?.layanan || order.before_after.layanan_terkait})
                     </span>
                     <span className="inline-flex items-center gap-1 text-success font-medium">
                       <CheckCircle2 className="w-3.5 h-3.5" />

@@ -14,11 +14,11 @@ import { initialOrders } from './mockData';
 import { servicesApi } from './servicesApi';
 import { STATUS_TRANSITIONS } from '../constants';
 
-const STORAGE_KEY = 'lavestreat_orders_data';
+const STORAGE_KEY = 'lavestreat_orders_data_v2';
 
 function getLocalOrders() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
+  if (!data || data.includes('ord-1001')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialOrders));
     return initialOrders;
   }
@@ -50,11 +50,11 @@ export const ordersApi = {
   async getOrderById(id) {
     if (isFirebaseConfigured) {
       const snap = await getDoc(doc(db, 'orders', id));
-      return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+      if (snap.exists()) return { id: snap.id, ...snap.data() };
     }
 
     const orders = getLocalOrders();
-    return orders.find(o => o.id === id) || null;
+    return orders.find(o => o.id === id || o.invoice === id || o.invoice_number === id || o.original_id === id) || null;
   },
 
   async createOrder(payload) {
