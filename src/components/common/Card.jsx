@@ -6,6 +6,8 @@ export function Card({
   className = '',
   variant = 'white',
   hoverable = false,
+  noPadding = false,
+  rounded = true,
   ...props
 }) {
   const variantStyles = {
@@ -19,7 +21,14 @@ export function Card({
 
   return (
     <div
-      className={cn('rounded-card border p-5 sm:p-6 shadow-subtle', variantStyles[variant], hoverStyles, className)}
+      className={cn(
+        'border shadow-subtle',
+        rounded ? 'rounded-card' : 'rounded-none',
+        noPadding ? 'p-0' : 'p-5 sm:p-6',
+        variantStyles[variant],
+        hoverStyles,
+        className
+      )}
       {...props}
     >
       {children}

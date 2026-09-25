@@ -207,6 +207,25 @@ export const ordersApi = {
 
     saveLocalOrders(orders);
     return orders[index];
+  },
+
+  async updateOrder(orderId, patch) {
+    const nowIso = new Date().toISOString();
+    const cleanPatch = { ...patch, updated_at: nowIso };
+
+    if (isFirebaseConfigured) {
+      await updateDoc(doc(db, 'orders', orderId), cleanPatch);
+      return { id: orderId, ...cleanPatch };
+    }
+
+    const orders = getLocalOrders();
+    const index = orders.findIndex(o => o.id === orderId);
+    if (index !== -1) {
+      orders[index] = { ...orders[index], ...cleanPatch };
+      saveLocalOrders(orders);
+      return orders[index];
+    }
+    return { id: orderId, ...cleanPatch };
   }
 };
 

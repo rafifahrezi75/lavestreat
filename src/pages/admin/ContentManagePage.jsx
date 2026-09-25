@@ -83,7 +83,7 @@ export function ContentManagePage() {
   return (
     <div className="flex flex-col gap-4 w-full">
       <p className="text-xs text-slate-wet">
-        Ubah teks hero, banner promo, dan halaman tentang kami tanpa perlu deploy ulang kode aplikasi.
+        Ubah teks hero dan halaman tentang kami tanpa perlu deploy ulang kode aplikasi.
       </p>
 
       <div className="flex items-center gap-2 border-b border-brand-200 w-full">
@@ -96,7 +96,7 @@ export function ContentManagePage() {
               : 'border-transparent text-slate-wet hover:text-brand-900'
           }`}
         >
-          Beranda & Banner Promosi
+          Konten Beranda
         </button>
         <button
           type="button"
@@ -138,64 +138,6 @@ export function ContentManagePage() {
                 onChange={(e) => setHomeContent({ ...homeContent, hero_subtitle: e.target.value })}
                 placeholder="Penjelasan ringkas layanan penjemputan..."
                 required
-                className="w-full rounded-lg border border-brand-200 bg-white p-3.5 text-sm text-ink-deep placeholder:text-slate-wet/60 focus:border-brand-600 focus:outline-hidden"
-              />
-            </div>
-          </Card>
-
-          <Card className="flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-brand-200 pb-2">
-              <h3 className="font-display font-bold text-lg text-brand-900">
-                Banner Promosi Aktif
-              </h3>
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={homeContent.promo?.aktif || false}
-                  onChange={(e) => setHomeContent({
-                    ...homeContent,
-                    promo: { ...homeContent.promo, aktif: e.target.checked }
-                  })}
-                  className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-brand-200"
-                />
-                <span className="text-sm font-semibold text-brand-900">Tampilkan Promo</span>
-              </label>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Judul Promo"
-                value={homeContent.promo?.judul || ''}
-                onChange={(e) => setHomeContent({
-                  ...homeContent,
-                  promo: { ...homeContent.promo, judul: e.target.value }
-                })}
-                placeholder="Contoh: Promo Cuci Berdua Lebih Hemat"
-              />
-
-              <Input
-                label="Periode Tampil"
-                value={homeContent.promo?.periode || ''}
-                onChange={(e) => setHomeContent({
-                  ...homeContent,
-                  promo: { ...homeContent.promo, periode: e.target.value }
-                })}
-                placeholder="Contoh: Berlaku hingga akhir bulan ini"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-brand-900">
-                Deskripsi Promo
-              </label>
-              <textarea
-                rows={2}
-                value={homeContent.promo?.deskripsi || ''}
-                onChange={(e) => setHomeContent({
-                  ...homeContent,
-                  promo: { ...homeContent.promo, deskripsi: e.target.value }
-                })}
-                placeholder="Keterangan syarat dan ketentuan promo..."
                 className="w-full rounded-lg border border-brand-200 bg-white p-3.5 text-sm text-ink-deep placeholder:text-slate-wet/60 focus:border-brand-600 focus:outline-hidden"
               />
             </div>

@@ -54,7 +54,7 @@ export function AdminLayout() {
         />
 
         <main className="grow p-4 sm:p-5 lg:p-6 overflow-x-auto w-full">
-          <div className="w-full max-w-7xl mx-auto">
+          <div className="w-full">
             <Outlet />
           </div>
         </main>

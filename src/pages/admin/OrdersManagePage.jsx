@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
+import { Pagination } from '../../components/common/Pagination';
 import { ordersApi } from '../../lib/api';
 
 export function OrdersManagePage() {
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const pageSize = 10;
 
   useEffect(() => {
     async function loadOrders() {
@@ -31,6 +34,16 @@ export function OrdersManagePage() {
     { id: 'Selesai', label: 'Selesai' },
     { id: 'CANCELLED', label: 'Batal/Tolak' }
   ];
+
+  const handleTabChange = (tabId) => {
+    setStatusFilter(tabId);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -57,6 +70,10 @@ export function OrdersManagePage() {
     return true;
   });
 
+  const totalPages = Math.ceil(filteredOrders.length / pageSize) || 1;
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedOrders = filteredOrders.slice((validCurrentPage - 1) * pageSize, validCurrentPage * pageSize);
+
   const formatPrice = (val) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -74,14 +91,13 @@ export function OrdersManagePage() {
 
   return (
     <div className="flex flex-col gap-4 w-full">
-
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 w-full">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setStatusFilter(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${
                 statusFilter === tab.id
                   ? 'bg-brand-600 text-white shadow-xs'
@@ -97,7 +113,7 @@ export function OrdersManagePage() {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Cari no. tiket, nama, telepon..."
             className="w-full pl-9 pr-3 py-1.5 bg-white rounded-md border border-brand-200 text-xs text-ink-deep placeholder:text-slate-wet/60 focus:outline-hidden focus:border-brand-600"
           />
@@ -105,7 +121,7 @@ export function OrdersManagePage() {
         </div>
       </div>
 
-      <Card className="p-0 overflow-hidden w-full border-brand-200">
+      <Card noPadding rounded={false} className="w-full border-brand-200 overflow-hidden shadow-subtle">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
@@ -133,7 +149,7 @@ export function OrdersManagePage() {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((order) => (
+                paginatedOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-brand-100/25 transition-colors">
                     <td className="px-4 py-3 font-bold text-brand-900 whitespace-nowrap">
                       {order.id}
@@ -170,6 +186,13 @@ export function OrdersManagePage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={validCurrentPage}
+          totalItems={filteredOrders.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </Card>
     </div>
   );

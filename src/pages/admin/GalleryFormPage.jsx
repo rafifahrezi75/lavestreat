@@ -93,7 +93,7 @@ export function GalleryFormPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full">
+    <div className="flex flex-col gap-4 w-full">
       <div className="flex items-center gap-2.5">
         <Link
           to="/admin/gallery"
@@ -105,7 +105,7 @@ export function GalleryFormPage() {
         </Link>
       </div>
 
-      <Card className="p-5 sm:p-6 border-brand-200">
+      <Card className="p-5 sm:p-6 border-brand-200 w-full">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {formError && (
             <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
