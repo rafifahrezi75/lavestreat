@@ -301,15 +301,15 @@ export function GalleryPage() {
 
       {activeItem && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 page-smooth-enter"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm overflow-y-auto p-3 sm:p-5 md:p-6 flex items-center justify-center page-smooth-enter"
           onClick={() => setActiveItem(null)}
         >
           <div
-            className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            className="relative max-w-xl sm:max-w-2xl lg:max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col my-auto border border-brand-200/80 max-h-[92vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-brand-200/60 bg-white shrink-0">
-              <div className="min-w-0 pr-4">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-brand-200/60 bg-white shrink-0">
+              <div className="min-w-0 pr-3">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600 block">
                   {activeItem.layanan_terkait || 'Treatment Sepatu'}
                 </span>
@@ -327,16 +327,19 @@ export function GalleryPage() {
               </button>
             </div>
 
-            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] min-h-[300px] bg-slate-900 overflow-hidden">
-              <BeforeAfterCompare
-                beforeUrl={activeItem.before_url}
-                afterUrl={activeItem.after_url}
-                className="border-0 rounded-none shadow-none h-full"
-              />
+            <div className="p-3 sm:p-5 md:p-6 bg-slate-50/60 flex-1 min-h-0 flex flex-col justify-center">
+              <div className="w-full rounded-xl overflow-hidden border border-brand-200/80 shadow-subtle bg-slate-100">
+                <BeforeAfterCompare
+                  beforeUrl={activeItem.before_url}
+                  afterUrl={activeItem.after_url}
+                  className="border-0 rounded-none shadow-none"
+                  imageClassName="aspect-[4/3] sm:aspect-[16/10] max-h-[52vh] min-h-[220px]"
+                />
+              </div>
             </div>
 
-            <div className="px-5 sm:px-6 py-4 bg-slate-50 border-t border-brand-200/60 flex items-center justify-between flex-wrap gap-3 shrink-0">
-              <p className="text-xs text-slate-wet">
+            <div className="px-4 sm:px-6 py-3 sm:py-3.5 bg-white border-t border-brand-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+              <p className="text-xs text-slate-wet text-center sm:text-left">
                 Geser slider tengah untuk membandingkan detail hasil restorasi.
               </p>
               <Button
@@ -345,7 +348,7 @@ export function GalleryPage() {
                   navigate('/pesan');
                 }}
                 size="sm"
-                className="flex items-center gap-1.5"
+                className="flex items-center justify-center gap-1.5 w-full sm:w-auto shrink-0"
               >
                 <Truck className="w-3.5 h-3.5" />
                 <span>Pesan Treatment Ini</span>
