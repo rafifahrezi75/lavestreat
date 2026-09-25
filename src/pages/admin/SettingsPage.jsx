@@ -13,11 +13,17 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [showWorkerMap, setShowWorkerMap] = useState(false);
+  const [detectingGps, setDetectingGps] = useState(false);
 
   const [settings, setSettings] = useState({
     outlet_lat: -7.4478,
     outlet_lng: 112.7183,
     outlet_address: '',
+    worker_lat: -7.4505,
+    worker_lng: 112.7150,
+    worker_address: '',
+    default_route_origin: 'outlet',
     contact_email: '',
     contact_phone: '',
     instagram: '',
@@ -28,7 +34,7 @@ export function SettingsPage() {
     async function loadSettings() {
       try {
         const s = await settingsApi.getSettings();
-        if (s) setSettings(s);
+        if (s) setSettings(prev => ({ ...prev, ...s }));
       } catch {
         showToast('Gagal memuat pengaturan', 'danger');
       } finally {
@@ -49,6 +55,39 @@ export function SettingsPage() {
       outlet_lng: loc.lng,
       outlet_address: loc.teks
     }));
+  };
+
+  const handleWorkerLocationChange = (loc) => {
+    setSettings((prev) => ({
+      ...prev,
+      worker_lat: loc.lat,
+      worker_lng: loc.lng,
+      worker_address: loc.teks
+    }));
+  };
+
+  const handleDetectWorkerGps = () => {
+    if (!navigator.geolocation) {
+      showToast('Browser tidak mendukung deteksi lokasi GPS.', 'danger');
+      return;
+    }
+    setDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setSettings((prev) => ({
+          ...prev,
+          worker_lat: Number(pos.coords.latitude.toFixed(6)),
+          worker_lng: Number(pos.coords.longitude.toFixed(6))
+        }));
+        setDetectingGps(false);
+        showToast('Berhasil mendeteksi koordinat GPS worker saat ini.');
+      },
+      (err) => {
+        setDetectingGps(false);
+        showToast('Gagal mendeteksi lokasi GPS: ' + err.message, 'danger');
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const handleSave = async (e) => {
@@ -115,6 +154,13 @@ export function SettingsPage() {
       desc: 'Alamat outlet utama titik asal rute kurir jemput',
       value: settings.outlet_address,
       placeholder: 'Jl. Raya Ponti No. 18, Magersari, Sidoarjo'
+    },
+    {
+      key: 'worker_address',
+      label: 'Alamat Pos / Basecamp Worker',
+      desc: 'Alamat standby kurir/worker untuk penentuan rute jemput',
+      value: settings.worker_address,
+      placeholder: 'Jl. Kartini No. 15, Sidoarjo'
     }
   ];
 
@@ -205,17 +251,37 @@ export function SettingsPage() {
                   ))}
                   <tr className="hover:bg-brand-100/20 transition-colors">
                     <td className="px-4 py-3 font-semibold text-brand-900 whitespace-nowrap align-top">
-                      Titik Koordinat GPS
+                      Default Titik Asal Rute
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-wet align-top">
-                      Latitude & Longitude outlet untuk titik awal kalkulasi rute OSRM
+                      Menentukan titik awal saat membuka kalkulasi rute jalan tercepat ke pelanggan
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <select
+                        value={settings.default_route_origin || 'outlet'}
+                        onChange={(e) => handleFieldChange('default_route_origin', e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600 cursor-pointer"
+                      >
+                        <option value="outlet">Dari Alamat Outlet Toko Utama</option>
+                        <option value="worker">Dari Alamat Pos / Basecamp Worker</option>
+                        <option value="gps">Otomatis Deteksi GPS Lokasi Worker Saat Ini</option>
+                      </select>
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-brand-100/20 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-brand-900 whitespace-nowrap align-top">
+                      Titik GPS Outlet Toko
+                    </td>
+                    <td className="px-4 py-3 text-xs text-slate-wet align-top">
+                      Latitude & Longitude outlet utama untuk rute OSRM
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
                           step="any"
-                          value={settings.outlet_lat || ''}
+                          value={settings.outlet_lat ?? ''}
                           onChange={(e) => handleFieldChange('outlet_lat', parseFloat(e.target.value))}
                           placeholder="Lat (-7.4478)"
                           className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
@@ -223,7 +289,7 @@ export function SettingsPage() {
                         <input
                           type="number"
                           step="any"
-                          value={settings.outlet_lng || ''}
+                          value={settings.outlet_lng ?? ''}
                           onChange={(e) => handleFieldChange('outlet_lng', parseFloat(e.target.value))}
                           placeholder="Lng (112.7183)"
                           className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
@@ -236,7 +302,56 @@ export function SettingsPage() {
                           className="shrink-0 flex items-center gap-1"
                         >
                           <MapPin className="w-3.5 h-3.5" />
-                          <span>{showMap ? 'Tutup Peta' : 'Peta'}</span>
+                          <span>{showMap ? 'Tutup Peta' : 'Peta Outlet'}</span>
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-brand-100/20 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-brand-900 whitespace-nowrap align-top">
+                      Titik GPS Worker / Kurir
+                    </td>
+                    <td className="px-4 py-3 text-xs text-slate-wet align-top">
+                      Latitude & Longitude basecamp worker standby
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <input
+                          type="number"
+                          step="any"
+                          value={settings.worker_lat ?? ''}
+                          onChange={(e) => handleFieldChange('worker_lat', parseFloat(e.target.value))}
+                          placeholder="Lat (-7.4505)"
+                          className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
+                        />
+                        <input
+                          type="number"
+                          step="any"
+                          value={settings.worker_lng ?? ''}
+                          onChange={(e) => handleFieldChange('worker_lng', parseFloat(e.target.value))}
+                          placeholder="Lng (112.7150)"
+                          className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDetectWorkerGps}
+                          disabled={detectingGps}
+                          className="shrink-0 text-xs font-semibold"
+                        >
+                          <span>{detectingGps ? 'Mendeteksi...' : 'GPS Saya'}</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setShowWorkerMap(!showWorkerMap)}
+                          className="shrink-0 flex items-center gap-1"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>{showWorkerMap ? 'Tutup Peta' : 'Peta Worker'}</span>
                         </Button>
                       </div>
                     </td>
@@ -263,6 +378,28 @@ export function SettingsPage() {
                   teks: settings.outlet_address
                 }}
                 onChange={handleLocationChange}
+                height="320px"
+              />
+            </Card>
+          )}
+
+          {showWorkerMap && (
+            <Card className="p-4 border-brand-200 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-brand-900">
+                  Pilih Titik Lokasi Worker / Kurir di Peta Leaflet
+                </span>
+                <span className="text-xs text-slate-wet">
+                  Klik pada peta untuk memindahkan pin posisi worker
+                </span>
+              </div>
+              <LocationPicker
+                value={{
+                  lat: settings.worker_lat,
+                  lng: settings.worker_lng,
+                  teks: settings.worker_address
+                }}
+                onChange={handleWorkerLocationChange}
                 height="320px"
               />
             </Card>

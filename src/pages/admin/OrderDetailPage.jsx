@@ -42,6 +42,9 @@ export function OrderDetailPage() {
   const [savingGallery, setSavingGallery] = useState(false);
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [selectedOrderSlot, setSelectedOrderSlot] = useState(0);
+  const [routeOriginType, setRouteOriginType] = useState('outlet');
+  const [gpsLocation, setGpsLocation] = useState(null);
+  const [detectingGps, setDetectingGps] = useState(false);
   const [galleryData, setGalleryData] = useState({
     before_url: '',
     after_url: '',
@@ -58,6 +61,9 @@ export function OrderDetailPage() {
         ]);
         setOrder(ord);
         setSettings(sett);
+        if (sett?.default_route_origin) {
+          setRouteOriginType(sett.default_route_origin);
+        }
 
         const transitions = STATUS_TRANSITIONS[ord?.status] || [];
         if (transitions.length > 0) {
@@ -186,10 +192,48 @@ export function OrderDetailPage() {
   }
 
   const allowedTransitions = STATUS_TRANSITIONS[order.status] || [];
-  const originLocation = {
-    lat: settings?.outlet_lat || -7.4478,
-    lng: settings?.outlet_lng || 112.7183,
-    address: settings?.outlet_address || 'Outlet Lave Streat'
+
+  const outletOrigin = {
+    lat: settings?.outlet_lat ?? -7.4478,
+    lng: settings?.outlet_lng ?? 112.7183,
+    address: settings?.outlet_address || 'Outlet Toko Lave Streat'
+  };
+
+  const workerBasecampOrigin = {
+    lat: settings?.worker_lat ?? -7.4505,
+    lng: settings?.worker_lng ?? 112.7150,
+    address: settings?.worker_address || 'Pos / Basecamp Worker Kurir'
+  };
+
+  const activeOrigin = routeOriginType === 'gps' && gpsLocation
+    ? gpsLocation
+    : routeOriginType === 'worker'
+    ? workerBasecampOrigin
+    : outletOrigin;
+
+  const handleSelectGpsOrigin = () => {
+    if (!navigator.geolocation) {
+      showToast('Browser tidak mendukung deteksi lokasi GPS.', 'danger');
+      return;
+    }
+    setDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsLocation({
+          lat: Number(pos.coords.latitude.toFixed(6)),
+          lng: Number(pos.coords.longitude.toFixed(6)),
+          address: 'Lokasi GPS Perangkat Worker'
+        });
+        setRouteOriginType('gps');
+        setDetectingGps(false);
+        showToast('Berhasil mengarahkan rute dari posisi GPS worker saat ini.');
+      },
+      (err) => {
+        setDetectingGps(false);
+        showToast('Gagal mendeteksi lokasi GPS: ' + err.message, 'danger');
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const itemsWithPhotos = order?.items?.filter(it => it.photos && it.photos.length > 0) || [];
@@ -519,12 +563,59 @@ export function OrderDetailPage() {
 
           <div className="lg:col-span-5 flex flex-col gap-6">
             <Card className="flex flex-col gap-4 border-brand-200/80">
-              <h2 className="font-display font-bold text-base sm:text-lg text-brand-900 border-b border-brand-200 pb-2">
-                Peta Rute dari Outlet ke Pelanggan
-              </h2>
+              <div className="flex flex-col gap-2 border-b border-brand-200 pb-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h2 className="font-display font-bold text-base sm:text-lg text-brand-900">
+                    Peta Rute ke Pelanggan
+                  </h2>
+                  <span className="text-xs text-slate-wet">
+                    Tujuan: <strong>{order.pelanggan?.nama}</strong>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto pt-1">
+                  <span className="text-xs font-semibold text-slate-wet shrink-0 mr-1">Titik Awal:</span>
+                  <button
+                    type="button"
+                    onClick={() => setRouteOriginType('outlet')}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      routeOriginType === 'outlet'
+                        ? 'bg-brand-900 text-white shadow-xs'
+                        : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                    }`}
+                  >
+                    Outlet Toko
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRouteOriginType('worker')}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      routeOriginType === 'worker'
+                        ? 'bg-emerald-700 text-white shadow-xs'
+                        : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                    }`}
+                  >
+                    Pos Worker
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSelectGpsOrigin}
+                    disabled={detectingGps}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      routeOriginType === 'gps'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                    }`}
+                  >
+                    {detectingGps ? 'Mendeteksi...' : 'GPS Worker'}
+                  </button>
+                </div>
+              </div>
 
               <RouteMap
-                origin={originLocation}
+                origin={activeOrigin}
+                originType={routeOriginType}
+                originLabel={activeOrigin.address}
                 destination={order.alamat_jemput}
                 height="300px"
               />

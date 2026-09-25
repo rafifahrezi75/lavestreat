@@ -15,6 +15,8 @@ const createCustomIcon = (color = '#0A3D66', label = 'O') => {
 
 export function RouteMap({
   origin = { lat: -7.4478, lng: 112.7183, address: 'Outlet Lave Streat' },
+  originLabel = 'Outlet Lave Streat',
+  originType = 'outlet',
   destination,
   height = '360px'
 }) {
@@ -53,11 +55,16 @@ export function RouteMap({
       }
     });
 
-    const originMarker = L.marker([origin.lat, origin.lng], {
-      icon: createCustomIcon('#0A3D66', 'O')
-    }).addTo(map).bindPopup(`<b>Outlet Lave Streat</b><br/>${origin.address || ''}`);
+    const isWorker = originType === 'worker' || originType === 'gps';
+    const originColor = isWorker ? '#1E9E6B' : '#0A3D66';
+    const originBadge = isWorker ? 'W' : 'O';
+    const popupTitle = isWorker ? 'Titik Awal (Worker / Kurir)' : 'Titik Awal (Outlet Toko)';
 
-    const destMarker = L.marker([destination.lat, destination.lng], {
+    L.marker([origin.lat, origin.lng], {
+      icon: createCustomIcon(originColor, originBadge)
+    }).addTo(map).bindPopup(`<b>${popupTitle}</b><br/>${origin.address || originLabel}`);
+
+    L.marker([destination.lat, destination.lng], {
       icon: createCustomIcon('#2F6FED', 'T')
     }).addTo(map).bindPopup(`<b>Tujuan Pelanggan</b><br/>${destination.teks || ''}`);
 
@@ -120,7 +127,7 @@ export function RouteMap({
         mapInstanceRef.current = null;
       }
     };
-  }, [origin, destination]);
+  }, [origin, destination, originType, originLabel]);
 
   if (!destination || !destination.lat || !destination.lng) {
     return (
@@ -134,23 +141,40 @@ export function RouteMap({
     );
   }
 
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}&travelmode=driving`;
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-100 rounded-card border border-brand-200 text-xs sm:text-sm">
-        <div className="flex items-center gap-2 font-medium text-brand-900">
-          <Path size={18} className="text-brand-600" />
-          <span>Jarak Rute: <strong>{routeInfo.distanceKm ? `${routeInfo.distanceKm} km` : 'Menghitung...'}</strong></span>
+      <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-100/60 rounded-xl border border-brand-200 text-xs sm:text-sm">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-1.5 font-medium text-brand-900">
+            <Path size={16} className="text-brand-600" />
+            <span>Jarak: <strong>{routeInfo.distanceKm ? `${routeInfo.distanceKm} km` : 'Menghitung...'}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5 font-medium text-brand-900">
+            <Clock size={16} className="text-brand-600" />
+            <span>Waktu: <strong>{routeInfo.durationMin ? `±${routeInfo.durationMin} menit` : 'Menghitung...'}</strong></span>
+          </div>
+          <span className="px-2 py-0.5 rounded-full bg-brand-600/10 text-brand-600 text-[10px] font-bold">
+            Rute Tercepat (OSRM Driving)
+          </span>
         </div>
-        <div className="flex items-center gap-2 font-medium text-brand-900">
-          <Clock size={18} className="text-brand-600" />
-          <span>Estimasi Waktu: <strong>{routeInfo.durationMin ? `±${routeInfo.durationMin} menit` : 'Menghitung...'}</strong></span>
-        </div>
+
+        <a
+          href={googleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-600 text-white text-xs font-semibold hover:bg-brand-900 transition-colors shadow-xs"
+        >
+          <MapPin size={13} />
+          <span>Navigasi Google Maps</span>
+        </a>
       </div>
 
       <div
         ref={mapContainerRef}
         style={{ height }}
-        className="w-full rounded-card border border-brand-200 overflow-hidden shadow-subtle"
+        className="w-full rounded-xl border border-brand-200 overflow-hidden shadow-subtle"
       />
     </div>
   );

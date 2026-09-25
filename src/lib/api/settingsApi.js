@@ -25,13 +25,17 @@ export const settingsApi = {
 
   async updateSettings(payload) {
     const cleanPayload = {
-      outlet_lat: Number(payload.outlet_lat) || initialSettings.outlet_lat,
-      outlet_lng: Number(payload.outlet_lng) || initialSettings.outlet_lng,
-      outlet_address: payload.outlet_address || initialSettings.outlet_address,
-      contact_email: payload.contact_email || initialSettings.contact_email,
-      contact_phone: payload.contact_phone || initialSettings.contact_phone,
-      instagram: payload.instagram || initialSettings.instagram,
-      jam_operasional: payload.jam_operasional || initialSettings.jam_operasional,
+      outlet_lat: Number(payload.outlet_lat) || -7.4478,
+      outlet_lng: Number(payload.outlet_lng) || 112.7183,
+      outlet_address: payload.outlet_address || 'Jl. Raya Ponti No. 18, Magersari, Sidoarjo',
+      worker_lat: Number(payload.worker_lat) || -7.4505,
+      worker_lng: Number(payload.worker_lng) || 112.7150,
+      worker_address: payload.worker_address || 'Pos / Basecamp Kurir Lave Streat, Sidoarjo',
+      default_route_origin: payload.default_route_origin || 'outlet',
+      contact_email: payload.contact_email || 'halo@lavestreat.com',
+      contact_phone: payload.contact_phone || '081234567890',
+      instagram: payload.instagram || 'lavestreat',
+      jam_operasional: payload.jam_operasional || 'Senin - Sabtu: 09.00 - 20.00 WIB',
       updated_at: new Date().toISOString()
     };
 
