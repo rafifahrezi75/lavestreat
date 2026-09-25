@@ -156,7 +156,7 @@ export function SettingsPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          <Card noPadding rounded={false} className="w-full overflow-hidden border-brand-200">
+          <Card noPadding rounded="sm" className="w-full overflow-hidden border-brand-200">
             <div className="p-4 bg-brand-100/40 border-b border-brand-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <span className="text-xs uppercase font-bold text-sky-800 tracking-wider">

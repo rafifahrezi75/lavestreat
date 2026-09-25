@@ -10,6 +10,7 @@ const ITEMS_PER_PAGE = 12;
 
 function GalleryCard({ item, onOpen }) {
   const [hovered, setHovered] = useState(false);
+  const objPos = item.object_position || (item.pos_y != null ? `50% ${item.pos_y}%` : 'center');
 
   return (
     <div
@@ -25,9 +26,10 @@ function GalleryCard({ item, onOpen }) {
               src={item.before_url}
               alt={`${item.caption} sebelum`}
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              style={{ objectPosition: objPos }}
             />
-            <div className="absolute bottom-0 inset-x-0 py-1 bg-black/50 backdrop-blur-xs text-center">
+            <div className="absolute bottom-0 inset-x-0 py-1 bg-black/50 backdrop-blur-xs text-center z-10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sebelum</span>
             </div>
           </div>
@@ -36,9 +38,10 @@ function GalleryCard({ item, onOpen }) {
               src={item.after_url}
               alt={`${item.caption} sesudah`}
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              style={{ objectPosition: objPos }}
             />
-            <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/70 backdrop-blur-xs text-center">
+            <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/70 backdrop-blur-xs text-center z-10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sesudah</span>
             </div>
           </div>
@@ -340,6 +343,7 @@ export function GalleryPage() {
                   afterUrl={activeItem.after_url}
                   className="border-0 rounded-none shadow-none"
                   imageClassName="aspect-[4/3] sm:aspect-[16/10] max-h-[52vh] min-h-[220px]"
+                  objectPosition={activeItem.object_position || (activeItem.pos_y != null ? `50% ${activeItem.pos_y}%` : 'center')}
                 />
               </div>
             </div>

@@ -127,7 +127,9 @@ export function OrderDetailPage() {
         tampil_di_home: true,
         order_id: order.id,
         invoice: order.invoice || order.id,
-        customer_name: order.pelanggan?.nama || 'Pelanggan Lave Streat'
+        customer_name: order.pelanggan?.nama || 'Pelanggan Lave Streat',
+        object_position: galleryData.object_position || '50% 50%',
+        pos_y: galleryData.pos_y ?? 50
       };
 
       await galleryApi.createGalleryItem(payload);
@@ -349,6 +351,7 @@ export function OrderDetailPage() {
                       beforeUrl={order.before_after.before_url}
                       afterUrl={order.before_after.after_url}
                       className="border-0 rounded-none shadow-none"
+                      objectPosition={order.before_after.object_position || (order.before_after.pos_y != null ? `50% ${order.before_after.pos_y}%` : 'center')}
                     />
                   </div>
                   <div className="flex items-center justify-between flex-wrap gap-2 pt-1 text-xs text-slate-wet">

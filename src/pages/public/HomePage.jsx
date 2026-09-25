@@ -231,6 +231,7 @@ export function HomePage() {
                     afterUrl={gallery[selectedGalleryIdx].after_url}
                     caption={gallery[selectedGalleryIdx].caption}
                     serviceTag={gallery[selectedGalleryIdx].layanan_terkait}
+                    objectPosition={gallery[selectedGalleryIdx].object_position || (gallery[selectedGalleryIdx].pos_y != null ? `50% ${gallery[selectedGalleryIdx].pos_y}%` : 'center')}
                     className="h-full"
                   />
                 )}

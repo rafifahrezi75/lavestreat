@@ -7,6 +7,7 @@ export function BeforeAfterCompare({
   serviceTag = '',
   className = '',
   imageClassName = 'aspect-[4/3] sm:aspect-[16/10] min-h-[260px]',
+  objectPosition = '50% 50%',
   header,
   footer,
   children
@@ -24,13 +25,14 @@ export function BeforeAfterCompare({
           src={afterUrl}
           alt="Foto sesudah perawatan"
           className="absolute inset-0 w-full h-full object-cover select-none"
+          style={{ objectPosition }}
         />
 
         <img
           src={beforeUrl}
           alt="Foto sebelum perawatan"
           className="absolute inset-0 w-full h-full object-cover select-none"
-          style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+          style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`, objectPosition }}
         />
 
         <div

@@ -26,6 +26,8 @@ export function GalleryFormPage() {
     layanan_terkait: '',
     invoice: '',
     customer_name: '',
+    pos_y: 50,
+    object_position: '50% 50%',
     tampil_di_home: true
   });
 
@@ -46,6 +48,8 @@ export function GalleryFormPage() {
               layanan_terkait: found.layanan_terkait || '',
               invoice: found.invoice || found.order_id || '',
               customer_name: found.customer_name || '',
+              pos_y: found.pos_y ?? 50,
+              object_position: found.object_position || `50% ${found.pos_y ?? 50}%`,
               tampil_di_home: found.tampil_di_home !== false
             });
           } else {
@@ -129,6 +133,112 @@ export function GalleryFormPage() {
               label="2. Foto Sesudah (After) *"
             />
           </div>
+
+          {(formData.before_url || formData.after_url) && (
+            <div className="p-4 bg-brand-light/40 border border-brand-200/80 rounded-xl flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <div>
+                  <h3 className="text-xs font-bold text-brand-900 uppercase tracking-wide">
+                    Atur Posisi Fokus Frame (Crop & Geser Tampilan)
+                  </h3>
+                  <p className="text-[11px] text-slate-wet">
+                    Geser posisi vertikal agar bagian sepatu yang penting (atas atau sol bawah) tampil pas di dalam frame kartu 4:3.
+                  </p>
+                </div>
+                <span className="text-xs font-semibold text-brand-600 px-2 py-0.5 bg-white border border-brand-200 rounded-md shrink-0">
+                  Posisi: {formData.pos_y}%
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, pos_y: 15, object_position: '50% 15%' }))}
+                  className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${formData.pos_y <= 25 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'}`}
+                >
+                  Fokus Atas (Sepatu Tinggi)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, pos_y: 50, object_position: '50% 50%' }))}
+                  className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${formData.pos_y > 25 && formData.pos_y < 75 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'}`}
+                >
+                  Fokus Tengah (Standar)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, pos_y: 85, object_position: '50% 85%' }))}
+                  className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${formData.pos_y >= 75 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'}`}
+                >
+                  Fokus Bawah (Sol / Midsole)
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-slate-wet shrink-0">Atas (0%)</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={formData.pos_y}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setFormData(prev => ({
+                      ...prev,
+                      pos_y: val,
+                      object_position: `50% ${val}%`
+                    }));
+                  }}
+                  className="w-full accent-brand-600 cursor-pointer"
+                />
+                <span className="text-xs font-medium text-slate-wet shrink-0">Bawah (100%)</span>
+              </div>
+
+              <div className="mt-1">
+                <span className="text-[11px] font-semibold text-slate-wet block mb-1.5">
+                  Live Preview Frame Kartu (Rasio 4:3):
+                </span>
+                <div className="w-full max-w-sm mx-auto aspect-[4/3] rounded-xl overflow-hidden border border-brand-200 bg-slate-100 shadow-xs relative">
+                  <div className="absolute inset-0 grid grid-cols-2">
+                    <div className="relative overflow-hidden border-r border-white">
+                      {formData.before_url ? (
+                        <img
+                          src={formData.before_url}
+                          alt="Preview Sebelum"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-150"
+                          style={{ objectPosition: `50% ${formData.pos_y}%` }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-wet">
+                          Belum ada foto
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 inset-x-0 py-0.5 bg-black/50 text-center text-[9px] text-white font-bold uppercase">
+                        Sebelum
+                      </div>
+                    </div>
+                    <div className="relative overflow-hidden">
+                      {formData.after_url ? (
+                        <img
+                          src={formData.after_url}
+                          alt="Preview Sesudah"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-150"
+                          style={{ objectPosition: `50% ${formData.pos_y}%` }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-wet">
+                          Belum ada foto
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 inset-x-0 py-0.5 bg-brand-600/70 text-center text-[9px] text-white font-bold uppercase">
+                        Sesudah
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input

@@ -93,6 +93,7 @@ export function GalleryManagePage() {
                   afterUrl={item.after_url}
                   caption={item.caption}
                   serviceTag={item.layanan_terkait}
+                  objectPosition={item.object_position || (item.pos_y != null ? `50% ${item.pos_y}%` : 'center')}
                   header={
                     <div className="flex items-center justify-between gap-2 text-xs border-b border-brand-200/60 pb-2 mb-0.5">
                       <div className="flex items-center gap-1.5 font-semibold text-brand-900">
@@ -150,7 +151,7 @@ export function GalleryManagePage() {
             })}
           </div>
 
-          <Card noPadding rounded={false} className="w-full border-brand-200 overflow-hidden shadow-subtle">
+          <Card noPadding rounded="sm" className="w-full border-brand-200 overflow-hidden shadow-subtle">
             <Pagination
               currentPage={validCurrentPage}
               totalItems={gallery.length}

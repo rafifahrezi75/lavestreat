@@ -61,6 +61,8 @@ export const galleryApi = {
       order_id: payload.order_id || null,
       invoice: payload.invoice || payload.order_id || null,
       customer_name: payload.customer_name || payload.pelanggan || null,
+      object_position: payload.object_position || '50% 50%',
+      pos_y: payload.pos_y ?? 50,
       tampil_di_home: payload.tampil_di_home !== false,
       created_at: new Date().toISOString()
     };
@@ -93,6 +95,8 @@ export const galleryApi = {
       order_id: payload.order_id || null,
       invoice: payload.invoice || payload.order_id || null,
       customer_name: payload.customer_name || payload.pelanggan || null,
+      object_position: payload.object_position || '50% 50%',
+      pos_y: payload.pos_y ?? 50,
       tampil_di_home: payload.tampil_di_home !== false
     };
 

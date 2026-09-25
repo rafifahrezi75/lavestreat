@@ -19,11 +19,18 @@ export function Card({
 
   const hoverStyles = hoverable ? 'transition-all duration-200 hover:-translate-y-1 hover:shadow-md' : '';
 
+  const getRoundedClass = () => {
+    if (rounded === false || rounded === 'none') return 'rounded-none';
+    if (rounded === 'sm' || rounded === 'small') return 'rounded-lg';
+    if (typeof rounded === 'string') return rounded;
+    return 'rounded-card';
+  };
+
   return (
     <div
       className={cn(
         'border shadow-subtle',
-        rounded ? 'rounded-card' : 'rounded-none',
+        getRoundedClass(),
         noPadding ? 'p-0' : 'p-5 sm:p-6',
         variantStyles[variant],
         hoverStyles,
