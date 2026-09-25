@@ -14,11 +14,11 @@ import { initialOrders } from './mockData';
 import { servicesApi } from './servicesApi';
 import { STATUS_TRANSITIONS } from '../constants';
 
-const STORAGE_KEY = 'lavestreat_orders_data_v2';
+const STORAGE_KEY = 'lavestreat_orders_data_v11';
 
 function getLocalOrders() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || data.includes('ord-1001')) {
+  if (!data || data.includes('ord-1001') || !data.includes('INV-2609-1029')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialOrders));
     return initialOrders;
   }

@@ -443,7 +443,7 @@ export const initialGallery = [
     "after_url": "https://res.cloudinary.com/dwlutsick/image/upload/v1788601210/moijglid3u80hrc5u3kt.jpg",
     "caption": "Restorasi Deep White pada Koi Putih",
     "layanan_terkait": "Deep White",
-    "tampil_di_home": false,
+    "tampil_di_home": true,
     "created_at": "2026-09-05T09:37:22.164791+00:00",
     "order_id": "INV-2609-1024",
     "invoice": "INV-2609-1024",
@@ -485,7 +485,7 @@ export const initialGallery = [
     "after_url": "https://res.cloudinary.com/dwlutsick/image/upload/v1788601288/yq2167aobnw68gldfvim.jpg",
     "caption": "Restorasi Deep White pada DNY Putih pink",
     "layanan_terkait": "Deep White",
-    "tampil_di_home": false,
+    "tampil_di_home": true,
     "created_at": "2026-09-05T09:37:22.164791+00:00",
     "order_id": "INV-2609-1024",
     "invoice": "INV-2609-1024",
@@ -527,7 +527,7 @@ export const initialGallery = [
     "after_url": "https://res.cloudinary.com/dwlutsick/image/upload/v1788601367/nbum7wkhiabal9wfqcwx.jpg",
     "caption": "Restorasi Deep Clean pada Bostanten Pink",
     "layanan_terkait": "Deep Clean",
-    "tampil_di_home": false,
+    "tampil_di_home": true,
     "created_at": "2026-09-05T09:37:22.164791+00:00",
     "order_id": "INV-2609-1024",
     "invoice": "INV-2609-1024",
@@ -569,7 +569,7 @@ export const initialGallery = [
     "after_url": "https://res.cloudinary.com/dwlutsick/image/upload/v1788601454/forzgv7fdh2mktzq3sws.jpg",
     "caption": "Restorasi Deep clean pada Sovela Biru",
     "layanan_terkait": "Deep clean",
-    "tampil_di_home": false,
+    "tampil_di_home": true,
     "created_at": "2026-09-05T09:37:22.164791+00:00",
     "order_id": "INV-2609-1024",
     "invoice": "INV-2609-1024",
@@ -1985,10 +1985,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Pahlawan No. 42, Sidokumpul, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.452,
+        "lng": 112.715
       }
     },
     "jadwal_diminta": "2026-09-21",
@@ -2137,10 +2137,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Ahmad Yani No. 128, Wonokromo, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.312,
+        "lng": 112.738
       }
     },
     "jadwal_diminta": "2026-09-18",
@@ -2251,10 +2251,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Perum Kahuripan Nirwana Blok AA-12, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.465,
+        "lng": 112.705
       }
     },
     "jadwal_diminta": "2026-09-18",
@@ -2365,10 +2365,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Rungkut Madya No. 15, Gunung Anyar, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.329,
+        "lng": 112.782
       }
     },
     "jadwal_diminta": "2026-09-18",
@@ -2479,10 +2479,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Mayjen Sungkono No. 89, Dukuh Pakis, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.291,
+        "lng": 112.723
       }
     },
     "jadwal_diminta": "2026-09-14",
@@ -2897,10 +2897,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Bengkel Ipin Motor, Area Sidoarjo",
+      "teks": "Bengkel Ipin Motor, Jl. Raya Candi No. 18, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.471,
+        "lng": 112.721
       }
     },
     "jadwal_diminta": "2026-09-05",
@@ -2986,10 +2986,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Perum Taman Pondok Jati Blok D-5, Geluran, Taman, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.368,
+        "lng": 112.709
       }
     },
     "jadwal_diminta": "2026-09-01",
@@ -3059,10 +3059,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Kutai No. 34, Wonokromo, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.294,
+        "lng": 112.735
       }
     },
     "jadwal_diminta": "2026-08-03",
@@ -3439,10 +3439,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Bengkel Ipin Motor, Area Sidoarjo",
+      "teks": "Bengkel Ipin Motor, Jl. Raya Candi No. 18, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.471,
+        "lng": 112.721
       }
     },
     "jadwal_diminta": "2026-07-27",
@@ -3553,10 +3553,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Dharmawangsa No. 22, Gubeng, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.275,
+        "lng": 112.754
       }
     },
     "jadwal_diminta": "2026-07-27",
@@ -3622,7 +3622,7 @@ export const initialOrders = [
     "invoice_number": "INV-2607-1019",
     "pelanggan": {
       "nama": "Fauzan",
-      "telepon": "+62 856-0899-0514",
+      "telepon": "+62 856‑0899‑0514",
       "email": ""
     },
     "items": [
@@ -3667,10 +3667,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Diponegoro No. 56, Lemahputro, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.455,
+        "lng": 112.712
       }
     },
     "jadwal_diminta": "2026-07-15",
@@ -3781,10 +3781,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Raya Waru No. 10, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.362,
+        "lng": 112.748
       }
     },
     "jadwal_diminta": "2026-07-15",
@@ -3846,7 +3846,7 @@ export const initialOrders = [
     "invoice_number": "INV-2607-1017",
     "pelanggan": {
       "nama": "Faza",
-      "telepon": "+62 821-1273-954",
+      "telepon": "+62 821‑1273‑954",
       "email": ""
     },
     "items": [
@@ -3891,10 +3891,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Perum Delta Sari Indah Blok BD-8, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.355,
+        "lng": 112.739
       }
     },
     "jadwal_diminta": "2026-07-11",
@@ -4005,10 +4005,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Gayungsari Timur No. 18, Gayungan, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.332,
+        "lng": 112.729
       }
     },
     "jadwal_diminta": "2026-07-11",
@@ -4309,10 +4309,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Bengkel Ipin Motor, Area Sidoarjo",
+      "teks": "Bengkel Ipin Motor, Jl. Raya Candi No. 18, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.471,
+        "lng": 112.721
       }
     },
     "jadwal_diminta": "2026-07-11",
@@ -4378,7 +4378,7 @@ export const initialOrders = [
     "invoice_number": "INV-2607-1012",
     "pelanggan": {
       "nama": "kak erlin",
-      "telepon": "+62 889-8947-4668",
+      "telepon": "+62 889‑8947‑4668",
       "email": ""
     },
     "items": [
@@ -4423,10 +4423,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Jemursari Selatan No. 5, Wonocolo, Surabaya",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.321,
+        "lng": 112.741
       }
     },
     "jadwal_diminta": "2026-07-10",
@@ -4537,10 +4537,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Perum Graha Tirta Blok Melati 14, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.358,
+        "lng": 112.742
       }
     },
     "jadwal_diminta": "2026-07-09",
@@ -4651,10 +4651,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Perum Graha Tirta Blok Melati 14, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.358,
+        "lng": 112.742
       }
     },
     "jadwal_diminta": "2026-07-09",
@@ -4765,10 +4765,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Raya Pepelegi No. 7, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.36,
+        "lng": 112.736
       }
     },
     "jadwal_diminta": "2026-07-02",
@@ -4879,10 +4879,10 @@ export const initialOrders = [
     ],
     "metode": "dijemput",
     "alamat_jemput": {
-      "teks": "Sidoarjo / Surabaya (Area Layanan Lave Streat)",
+      "teks": "Jl. Raya Pepelegi No. 7, Waru, Sidoarjo",
       "koordinat": {
-        "lat": -7.4478,
-        "lng": 112.7183
+        "lat": -7.36,
+        "lng": 112.736
       }
     },
     "jadwal_diminta": "2026-07-02",
