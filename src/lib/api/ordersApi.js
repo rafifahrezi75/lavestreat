@@ -36,10 +36,17 @@ export const ordersApi = {
         const colRef = collection(db, 'orders');
         const q = query(colRef, orderBy('created_at', 'desc'));
         const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!snap.empty) {
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
       } catch {
-        const snap = await getDocs(collection(db, 'orders'));
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        try {
+          const snap = await getDocs(collection(db, 'orders'));
+          if (!snap.empty) {
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          }
+        } catch {
+        }
       }
     }
 
@@ -49,8 +56,11 @@ export const ordersApi = {
 
   async getOrderById(id) {
     if (isFirebaseConfigured) {
-      const snap = await getDoc(doc(db, 'orders', id));
-      if (snap.exists()) return { id: snap.id, ...snap.data() };
+      try {
+        const snap = await getDoc(doc(db, 'orders', id));
+        if (snap.exists()) return { id: snap.id, ...snap.data() };
+      } catch {
+      }
     }
 
     const orders = getLocalOrders();
@@ -118,20 +128,22 @@ export const ordersApi = {
       updated_at: nowIso
     };
 
+    const orders = getLocalOrders();
+    orders.unshift(newOrder);
+    saveLocalOrders(orders);
+
     if (isFirebaseConfigured) {
       try {
         const createOrderFn = httpsCallable(functions, 'verifyCaptchaAndCreateOrder');
         const result = await createOrderFn(payload);
         return result.data;
       } catch {
-        await setDoc(doc(db, 'orders', orderNumber), newOrder);
-        return newOrder;
+        try {
+          await setDoc(doc(db, 'orders', orderNumber), newOrder);
+        } catch {
+        }
       }
     }
-
-    const orders = getLocalOrders();
-    orders.unshift(newOrder);
-    saveLocalOrders(orders);
 
     return newOrder;
   },
@@ -139,74 +151,85 @@ export const ordersApi = {
   async updateStatus(orderId, newStatus, catatan = '', adminName = 'Admin') {
     const nowIso = new Date().toISOString();
 
+    const orders = getLocalOrders();
+    const index = orders.findIndex(o => o.id === orderId || o.invoice === orderId || o.invoice_number === orderId || o.original_id === orderId);
+    let updatedLocalOrder = null;
+
+    if (index !== -1) {
+      const currentOrder = orders[index];
+      const allowedNext = STATUS_TRANSITIONS[currentOrder.status] || [];
+      if (!allowedNext.includes(newStatus)) {
+        throw new Error(`Tidak dapat mengubah status dari "${currentOrder.status}" menjadi "${newStatus}".`);
+      }
+
+      const updatedHistory = [
+        ...(currentOrder.status_history || []),
+        {
+          status: newStatus,
+          timestamp: nowIso,
+          catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
+        }
+      ];
+
+      updatedLocalOrder = {
+        ...currentOrder,
+        status: newStatus,
+        status_history: updatedHistory,
+        updated_at: nowIso
+      };
+
+      orders[index] = updatedLocalOrder;
+      saveLocalOrders(orders);
+    }
+
     if (isFirebaseConfigured) {
       try {
         const updateFn = httpsCallable(functions, 'updateOrderStatus');
         const result = await updateFn({ orderId, newStatus, catatan });
         return result.data;
       } catch {
-        const snap = await getDoc(doc(db, 'orders', orderId));
-        if (!snap.exists()) {
-          throw new Error('Pesanan tidak ditemukan');
-        }
-        const currentData = snap.data();
-        const allowedNext = STATUS_TRANSITIONS[currentData.status] || [];
-        if (!allowedNext.includes(newStatus)) {
-          throw new Error(`Tidak dapat mengubah status dari "${currentData.status}" menjadi "${newStatus}".`);
-        }
-        const updatedHistory = [
-          ...(currentData.status_history || []),
-          {
-            status: newStatus,
-            timestamp: nowIso,
-            catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
+        try {
+          const snap = await getDoc(doc(db, 'orders', orderId));
+          if (snap.exists()) {
+            const currentData = snap.data();
+            const allowedNext = STATUS_TRANSITIONS[currentData.status] || [];
+            if (!allowedNext.includes(newStatus)) {
+              throw new Error(`Tidak dapat mengubah status dari "${currentData.status}" menjadi "${newStatus}".`);
+            }
+            const updatedHistory = [
+              ...(currentData.status_history || []),
+              {
+                status: newStatus,
+                timestamp: nowIso,
+                catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
+              }
+            ];
+            await updateDoc(doc(db, 'orders', orderId), {
+              status: newStatus,
+              status_history: updatedHistory,
+              updated_at: nowIso
+            });
+            return {
+              id: orderId,
+              ...currentData,
+              status: newStatus,
+              status_history: updatedHistory,
+              updated_at: nowIso
+            };
           }
-        ];
-        await updateDoc(doc(db, 'orders', orderId), {
-          status: newStatus,
-          status_history: updatedHistory,
-          updated_at: nowIso
-        });
-        return {
-          id: orderId,
-          ...currentData,
-          status: newStatus,
-          status_history: updatedHistory,
-          updated_at: nowIso
-        };
+        } catch (e) {
+          if (e.message && e.message.includes('Tidak dapat mengubah status')) {
+            throw e;
+          }
+        }
       }
     }
 
-    const orders = getLocalOrders();
-    const index = orders.findIndex(o => o.id === orderId);
-    if (index === -1) {
-      throw new Error('Pesanan tidak ditemukan');
+    if (updatedLocalOrder) {
+      return updatedLocalOrder;
     }
 
-    const currentOrder = orders[index];
-    const allowedNext = STATUS_TRANSITIONS[currentOrder.status] || [];
-    if (!allowedNext.includes(newStatus)) {
-      throw new Error(`Tidak dapat mengubah status dari "${currentOrder.status}" menjadi "${newStatus}".`);
-    }
-
-    const updatedHistory = [
-      ...currentOrder.status_history,
-      {
-        status: newStatus,
-        timestamp: nowIso,
-        catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
-      }
-    ];
-
-    orders[index] = {
-      ...currentOrder,
-      status: newStatus,
-      status_history: updatedHistory,
-      updated_at: nowIso
-    };
-
-    saveLocalOrders(orders);
-    return orders[index];
+    throw new Error('Pesanan tidak ditemukan');
   },
 
   async updateOrder(orderId, patch) {
