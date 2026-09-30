@@ -329,76 +329,78 @@ export function GalleryDetailPage() {
   const previewImgSrc = activeTarget === 'before' ? (modalSlotData?.before_url || '') : (modalSlotData?.after_url || '');
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/admin/gallery"
-            className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-slate-50 flex items-center justify-center transition-colors shadow-2xs"
-            aria-label="Kembali ke Kelola Galeri"
-            title="Kembali"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
-                {displayTitle}
-              </h1>
-              {item.tampil_di_home ? (
-                <Badge variant="success" size="sm">Tampil di Beranda</Badge>
-              ) : (
-                <Badge variant="default" size="sm">Disembunyikan</Badge>
-              )}
+    <div className="w-full">
+      <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              to="/admin/gallery"
+              className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs shrink-0"
+              aria-label="Kembali ke Kelola Galeri"
+              title="Kembali"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-2xl font-bold font-display text-brand-900 tracking-tight truncate">
+                  {displayTitle}
+                </h1>
+                {item.tampil_di_home ? (
+                  <Badge variant="success" size="sm">Tampil di Beranda</Badge>
+                ) : (
+                  <Badge variant="default" size="sm">Disembunyikan</Badge>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5 truncate">
+                Layanan: <strong className="text-brand-600">{item.layanan_terkait || 'Treatment'}</strong>
+                {item.shoe_brand && ` • ${item.shoe_brand} ${item.shoe_type && item.shoe_type !== '-' ? item.shoe_type : ''}`}
+              </p>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Layanan: <strong className="text-brand-600">{item.layanan_terkait || 'Treatment'}</strong>
-              {item.shoe_brand && ` • ${item.shoe_brand} ${item.shoe_type && item.shoe_type !== '-' ? item.shoe_type : ''}`}
-            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              type="button"
+              onClick={handleToggleHome}
+              className="px-3 py-1.5 rounded-md border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+            >
+              {item.tampil_di_home ? 'Sembunyikan dari Beranda' : 'Tampilkan di Beranda'}
+            </button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={openFrameModal}
+              className="flex items-center gap-1.5 rounded-md shadow-xs"
+            >
+              <Crop className="w-4 h-4 text-brand-600" />
+              <span>Atur Frame Crop</span>
+            </Button>
+
+            <Link to={`/admin/gallery/${item.id}/edit`}>
+              <Button size="sm" className="flex items-center gap-1.5 rounded-md shadow-xs">
+                <Pencil className="w-4 h-4" />
+                <span>Edit Form & Sudut</span>
+              </Button>
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="p-2 rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-colors cursor-pointer"
+              title="Hapus foto galeri"
+              aria-label="Hapus foto galeri"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          <button
-            type="button"
-            onClick={handleToggleHome}
-            className="px-3 py-1.5 rounded-md border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-          >
-            {item.tampil_di_home ? 'Sembunyikan dari Beranda' : 'Tampilkan di Beranda'}
-          </button>
-
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={openFrameModal}
-            className="flex items-center gap-1.5 shadow-xs"
-          >
-            <Crop className="w-4 h-4 text-brand-600" />
-            <span>Atur Frame Crop</span>
-          </Button>
-
-          <Link to={`/admin/gallery/${item.id}/edit`}>
-            <Button size="sm" className="flex items-center gap-1.5 shadow-xs">
-              <Pencil className="w-4 h-4" />
-              <span>Edit Form & Sudut</span>
-            </Button>
-          </Link>
-
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="p-2 rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-colors cursor-pointer"
-            title="Hapus foto galeri"
-            aria-label="Hapus foto galeri"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full">
+        <div className="p-5 sm:p-7 flex flex-col gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full">
         <div className="lg:col-span-8 flex flex-col gap-5">
           <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs overflow-hidden flex flex-col">
             <div className="p-3.5 sm:p-4 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -764,6 +766,8 @@ export function GalleryDetailPage() {
           </Card>
         </div>
       </div>
+    </div>
+  </Card>
 
       {isFrameModalOpen && createPortal(
         <div

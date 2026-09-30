@@ -76,7 +76,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-light page-smooth-enter">
-      <section className="relative min-h-[100dvh] flex items-center pt-28 pb-12 sm:pt-32 sm:pb-20 bg-[#072B4A] text-white overflow-hidden">
+      <section className="relative min-h-[100dvh] flex flex-col justify-center pt-[68px] pb-[76px] sm:pt-28 sm:pb-20 lg:pt-32 bg-[#072B4A] text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="/hero-bg.jpg"
@@ -91,30 +91,30 @@ export function HomePage() {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-sky-400/20 blur-3xl pointer-events-none z-1" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-brand-200/5 blur-3xl pointer-events-none z-1" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-6 flex flex-col justify-between py-1">
-              <div className="flex flex-col items-start gap-4 sm:gap-6">
-                <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white leading-tight lg:leading-[1.12] tracking-tight">
+              <div className="flex flex-col items-start gap-2.5 sm:gap-5 lg:gap-6">
+                <h1 className="font-display font-extrabold text-xl sm:text-3xl lg:text-5xl text-white leading-tight lg:leading-[1.12] tracking-tight">
                   {content?.hero_title || 'Perawatan & Restorasi Sepatu Spesialis Sidoarjo'}
                 </h1>
 
-                <p className="text-xs sm:text-sm lg:text-base text-brand-100/90 max-w-lg leading-relaxed font-normal">
+                <p className="text-xs sm:text-sm lg:text-base text-brand-100/90 max-w-lg leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
                   {content?.hero_subtitle || 'Layanan cuci mendalam, repaint restoratif, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.'}
                 </p>
 
-                <div className="flex flex-row items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2 w-full sm:w-auto">
+                <div className="flex flex-row items-center gap-2.5 sm:gap-3 pt-0.5 sm:pt-1 w-full sm:w-auto">
                   <Button
                     onClick={() => navigate('/pesan')}
                     size="md"
-                    className="flex-1 sm:flex-none justify-center bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg hover:shadow-brand-600/40 flex items-center gap-2 py-2.5 sm:py-3 text-xs sm:text-sm"
+                    className="flex-1 sm:flex-none justify-center bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg hover:shadow-brand-600/40 flex items-center gap-2 py-2 sm:py-3 text-xs sm:text-sm"
                   >
                     <Truck className="w-4 h-4" />
                     <span>Pesan Penjemputan</span>
                   </Button>
 
                   <Link to="/layanan" className="flex-1 sm:flex-none">
-                    <Button variant="glass" size="md" className="w-full justify-center flex items-center gap-2 py-2.5 sm:py-3 text-xs sm:text-sm">
+                    <Button variant="glass" size="md" className="w-full justify-center flex items-center gap-2 py-2 sm:py-3 text-xs sm:text-sm">
                       <LucideTag className="w-4 h-4 text-brand-200" />
                       <span>Tarif Layanan</span>
                     </Button>
@@ -139,41 +139,41 @@ export function HomePage() {
             </div>
 
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <div className="relative rounded-2xl sm:rounded-3xl border border-white/20 sm:border-2 shadow-2xl overflow-hidden bg-brand-900 group aspect-[16/10] sm:aspect-[16/10] lg:aspect-[4/3] w-full max-w-lg mx-auto lg:max-w-none animate-float-smooth">
+              <div className="relative rounded-2xl sm:rounded-3xl border border-white/20 sm:border-2 shadow-2xl overflow-hidden bg-brand-900 group aspect-[16/9] sm:aspect-[16/10] lg:aspect-[4/3] max-h-[175px] sm:max-h-none w-full max-w-sm sm:max-w-lg mx-auto lg:max-w-none animate-float-smooth">
                 <img
                   src="/hero-sneaker.jpg"
                   alt="Lave Streat Perawatan Sepatu Spesialis"
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                 />
 
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-brand-900/85 backdrop-blur-md border border-white/20 text-white px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl shadow-lg flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold">
-                  <CheckCircle size={14} weight="fill" className="text-accent-gold" />
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-brand-900/85 backdrop-blur-md border border-white/20 text-white px-2 py-1 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl shadow-lg flex items-center gap-1 sm:gap-2 text-[9px] sm:text-xs font-semibold">
+                  <CheckCircle size={12} weight="fill" className="text-accent-gold" />
                   <span>100% Detailing Manual</span>
                 </div>
 
-                <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/95 backdrop-blur-md border border-brand-100 text-brand-900 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl shadow-xl flex items-center gap-2 sm:gap-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center shrink-0">
-                    <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white/95 backdrop-blur-md border border-brand-100 text-brand-900 px-2 py-1 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl shadow-xl flex items-center gap-1.5 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-brand-600 text-white flex items-center justify-center shrink-0">
+                    <Truck className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[11px] sm:text-xs font-bold leading-tight">Layanan Antar-Jemput</span>
-                    <span className="text-[9px] sm:text-[11px] text-slate-wet leading-none">Area Sidoarjo & Surabaya</span>
+                    <span className="text-[10px] sm:text-xs font-bold leading-tight">Layanan Antar-Jemput</span>
+                    <span className="text-[8px] sm:text-[11px] text-slate-wet leading-none">Area Sidoarjo & Surabaya</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex lg:hidden pt-4 mt-4 border-t border-white/15 flex-wrap items-center justify-between sm:justify-start gap-x-4 gap-y-2 text-[11px] text-brand-100">
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle size={15} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Antar-Jemput Sidoarjo & Surabaya</span>
+              <div className="grid grid-cols-3 gap-1 pt-2.5 mt-2.5 border-t border-white/15 text-[10px] text-brand-100 lg:hidden text-center">
+                <div className="flex items-center justify-center gap-1 font-medium">
+                  <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
+                  <span className="leading-tight">Antar-Jemput</span>
                 </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle size={15} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Pengerjaan Manual 2-3 Hari</span>
+                <div className="flex items-center justify-center gap-1 font-medium">
+                  <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
+                  <span className="leading-tight">Manual 2-3 Hari</span>
                 </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle size={15} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Garansi Cuci Ulang</span>
+                <div className="flex items-center justify-center gap-1 font-medium">
+                  <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
+                  <span className="leading-tight">Garansi Cuci</span>
                 </div>
               </div>
             </div>
