@@ -142,36 +142,28 @@ export function GalleryDetailPage() {
     <div className="bg-slate-50 min-h-screen pb-20 text-slate-900 page-smooth-enter">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-7 border-b border-slate-100 bg-gradient-to-b from-slate-50/70 to-white">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="p-3.5 sm:p-5 border-b border-slate-100 bg-gradient-to-b from-slate-50/70 to-white">
+            <div className="flex items-center justify-between gap-2 overflow-x-auto">
               <Link
                 to="/galeri"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors w-fit group"
+                aria-label="Kembali ke Galeri"
+                className="inline-flex items-center justify-center p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors shrink-0 group"
               >
                 <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                <span>Kembali ke Galeri</span>
+                <span className="hidden sm:inline">Kembali ke Galeri</span>
               </Link>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 text-xs font-semibold border border-brand-200">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-brand-100 text-brand-900 text-[11px] sm:text-xs font-semibold border border-brand-200 whitespace-nowrap">
                   {serviceName}
                 </span>
-                <span className="px-2.5 py-1 rounded-md bg-white text-slate-700 text-xs font-medium border border-slate-200 shadow-2xs">
+                <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-white text-slate-700 text-[11px] sm:text-xs font-medium border border-slate-200 shadow-2xs whitespace-nowrap">
                   {shoeBrand} {shoeType}
                 </span>
-                <span className="font-mono text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">
+                <span className="font-mono text-[10px] sm:text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border border-slate-200 whitespace-nowrap">
                   {ticketCode}
                 </span>
               </div>
-            </div>
-
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-display font-bold text-brand-900">
-                {shoeTitle}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-wet mt-1">
-                Dokumentasi lengkap hasil pengerjaan {serviceName} untuk sepatu {shoeBrand} {shoeType}.
-              </p>
             </div>
           </div>
 
@@ -181,9 +173,6 @@ export function GalleryDetailPage() {
                 <div className="flex items-center gap-2.5">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-slate-800 text-white shadow-xs">
                     Sebelum
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-slate-700">
-                    Kondisi Sepatu Sebelum Treatment
                   </span>
                 </div>
                 <span className="text-[11px] sm:text-xs text-slate-400 font-medium">
@@ -235,9 +224,6 @@ export function GalleryDetailPage() {
                 <div className="flex items-center gap-2.5">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-brand-600 text-white shadow-xs">
                     Sesudah
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-brand-900">
-                    Hasil Akhir Perawatan Lave Streat
                   </span>
                 </div>
                 <span className="text-[11px] sm:text-xs text-brand-600 font-medium">
