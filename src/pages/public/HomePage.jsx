@@ -76,7 +76,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-light page-smooth-enter">
-      <section className="relative min-h-[100dvh] flex flex-col justify-start lg:justify-center pt-14 pb-[76px] sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#072B4A] text-white overflow-hidden">
+      <section className="relative min-h-[100dvh] flex flex-col justify-center pt-14 pb-[76px] sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#072B4A] text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="/hero-bg.jpg"
