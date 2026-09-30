@@ -689,6 +689,7 @@ export function OrderDetailPage() {
                           setPendingGalleryFiles(prev => ({ ...prev, before: null }));
                         }}
                         label="Foto Sebelum (Before) *"
+                        aspectRatio="aspect-[4/3]"
                       />
                       <ImageUploader
                         value={galleryData.after_url}
@@ -701,6 +702,7 @@ export function OrderDetailPage() {
                           setPendingGalleryFiles(prev => ({ ...prev, after: null }));
                         }}
                         label="Foto Sesudah (After) *"
+                        aspectRatio="aspect-[4/3]"
                       />
                     </div>
 

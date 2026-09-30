@@ -595,12 +595,14 @@ export function GalleryFormPage() {
                   onChange={(url, file) => handleSlotPhotoChange(activeSlot, 'before_url', url, file)}
                   onRemove={() => handleSlotPhotoChange(activeSlot, 'before_url', '', null)}
                   label={`Foto Sebelum (Before) - Sudut #${activeSlot}`}
+                  aspectRatio="aspect-[4/3]"
                 />
                 <ImageUploader
                   value={currentSlotData.after_url}
                   onChange={(url, file) => handleSlotPhotoChange(activeSlot, 'after_url', url, file)}
                   onRemove={() => handleSlotPhotoChange(activeSlot, 'after_url', '', null)}
                   label={`Foto Sesudah (After) - Sudut #${activeSlot}`}
+                  aspectRatio="aspect-[4/3]"
                 />
               </div>
             </div>
@@ -1022,7 +1024,8 @@ export function GalleryFormPage() {
                   onPointerUp={handlePointerUpFrame}
                   onPointerCancel={handlePointerUpFrame}
                   onWheel={handleWheelZoom}
-                  className="relative w-full max-w-sm sm:max-w-md aspect-[4/3] mx-auto rounded-lg overflow-hidden bg-slate-950 border-2 border-brand-500 shadow-md cursor-grab active:cursor-grabbing select-none touch-none"
+                  className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-lg overflow-hidden bg-slate-950 border-2 border-brand-500 shadow-md cursor-grab active:cursor-grabbing select-none touch-none"
+                  style={{ aspectRatio: '4/3' }}
                 >
                   {modalImgSrc ? (
                     <img
