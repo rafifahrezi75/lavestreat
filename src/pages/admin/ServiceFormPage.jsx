@@ -6,6 +6,7 @@ import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Select } from '../../components/common/Select';
 import { ImageUploader } from '../../components/common/ImageUploader';
+import { uploadImage } from '../../lib/cloudinary';
 import { useToast } from '../../context/ToastContext';
 import { servicesApi } from '../../lib/api';
 
@@ -18,6 +19,7 @@ export function ServiceFormPage() {
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [pendingFile, setPendingFile] = useState(null);
 
   const [formData, setFormData] = useState({
     nama: '',
@@ -70,8 +72,14 @@ export function ServiceFormPage() {
     setFormError('');
 
     try {
+      let finalFoto = formData.foto;
+      if (pendingFile) {
+        finalFoto = await uploadImage(pendingFile);
+      }
+
       const payload = {
         ...formData,
+        foto: finalFoto,
         harga: parseInt(formData.harga.toString().replace(/\D/g, ''), 10) || 0
       };
 
@@ -102,36 +110,36 @@ export function ServiceFormPage() {
     <div className="w-full">
       <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
         <form onSubmit={handleSubmit}>
-          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-3">
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <Link
                 to="/admin/services"
-                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs"
+                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs shrink-0"
                 aria-label="Kembali"
                 title="Kembali"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Link>
 
-              <Button
-                type="submit"
-                size="sm"
-                disabled={submitting}
-                className="flex items-center gap-1.5 rounded-md shadow-xs"
-              >
-                <Save className="w-4 h-4" />
-                <span>{submitting ? 'Menyimpan...' : 'Simpan'}</span>
-              </Button>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold font-display text-brand-900 tracking-tight truncate">
+                  {isEdit ? 'Edit Layanan' : 'Tambah Layanan Baru'}
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">
+                  {isEdit ? 'Perbarui informasi dan tarif layanan workshop.' : 'Lengkapi formulir untuk menambahkan layanan atau produk baru.'}
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
-                {isEdit ? 'Edit Layanan' : 'Tambah Layanan Baru'}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                {isEdit ? 'Perbarui informasi dan tarif layanan workshop.' : 'Lengkapi formulir untuk menambahkan layanan atau produk baru.'}
-              </p>
-            </div>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={submitting}
+              className="flex items-center gap-1.5 rounded-md shadow-xs shrink-0"
+            >
+              <Save className="w-4 h-4" />
+              <span>{submitting ? 'Menyimpan...' : 'Simpan'}</span>
+            </Button>
           </div>
 
           <div className="p-5 sm:p-7 flex flex-col gap-6">
@@ -212,7 +220,14 @@ export function ServiceFormPage() {
             <div className="lg:col-span-5 flex flex-col gap-4">
               <ImageUploader
                 value={formData.foto}
-                onChange={(url) => setFormData({ ...formData, foto: url })}
+                onChange={(url, file) => {
+                  setFormData(prev => ({ ...prev, foto: url }));
+                  setPendingFile(file || null);
+                }}
+                onRemove={() => {
+                  setFormData(prev => ({ ...prev, foto: '' }));
+                  setPendingFile(null);
+                }}
                 label="Foto Layanan (Cloudinary)"
               />
             </div>

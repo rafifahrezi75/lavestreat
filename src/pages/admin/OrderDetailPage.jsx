@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
-  ArrowLeft, 
+  ChevronLeft, 
   Save, 
   MapPin, 
   Calendar, 
@@ -20,6 +20,7 @@ import { Button } from '../../components/common/Button';
 import { Select } from '../../components/common/Select';
 import { Input } from '../../components/common/Input';
 import { ImageUploader } from '../../components/common/ImageUploader';
+import { uploadImage } from '../../lib/cloudinary';
 import { BeforeAfterCompare } from '../../features/gallery/BeforeAfterCompare';
 import { RouteMap } from '../../components/map/RouteMap';
 import { useToast } from '../../context/ToastContext';
@@ -77,6 +78,7 @@ export function OrderDetailPage() {
 
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [savingGallery, setSavingGallery] = useState(false);
+  const [pendingGalleryFiles, setPendingGalleryFiles] = useState({ before: null, after: null });
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [selectedOrderSlot, setSelectedOrderSlot] = useState(0);
   const [routeOriginType, setRouteOriginType] = useState('outlet');
@@ -164,9 +166,18 @@ export function OrderDetailPage() {
 
     setSavingGallery(true);
     try {
+      let beforeUrl = galleryData.before_url;
+      let afterUrl = galleryData.after_url;
+      if (pendingGalleryFiles.before) {
+        beforeUrl = await uploadImage(pendingGalleryFiles.before);
+      }
+      if (pendingGalleryFiles.after) {
+        afterUrl = await uploadImage(pendingGalleryFiles.after);
+      }
+
       const payload = {
-        before_url: galleryData.before_url,
-        after_url: galleryData.after_url,
+        before_url: beforeUrl,
+        after_url: afterUrl,
         caption: galleryData.caption || `Restorasi ${galleryData.layanan_terkait} - ${order.id}`,
         layanan_terkait: galleryData.layanan_terkait,
         tampil_di_home: true,
@@ -304,43 +315,43 @@ export function OrderDetailPage() {
   const hasPhotos = itemsWithPhotos.length > 0 || !!order?.before_after;
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex items-center gap-2.5">
-        <Link
-          to="/admin/orders"
-          className="px-3 py-1.5 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 bg-white hover:bg-slate-50 transition-colors inline-flex items-center gap-2 text-xs font-semibold shadow-xs"
-          aria-label="Kembali ke daftar pesanan"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Kembali ke Daftar Pesanan</span>
-        </Link>
-      </div>
+    <div className="w-full">
+      <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              to="/admin/orders"
+              className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs shrink-0"
+              aria-label="Kembali ke daftar pesanan"
+              title="Kembali"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
 
-      <Card rounded="2xl" className="p-5 sm:p-7 border-slate-200/80 shadow-xs flex flex-col gap-6 w-full bg-white">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
-                {order.invoice_number || order.invoice || order.id}
-              </h1>
-              {getStatusBadge(order.status)}
-              <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
-                ID: {order.id}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-lg sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
+                  {order.invoice_number || order.invoice || order.id}
+                </h1>
+                {getStatusBadge(order.status)}
+                <span className="text-[11px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                  ID: {order.id}
+                </span>
+              </div>
+              <span className="text-xs text-slate-500 mt-0.5 block truncate">
+                Dibuat pada: {new Date(order.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
               </span>
             </div>
-            <span className="text-xs text-slate-500 mt-1 block">
-              Dibuat pada: {new Date(order.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
-            </span>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
             <a
               href={`https://wa.me/62${(order.pelanggan?.telepon || '').replace(/^0/, '')}?text=${encodeURIComponent(
                 `Halo kak ${order.pelanggan?.nama}, kami dari Lave Streat mengonfirmasi pesanan ${order.id}.`
               )}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-xs transition-colors shrink-0"
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-md text-xs font-semibold shadow-xs transition-colors shrink-0"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Chat WhatsApp Pelanggan</span>
@@ -348,7 +359,8 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div className="p-5 sm:p-7 flex flex-col gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
           <div className="lg:col-span-7 flex flex-col gap-6">
             <Card className="flex flex-col gap-4 border-brand-200/80 bg-brand-light/20">
               <div className="flex items-center justify-between border-b border-brand-200 pb-2">
@@ -668,12 +680,26 @@ export function OrderDetailPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <ImageUploader
                         value={galleryData.before_url}
-                        onChange={(url) => setGalleryData({ ...galleryData, before_url: url })}
+                        onChange={(url, file) => {
+                          setGalleryData(prev => ({ ...prev, before_url: url }));
+                          setPendingGalleryFiles(prev => ({ ...prev, before: file || null }));
+                        }}
+                        onRemove={() => {
+                          setGalleryData(prev => ({ ...prev, before_url: '' }));
+                          setPendingGalleryFiles(prev => ({ ...prev, before: null }));
+                        }}
                         label="Foto Sebelum (Before) *"
                       />
                       <ImageUploader
                         value={galleryData.after_url}
-                        onChange={(url) => setGalleryData({ ...galleryData, after_url: url })}
+                        onChange={(url, file) => {
+                          setGalleryData(prev => ({ ...prev, after_url: url }));
+                          setPendingGalleryFiles(prev => ({ ...prev, after: file || null }));
+                        }}
+                        onRemove={() => {
+                          setGalleryData(prev => ({ ...prev, after_url: '' }));
+                          setPendingGalleryFiles(prev => ({ ...prev, after: null }));
+                        }}
                         label="Foto Sesudah (After) *"
                       />
                     </div>
@@ -892,7 +918,8 @@ export function OrderDetailPage() {
             )}
           </div>
         </div>
-      </Card>
-    </div>
+      </div>
+    </Card>
+  </div>
   );
 }
