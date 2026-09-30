@@ -81,30 +81,37 @@ export function ContentManagePage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <p className="text-xs text-slate-wet">
-        Ubah teks hero dan halaman tentang kami tanpa perlu deploy ulang kode aplikasi.
-      </p>
+    <div className="flex flex-col gap-5 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Kelola Konten
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Ubah teks hero, promosi, dan profil Tentang Kami tanpa perlu deploy ulang kode aplikasi.
+          </p>
+        </div>
+      </div>
 
-      <div className="flex items-center gap-2 border-b border-brand-200 w-full">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <button
           type="button"
           onClick={() => setActiveTab('home')}
-          className={`px-5 py-3 font-semibold text-sm sm:text-base border-b-2 transition-colors ${
+          className={`px-4 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === 'home'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-wet hover:text-brand-900'
+              ? 'bg-brand-900 text-white shadow-xs'
+              : 'bg-white text-slate-600 border border-slate-200/90 hover:bg-slate-50 hover:text-brand-900'
           }`}
         >
-          Konten Beranda
+          Konten Beranda & Promo
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('about')}
-          className={`px-5 py-3 font-semibold text-sm sm:text-base border-b-2 transition-colors ${
+          className={`px-4 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === 'about'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-wet hover:text-brand-900'
+              ? 'bg-brand-900 text-white shadow-xs'
+              : 'bg-white text-slate-600 border border-slate-200/90 hover:bg-slate-50 hover:text-brand-900'
           }`}
         >
           Halaman Tentang Kami

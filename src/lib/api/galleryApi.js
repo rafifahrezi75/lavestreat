@@ -15,12 +15,27 @@ import { initialGallery } from './mockData';
 const STORAGE_KEY = 'lavestreat_gallery_data_v16';
 
 function getLocalGallery() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || data.includes('unsplash') || !data.includes('1ceec53b') || !data.includes('INV-2609-1029')) {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialGallery));
+      return initialGallery;
+    }
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed) || parsed.length < initialGallery.length) {
+      const existingIds = new Set(Array.isArray(parsed) ? parsed.map(p => String(p.id)) : []);
+      const merged = [
+        ...(Array.isArray(parsed) ? parsed : []),
+        ...initialGallery.filter(item => !existingIds.has(String(item.id)))
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
+    }
+    return parsed;
+  } catch {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialGallery));
     return initialGallery;
   }
-  return JSON.parse(data);
 }
 
 function saveLocalGallery(items) {
@@ -29,40 +44,80 @@ function saveLocalGallery(items) {
 
 export const galleryApi = {
   async getGallery(onlyHome = false) {
+    let list = [];
     if (isFirebaseConfigured) {
       try {
         const colRef = collection(db, 'gallery');
         const q = onlyHome ? query(colRef, where('tampil_di_home', '==', true)) : colRef;
         const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (docs.length > 0) {
+          list = docs;
+        }
       } catch (err) {
         console.warn('Firestore gallery fallback:', err.message);
       }
     }
 
-    const items = getLocalGallery();
-    if (onlyHome) {
-      return items.filter(i => i.tampil_di_home);
+    if (list.length === 0) {
+      const items = getLocalGallery();
+      list = onlyHome ? items.filter(i => i.tampil_di_home) : items;
     }
-    return items;
+
+    return list;
   },
 
   async getGalleryItemById(id) {
+    if (!id) return null;
+    let found = null;
+
     if (isFirebaseConfigured) {
       try {
         const snap = await getDoc(doc(db, 'gallery', id));
         if (snap.exists()) {
-          return { id: snap.id, ...snap.data() };
+          found = { id: snap.id, ...snap.data() };
+        } else {
+          const colRef = collection(db, 'gallery');
+          const snapAll = await getDocs(colRef);
+          const match = snapAll.docs.find(d => {
+            const data = d.data();
+            return String(d.id) === String(id) ||
+                   String(data.item_id) === String(id) ||
+                   String(data.order_id) === String(id) ||
+                   String(data.invoice) === String(id) ||
+                   String(data.invoice_number) === String(id);
+          });
+          if (match) {
+            found = { id: match.id, ...match.data() };
+          }
         }
       } catch (err) {
         console.warn('Firestore getGalleryItemById fallback:', err.message);
       }
     }
 
-    const items = getLocalGallery();
-    const found = items.find(i => i.id === id);
-    if (found) return found;
-    return null;
+    if (!found) {
+      const items = getLocalGallery();
+      found = items.find(i =>
+        String(i.id) === String(id) ||
+        String(i.item_id) === String(id) ||
+        String(i.order_id) === String(id) ||
+        String(i.invoice) === String(id) ||
+        String(i.invoice_number) === String(id)
+      ) || null;
+    }
+
+    if (!found) {
+      found = initialGallery.find(i =>
+        String(i.id) === String(id) ||
+        String(i.item_id) === String(id) ||
+        String(i.order_id) === String(id) ||
+        String(i.invoice) === String(id) ||
+        String(i.invoice_number) === String(id)
+      ) || null;
+    }
+
+    return found;
   },
 
   async createGalleryItem(payload) {

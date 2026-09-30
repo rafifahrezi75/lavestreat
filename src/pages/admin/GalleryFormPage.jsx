@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import { ChevronLeft, Save, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -259,27 +259,49 @@ export function GalleryFormPage() {
   const featuredSlotData = slots.find(s => s.slot === featuredSlot) || slots[0];
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex items-center gap-2.5">
-        <Link
-          to="/admin/gallery"
-          className="p-1.5 rounded-lg border border-brand-200 text-brand-900 hover:bg-brand-100 transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
-          aria-label="Kembali"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Kembali ke Daftar Galeri</span>
-        </Link>
-      </div>
+    <div className="w-full">
+      <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+        <form onSubmit={handleSubmit}>
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                to="/admin/gallery"
+                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs"
+                aria-label="Kembali"
+                title="Kembali"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {formError && (
-          <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
-            {formError}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={submitting}
+                className="flex items-center gap-1.5 rounded-md shadow-xs"
+              >
+                <Save className="w-4 h-4" />
+                <span>{submitting ? 'Menyimpan...' : 'Simpan Semua Sudut'}</span>
+              </Button>
+            </div>
+
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
+                {isEdit ? 'Edit Galeri Before-After' : 'Tambah Foto Before-After'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                {isEdit ? 'Perbarui dokumentasi foto dan framing crop sepatu.' : 'Unggah foto sebelum dan sesudah treatment untuk katalog portofolio.'}
+              </p>
+            </div>
           </div>
-        )}
 
-        <Card className="p-5 sm:p-6 border-brand-200 w-full flex flex-col gap-6">
-          <div className="border-b border-brand-200/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="p-5 sm:p-7 flex flex-col gap-6">
+            {formError && (
+              <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
+                {formError}
+              </div>
+            )}
+
+            <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h2 className="font-display font-bold text-base sm:text-lg text-brand-900">
                 1. Pilih Sudut Foto & Sudut Utama Beranda
@@ -321,7 +343,7 @@ export function GalleryFormPage() {
                       <span className="text-xs font-bold text-brand-900 flex items-center gap-1.5">
                         <span>Sudut #{angle.slot}</span>
                         {isFeatured && (
-                          <span className="text-[10px] bg-accent-gold text-brand-900 font-extrabold px-1.5 py-0.2 rounded shadow-2xs">
+                          <span className="text-[10px] bg-accent-gold text-brand-900 font-extrabold px-1.5 py-0.5 rounded-md shadow-2xs">
                             Utama Beranda
                           </span>
                         )}
@@ -329,7 +351,7 @@ export function GalleryFormPage() {
                       {isComplete ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       ) : (
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
                           hasBefore || hasAfter ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
                         }`}>
                           {hasBefore || hasAfter ? '1 Foto' : 'Kosong'}
@@ -345,7 +367,7 @@ export function GalleryFormPage() {
                     <button
                       type="button"
                       onClick={() => setActiveSlot(angle.slot)}
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded cursor-pointer transition-colors ${
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-md cursor-pointer transition-colors ${
                         isActive ? 'text-brand-900 font-bold underline' : 'text-slate-wet hover:text-brand-900'
                       }`}
                     >
@@ -355,7 +377,7 @@ export function GalleryFormPage() {
                     <button
                       type="button"
                       onClick={() => handleSelectFeaturedSlot(angle.slot)}
-                      className={`text-[11px] font-bold px-2 py-1 rounded transition-all cursor-pointer ${
+                      className={`text-[11px] font-bold px-2 py-1 rounded-md transition-all cursor-pointer ${
                         isFeatured
                           ? 'bg-brand-600 text-white'
                           : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-100'
@@ -531,7 +553,7 @@ export function GalleryFormPage() {
                         Belum ada foto sebelum
                       </div>
                     )}
-                    <div className="absolute bottom-0 inset-x-0 py-1 bg-black/60 text-center text-[10px] text-white font-bold uppercase tracking-wider">
+                    <div className="absolute bottom-0 inset-x-0 h-6 bg-black/60 text-center text-[10px] text-white font-bold uppercase tracking-wider flex items-center justify-center">
                       Sebelum
                     </div>
                   </div>
@@ -549,7 +571,7 @@ export function GalleryFormPage() {
                         Belum ada foto sesudah
                       </div>
                     )}
-                    <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/80 text-center text-[10px] text-white font-bold uppercase tracking-wider">
+                    <div className="absolute bottom-0 inset-x-0 h-6 bg-brand-600/80 text-center text-[10px] text-white font-bold uppercase tracking-wider flex items-center justify-center">
                       Sesudah
                     </div>
                   </div>
@@ -639,25 +661,9 @@ export function GalleryFormPage() {
               </label>
             </div>
           </div>
-
-          <div className="pt-4 border-t border-brand-200 flex justify-end gap-2.5">
-            <Link to="/admin/gallery">
-              <Button type="button" variant="secondary" size="sm">
-                Batal
-              </Button>
-            </Link>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={submitting}
-              className="flex items-center gap-1.5"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{submitting ? 'Menyimpan...' : 'Simpan Semua Sudut'}</span>
-            </Button>
-          </div>
-        </Card>
+        </div>
       </form>
-    </div>
+    </Card>
+  </div>
   );
 }

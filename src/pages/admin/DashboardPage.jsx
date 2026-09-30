@@ -107,106 +107,106 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base sm:text-lg font-bold font-display text-brand-900">
-            Ringkasan Operasional Workshop
-          </h2>
-          <p className="text-xs text-slate-wet mt-0.5">
-            Data transaksi asli terintegrasi dari database Firestore Lave Streat.
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Ringkasan Operasional
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Data transaksi aktual terintegrasi langsung dari database workshop.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Link to="/admin/orders">
-            <Button size="sm" className="flex items-center gap-1.5">
-              <ShoppingBag className="w-3.5 h-3.5" />
+            <Button size="sm" className="flex items-center gap-2 rounded-md shadow-xs">
+              <ShoppingBag className="w-4 h-4" />
               <span>Kelola Pesanan</span>
             </Button>
           </Link>
           <Link to="/admin/gallery">
-            <Button variant="secondary" size="sm" className="flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5" />
+            <Button variant="secondary" size="sm" className="flex items-center gap-2 rounded-md shadow-xs">
+              <ImageIcon className="w-4 h-4" />
               <span>Kelola Galeri</span>
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <Card className="p-4 border-brand-200 flex items-center justify-between shadow-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card rounded="2xl" className="p-4 sm:p-5 border-slate-200/80 bg-white flex items-center justify-between shadow-xs hover:border-brand-200 transition-colors">
           <div>
-            <span className="text-xs font-semibold text-slate-wet block">Menunggu Konfirmasi</span>
-            <span className="text-2xl font-bold font-display text-brand-900 mt-1 block">
+            <span className="text-xs font-semibold text-slate-500 block">Menunggu Konfirmasi</span>
+            <span className="text-2xl sm:text-3xl font-bold font-display text-brand-900 mt-1 block">
               {waitingOrders.length}
             </span>
             <span className="text-[11px] text-amber-700 font-medium">Perlu segera ditinjau</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-accent-gold/20 text-brand-900 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center shrink-0">
             <Clock className="w-5 h-5" />
           </div>
         </Card>
 
-        <Card className="p-4 border-brand-200 flex items-center justify-between shadow-xs">
+        <Card rounded="2xl" className="p-4 sm:p-5 border-slate-200/80 bg-white flex items-center justify-between shadow-xs hover:border-brand-200 transition-colors">
           <div>
-            <span className="text-xs font-semibold text-slate-wet block">Dalam Pengerjaan</span>
-            <span className="text-2xl font-bold font-display text-brand-900 mt-1 block">
+            <span className="text-xs font-semibold text-slate-500 block">Dalam Pengerjaan</span>
+            <span className="text-2xl sm:text-3xl font-bold font-display text-brand-900 mt-1 block">
               {processingOrders.length}
             </span>
             <span className="text-[11px] text-sky-700 font-medium">Tahap jemput & cuci</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-brand-200/50 text-brand-900 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-sky-50 text-brand-600 border border-brand-200/60 flex items-center justify-center shrink-0">
             <Wrench className="w-5 h-5" />
           </div>
         </Card>
 
-        <Card className="p-4 border-brand-200 flex items-center justify-between shadow-xs">
+        <Card rounded="2xl" className="p-4 sm:p-5 border-slate-200/80 bg-white flex items-center justify-between shadow-xs hover:border-brand-200 transition-colors">
           <div>
-            <span className="text-xs font-semibold text-slate-wet block">Sepatu Selesai Dicuci</span>
-            <span className="text-2xl font-bold font-display text-brand-900 mt-1 block">
+            <span className="text-xs font-semibold text-slate-500 block">Sepatu Selesai Dicuci</span>
+            <span className="text-2xl sm:text-3xl font-bold font-display text-brand-900 mt-1 block">
               {totalShoesCount || completedOrders.length} pasang
             </span>
-            <span className="text-[11px] text-success font-medium">Dari {completedOrders.length} transaksi tuntas</span>
+            <span className="text-[11px] text-emerald-700 font-medium">Dari {completedOrders.length} transaksi tuntas</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-success/15 text-success flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </Card>
 
-        <Card className="p-4 border-brand-200 flex items-center justify-between shadow-xs">
+        <Card rounded="2xl" className="p-4 sm:p-5 border-slate-200/80 bg-white flex items-center justify-between shadow-xs hover:border-brand-200 transition-colors">
           <div>
-            <span className="text-xs font-semibold text-slate-wet block">Total Omset Transaksi</span>
-            <span className="text-2xl font-bold font-display text-brand-900 mt-1 block">
+            <span className="text-xs font-semibold text-slate-500 block">Total Omset Transaksi</span>
+            <span className="text-2xl sm:text-3xl font-bold font-display text-brand-900 mt-1 block">
               {formatPrice(totalRevenue)}
             </span>
-            <span className="text-[11px] text-slate-wet font-medium">Akumulasi pesanan tercatat</span>
+            <span className="text-[11px] text-slate-500 font-medium">Akumulasi pesanan tercatat</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-brand-50 text-brand-600 border border-brand-200/60 flex items-center justify-center shrink-0">
             <DollarSign className="w-5 h-5" />
           </div>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 p-5 border-brand-200 flex flex-col justify-between gap-4 shadow-xs">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <Card rounded="2xl" className="lg:col-span-2 p-5 sm:p-6 border-slate-200/80 bg-white flex flex-col justify-between gap-5 shadow-xs">
           <div>
-            <div className="flex items-center justify-between border-b border-brand-200/70 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-sm font-bold text-brand-900 flex items-center gap-1.5">
+                <h3 className="text-sm sm:text-base font-bold text-brand-900 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-brand-600" />
-                  <span>Komposisi Treatment & Layanan Terbanyak</span>
+                  <span>Komposisi Treatment & Layanan</span>
                 </h3>
-                <p className="text-xs text-slate-wet">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Statistik riil dari total {totalShoesCount} pasang sepatu yang diproses workshop
                 </p>
               </div>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-900">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-brand-100/70 text-brand-900 border border-brand-200/70">
                 {serviceCategories.length} Kategori
               </span>
             </div>
 
-            <div className="flex flex-col gap-3 mt-4">
+            <div className="flex flex-col gap-3.5 mt-4">
               {serviceCategories.map((cat, idx) => (
                 <div key={idx} className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between text-xs">
@@ -216,7 +216,7 @@ export function DashboardPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-brand-900">{cat.count} pasang</span>
-                      <span className="text-slate-wet text-[11px]">({cat.percent}%)</span>
+                      <span className="text-slate-400 text-[11px]">({cat.percent}%)</span>
                     </div>
                   </div>
                   <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
@@ -232,21 +232,21 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-brand-200/60 flex items-center justify-between text-xs text-slate-wet">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>Standar pengerjaan manual 100%</span>
             <Link to="/admin/services" className="font-semibold text-brand-600 hover:text-brand-900">
-              Kelola Tarif & Katalog &rarr;
+              Kelola Tarif & Katalog
             </Link>
           </div>
         </Card>
 
-        <Card className="p-5 border-brand-200 flex flex-col justify-between gap-4 shadow-xs">
+        <Card rounded="2xl" className="p-5 sm:p-6 border-slate-200/80 bg-white flex flex-col justify-between gap-5 shadow-xs">
           <div>
-            <div className="border-b border-brand-200/70 pb-3">
-              <h3 className="text-sm font-bold text-brand-900">
+            <div className="border-b border-slate-100 pb-3">
+              <h3 className="text-sm sm:text-base font-bold text-brand-900">
                 Distribusi Metode Layanan
               </h3>
-              <p className="text-xs text-slate-wet">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Perbandingan jemput kurir vs antar mandiri ke outlet
               </p>
             </div>
@@ -268,7 +268,7 @@ export function DashboardPage() {
                     }}
                   />
                 </div>
-                <span className="text-[11px] text-slate-wet">
+                <span className="text-[11px] text-slate-400">
                   Antar-jemput alamat area Sidoarjo & Surabaya
                 </span>
               </div>
@@ -276,7 +276,7 @@ export function DashboardPage() {
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-brand-900 flex items-center gap-1.5">
-                    <Package className="w-3.5 h-3.5 text-slate-wet" />
+                    <Package className="w-3.5 h-3.5 text-slate-500" />
                     <span>Antar Langsung ke Outlet</span>
                   </span>
                   <span className="font-bold text-brand-900">{dropoffOrdersCount} Pesanan</span>
@@ -289,14 +289,14 @@ export function DashboardPage() {
                     }}
                   />
                 </div>
-                <span className="text-[11px] text-slate-wet">
+                <span className="text-[11px] text-slate-400">
                   Drop-off mandiri ke workshop
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="p-3 bg-brand-light/70 rounded-xl text-xs text-brand-900 border border-brand-200/80">
+          <div className="p-3.5 bg-brand-light/60 rounded-xl text-xs text-brand-900 border border-brand-200/70">
             <span className="font-bold block mb-0.5">Katalog Master</span>
             <span>{services.filter((s) => s.aktif).length} layanan perawatan & sabun aktif siap dipesan.</span>
           </div>
@@ -306,10 +306,10 @@ export function DashboardPage() {
       <div className="flex flex-col gap-3 w-full">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold font-display text-brand-900">
+            <h3 className="text-base sm:text-lg font-bold font-display text-brand-900">
               Daftar Pesanan Masuk Terbaru
             </h3>
-            <p className="text-xs text-slate-wet">
+            <p className="text-xs text-slate-500">
               Daftar transaksi aktual dari data invoice workshop
             </p>
           </div>
@@ -317,14 +317,14 @@ export function DashboardPage() {
             to="/admin/orders"
             className="text-xs font-semibold text-brand-600 hover:text-brand-900 transition-colors"
           >
-            Lihat Semua Pesanan ({orders.length}) &rarr;
+            Lihat Semua Pesanan ({orders.length})
           </Link>
         </div>
 
-        <Card noPadding rounded="sm" className="w-full border-brand-200 overflow-hidden shadow-subtle">
+        <Card noPadding rounded="2xl" className="w-full border-slate-200/80 bg-white overflow-hidden shadow-xs">
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-slate-50 border-b border-brand-200 text-brand-900 font-semibold">
+              <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-700 font-semibold">
                 <tr>
                   <th scope="col" className="px-4 py-3">No. Invoice</th>
                   <th scope="col" className="px-4 py-3">Pelanggan</th>

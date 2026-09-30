@@ -110,7 +110,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-9 h-9 rounded-lg bg-white border border-brand-200 text-brand-900 hover:bg-brand-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors cursor-pointer"
+        className="w-9 h-9 rounded-md bg-white border border-brand-200 text-brand-900 hover:bg-brand-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors cursor-pointer"
         aria-label="Halaman sebelumnya"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -126,7 +126,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
             key={page}
             type="button"
             onClick={() => onPageChange(page)}
-            className={`w-9 h-9 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
+            className={`w-9 h-9 rounded-md text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
               currentPage === page
                 ? 'bg-brand-600 text-white shadow-xs border border-brand-600'
                 : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-100'
@@ -143,7 +143,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-9 h-9 rounded-lg bg-white border border-brand-200 text-brand-900 hover:bg-brand-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors cursor-pointer"
+        className="w-9 h-9 rounded-md bg-white border border-brand-200 text-brand-900 hover:bg-brand-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors cursor-pointer"
         aria-label="Halaman selanjutnya"
       >
         <ChevronRight className="w-4 h-4" />
@@ -232,7 +232,7 @@ export function GalleryPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => handleCategoryChange(cat.id)}
-                  className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer ${
+                  className={`px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer ${
                     isActive
                       ? 'bg-brand-600 text-white shadow-xs'
                       : 'bg-white text-brand-900 hover:bg-brand-100 border border-brand-200'

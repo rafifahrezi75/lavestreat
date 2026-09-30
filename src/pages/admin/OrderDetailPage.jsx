@@ -304,11 +304,11 @@ export function OrderDetailPage() {
   const hasPhotos = itemsWithPhotos.length > 0 || !!order?.before_after;
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-5 w-full">
       <div className="flex items-center gap-2.5">
         <Link
           to="/admin/orders"
-          className="p-1.5 rounded-lg border border-brand-200 text-brand-900 hover:bg-brand-100 transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
+          className="px-3 py-1.5 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 bg-white hover:bg-slate-50 transition-colors inline-flex items-center gap-2 text-xs font-semibold shadow-xs"
           aria-label="Kembali ke daftar pesanan"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
@@ -316,19 +316,19 @@ export function OrderDetailPage() {
         </Link>
       </div>
 
-      <Card className="p-5 sm:p-7 border-brand-200 shadow-sm flex flex-col gap-6 w-full bg-white">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-brand-200">
+      <Card rounded="2xl" className="p-5 sm:p-7 border-slate-200/80 shadow-xs flex flex-col gap-6 w-full bg-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900">
+              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
                 {order.invoice_number || order.invoice || order.id}
               </h1>
               {getStatusBadge(order.status)}
-              <span className="text-[11px] font-mono text-slate-wet bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
                 ID: {order.id}
               </span>
             </div>
-            <span className="text-xs text-slate-wet mt-1 block">
+            <span className="text-xs text-slate-500 mt-1 block">
               Dibuat pada: {new Date(order.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
             </span>
           </div>
@@ -340,7 +340,7 @@ export function OrderDetailPage() {
               )}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 bg-success hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors shrink-0"
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-xs transition-colors shrink-0"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Chat WhatsApp Pelanggan</span>
@@ -552,7 +552,7 @@ export function OrderDetailPage() {
                           key={it.id || idx}
                           type="button"
                           onClick={() => { setSelectedItemIndex(idx); setSelectedOrderSlot(0); }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                          className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
                             selectedItemIndex === idx
                               ? 'bg-brand-900 text-white shadow-xs'
                               : 'bg-brand-100/70 text-brand-900 hover:bg-brand-200 border border-brand-200'
@@ -598,7 +598,7 @@ export function OrderDetailPage() {
                       <div
                         key={s.slot || idx}
                         onClick={() => setSelectedOrderSlot(idx)}
-                        className={`p-2 rounded-xl border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                        className={`p-2 rounded-md border transition-all cursor-pointer flex flex-col gap-1.5 ${
                           selectedOrderSlot === idx
                             ? 'border-brand-600 bg-brand-100/50 shadow-xs ring-1 ring-brand-600'
                             : 'border-brand-200 bg-white hover:border-brand-300'

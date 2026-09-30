@@ -165,11 +165,16 @@ export function SettingsPage() {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="text-xs text-slate-wet">
-          Kelola konfigurasi outlet, kontak publik, dan status sinkronisasi database.
-        </p>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Pengaturan
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Kelola konfigurasi outlet, kontak publik, jam operasional, dan lokasi GPS.
+          </p>
+        </div>
 
         <div className="flex items-center gap-2">
           <Button
@@ -178,7 +183,7 @@ export function SettingsPage() {
             size="sm"
             onClick={handleSyncFirestore}
             disabled={syncing}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 rounded-md shadow-xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
             <span>{syncing ? 'Sinkronisasi...' : 'Sinkronkan Firestore'}</span>
@@ -188,7 +193,7 @@ export function SettingsPage() {
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 rounded-md shadow-xs"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
@@ -197,23 +202,23 @@ export function SettingsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-xs text-slate-wet">
+        <div className="text-center py-10 text-xs text-slate-400">
           Memuat data pengaturan...
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          <Card noPadding rounded="sm" className="w-full overflow-hidden border-brand-200">
-            <div className="p-4 bg-brand-100/40 border-b border-brand-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <Card noPadding rounded="2xl" className="w-full overflow-hidden border-slate-200/80 bg-white shadow-xs">
+            <div className="p-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-xs uppercase font-bold text-sky-800 tracking-wider">
+                <span className="text-xs uppercase font-bold text-brand-900 tracking-wider">
                   Koneksi Database Cloud
                 </span>
-                <p className="text-xs text-slate-wet mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Status sinkronisasi backend Firebase Firestore
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-success/15 text-success">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                   <Check className="w-3 h-3" />
                   <span>{isFirebaseConfigured ? 'Firebase Terhubung' : 'Penyimpanan Lokal Aktif'}</span>
                 </span>
@@ -222,14 +227,14 @@ export function SettingsPage() {
 
             <div className="overflow-x-auto w-full">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
+                <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-700 font-semibold">
                   <tr>
                     <th scope="col" className="px-4 py-3 w-1/4">Parameter</th>
                     <th scope="col" className="px-4 py-3 w-1/3">Keterangan</th>
                     <th scope="col" className="px-4 py-3">Nilai Konfigurasi (Edit Langsung)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-brand-200/60">
+                <tbody className="divide-y divide-slate-100">
                   {settingRows.map((row) => (
                     <tr key={row.key} className="hover:bg-brand-100/20 transition-colors">
                       <td className="px-4 py-3 font-semibold text-brand-900 whitespace-nowrap align-top">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ChevronLeft, Save } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -92,32 +92,54 @@ export function ServiceFormPage() {
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-slate-wet text-sm">
+      <div className="py-12 text-center text-slate-400 text-sm">
         Memuat formulir layanan...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div className="flex items-center gap-2.5">
-        <Link
-          to="/admin/services"
-          className="p-1.5 rounded-lg border border-brand-200 text-brand-900 hover:bg-brand-100 transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
-          aria-label="Kembali"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Kembali ke Daftar Layanan</span>
-        </Link>
-      </div>
+    <div className="w-full">
+      <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+        <form onSubmit={handleSubmit}>
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                to="/admin/services"
+                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs"
+                aria-label="Kembali"
+                title="Kembali"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
 
-      <Card className="p-5 sm:p-6 border-brand-200 w-full">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {formError && (
-            <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
-              {formError}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={submitting}
+                className="flex items-center gap-1.5 rounded-md shadow-xs"
+              >
+                <Save className="w-4 h-4" />
+                <span>{submitting ? 'Menyimpan...' : 'Simpan'}</span>
+              </Button>
             </div>
-          )}
+
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
+                {isEdit ? 'Edit Layanan' : 'Tambah Layanan Baru'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                {isEdit ? 'Perbarui informasi dan tarif layanan workshop.' : 'Lengkapi formulir untuk menambahkan layanan atau produk baru.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-7 flex flex-col gap-6">
+            {formError && (
+              <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
+                {formError}
+              </div>
+            )}
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
             <div className="lg:col-span-7 flex flex-col gap-4">
@@ -169,7 +191,7 @@ export function ServiceFormPage() {
                   value={formData.deskripsi}
                   onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
                   placeholder="Jelaskan cakupan pengerjaan treatment ini..."
-                  className="w-full rounded-lg border border-brand-200 bg-white p-3 text-sm text-ink-deep placeholder:text-slate-wet/60 focus:border-brand-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200/90 bg-white p-3 text-sm text-ink-deep placeholder:text-slate-400 focus:border-brand-600 focus:outline-hidden"
                 />
               </div>
 
@@ -179,7 +201,7 @@ export function ServiceFormPage() {
                   id="service-active"
                   checked={formData.aktif}
                   onChange={(e) => setFormData({ ...formData, aktif: e.target.checked })}
-                  className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-brand-200"
+                  className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-slate-300"
                 />
                 <label htmlFor="service-active" className="text-xs font-medium text-brand-900 cursor-pointer">
                   Tampilkan layanan ini di katalog publik (Aktif)
@@ -195,25 +217,9 @@ export function ServiceFormPage() {
               />
             </div>
           </div>
-
-          <div className="pt-4 border-t border-brand-200 flex justify-end gap-2.5">
-            <Link to="/admin/services">
-              <Button type="button" variant="secondary" size="sm">
-                Batal
-              </Button>
-            </Link>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={submitting}
-              className="flex items-center gap-1.5"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{submitting ? 'Menyimpan...' : 'Simpan'}</span>
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </div>
+        </div>
+      </form>
+    </Card>
+  </div>
   );
 }

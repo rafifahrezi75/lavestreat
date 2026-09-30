@@ -14,6 +14,7 @@ export function BeforeAfterCompare({
   className = '',
   imageClassName = 'aspect-[4/3] sm:aspect-[16/10] min-h-[260px]',
   objectPosition = '50% 50%',
+  showHint = true,
   header,
   footer,
   children
@@ -110,19 +111,19 @@ export function BeforeAfterCompare({
           </div>
         </div>
 
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           <span>Sebelum</span>
         </div>
 
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
           <Sparkle size={11} weight="fill" className="text-accent-gold" />
           <span>Sesudah</span>
         </div>
 
-        {!hasInteracted && (
+        {showHint && !hasInteracted && (
           <div className="absolute bottom-3 inset-x-0 mx-auto w-fit z-10 pointer-events-none animate-pulse">
-            <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-md">
+            <span className="px-2.5 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-md">
               Geser untuk membandingkan
             </span>
           </div>

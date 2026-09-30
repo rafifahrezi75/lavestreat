@@ -54,24 +54,29 @@ export function ServicesManagePage() {
   const paginatedServices = services.slice((validCurrentPage - 1) * pageSize, validCurrentPage * pageSize);
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-5 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="text-xs text-slate-wet">
-          Daftar harga dan master layanan. Layanan yang pernah digunakan di pesanan dinonaktifkan secara aman.
-        </p>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Kelola Layanan
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Daftar harga dan master layanan cuci, repaint, dan produk perawatan sepatu.
+          </p>
+        </div>
 
         <Link to="/admin/services/new">
-          <Button size="sm" className="flex items-center gap-1.5 shrink-0">
-            <Plus className="w-3.5 h-3.5" />
+          <Button size="sm" className="flex items-center gap-2 rounded-md shadow-xs shrink-0">
+            <Plus className="w-4 h-4" />
             <span>Tambah Layanan Baru</span>
           </Button>
         </Link>
       </div>
 
-      <Card noPadding rounded="sm" className="w-full border-brand-200 overflow-hidden shadow-subtle">
+      <Card noPadding rounded="2xl" className="w-full border-slate-200/80 bg-white overflow-hidden shadow-xs">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
+            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-700 font-semibold">
               <tr>
                 <th scope="col" className="px-4 py-3">Foto</th>
                 <th scope="col" className="px-4 py-3">Nama Layanan / Produk</th>
@@ -82,16 +87,16 @@ export function ServicesManagePage() {
                 <th scope="col" className="px-4 py-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-200/60">
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-wet text-xs">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-xs">
                     Memuat layanan...
                   </td>
                 </tr>
               ) : services.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-slate-wet text-xs">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-400 text-xs">
                     Belum ada layanan yang tersimpan.
                   </td>
                 </tr>

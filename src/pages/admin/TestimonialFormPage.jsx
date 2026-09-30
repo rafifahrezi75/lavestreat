@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ChevronLeft, Save } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -91,112 +91,120 @@ export function TestimonialFormPage() {
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-slate-wet text-sm">
+      <div className="py-12 text-center text-slate-400 text-sm">
         Memuat formulir testimoni...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div className="flex items-center gap-2.5">
-        <Link
-          to="/admin/testimonials"
-          className="p-1.5 rounded-lg border border-brand-200 text-brand-900 hover:bg-brand-100 transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
-          aria-label="Kembali"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Kembali ke Daftar Testimoni</span>
-        </Link>
-      </div>
+    <div className="w-full">
+      <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+        <form onSubmit={handleSubmit}>
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                to="/admin/testimonials"
+                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs"
+                aria-label="Kembali"
+                title="Kembali"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
 
-      <Card className="p-5 sm:p-6 border-brand-200 w-full">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {formError && (
-            <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
-              {formError}
-            </div>
-          )}
-
-          <Input
-            label="Nama Pelanggan"
-            value={formData.nama_pelanggan}
-            onChange={(e) => setFormData({ ...formData, nama_pelanggan: e.target.value })}
-            placeholder="Contoh: Budi Santoso"
-            required
-          />
-
-          <Select
-            label="Rating Kepuasan"
-            value={formData.rating}
-            onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-            options={[
-              { value: '5', label: '5 Bintang (Sangat Puas)' },
-              { value: '4', label: '4 Bintang (Puas)' },
-              { value: '3', label: '3 Bintang (Cukup)' },
-              { value: '2', label: '2 Bintang (Kurang)' },
-              { value: '1', label: '1 Bintang (Kecewa)' }
-            ]}
-          />
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-brand-900">
-              Isi Testimoni / Ulasan
-            </label>
-            <textarea
-              rows={4}
-              value={formData.isi}
-              onChange={(e) => setFormData({ ...formData, isi: e.target.value })}
-              placeholder="Tuliskan ulasan asli dari pelanggan..."
-              required
-              className="w-full rounded-lg border border-brand-200 bg-white p-3 text-sm text-ink-deep placeholder:text-slate-wet/60 focus:border-brand-600 focus:outline-hidden"
-            />
-          </div>
-
-          <div className="flex items-center gap-2.5 pt-1">
-            <input
-              type="checkbox"
-              id="testi-anon"
-              checked={formData.is_anonymous}
-              onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
-              className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-brand-200"
-            />
-            <label htmlFor="testi-anon" className="text-xs font-medium text-brand-900 cursor-pointer">
-              Tampilkan sebagai nama Anonim di website
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2.5 pt-1">
-            <input
-              type="checkbox"
-              id="testi-visible"
-              checked={formData.tampil}
-              onChange={(e) => setFormData({ ...formData, tampil: e.target.checked })}
-              className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-brand-200"
-            />
-            <label htmlFor="testi-visible" className="text-xs font-medium text-brand-900 cursor-pointer">
-              Tampilkan di halaman utama website
-            </label>
-          </div>
-
-          <div className="pt-4 border-t border-brand-200 flex justify-end gap-2.5">
-            <Link to="/admin/testimonials">
-              <Button type="button" variant="secondary" size="sm">
-                Batal
+              <Button
+                type="submit"
+                size="sm"
+                disabled={submitting}
+                className="flex items-center gap-1.5 rounded-md shadow-xs"
+              >
+                <Save className="w-4 h-4" />
+                <span>{submitting ? 'Menyimpan...' : 'Simpan'}</span>
               </Button>
-            </Link>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={submitting}
-              className="flex items-center gap-1.5"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{submitting ? 'Menyimpan...' : 'Simpan Testimoni'}</span>
-            </Button>
+            </div>
+
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold font-display text-brand-900 tracking-tight">
+                {isEdit ? 'Edit Testimoni' : 'Tambah Testimoni Baru'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                {isEdit ? 'Perbarui ulasan dan data kepuasan pelanggan.' : 'Catat ulasan pelanggan dari percakapan WhatsApp atau media sosial.'}
+              </p>
+            </div>
           </div>
-        </form>
-      </Card>
-    </div>
+
+          <div className="p-5 sm:p-7 flex flex-col gap-6">
+            {formError && (
+              <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg text-xs text-danger font-medium">
+                {formError}
+              </div>
+            )}
+
+          <div className="flex flex-col gap-4 max-w-2xl">
+            <Input
+              label="Nama Pelanggan"
+              value={formData.nama_pelanggan}
+              onChange={(e) => setFormData({ ...formData, nama_pelanggan: e.target.value })}
+              placeholder="Contoh: Budi Santoso"
+              required
+            />
+
+            <Select
+              label="Rating Kepuasan"
+              value={formData.rating}
+              onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+              options={[
+                { value: '5', label: '5 Bintang (Sangat Puas)' },
+                { value: '4', label: '4 Bintang (Puas)' },
+                { value: '3', label: '3 Bintang (Cukup)' },
+                { value: '2', label: '2 Bintang (Kurang)' },
+                { value: '1', label: '1 Bintang (Kecewa)' }
+              ]}
+            />
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-brand-900">
+                Isi Testimoni / Ulasan
+              </label>
+              <textarea
+                rows={4}
+                value={formData.isi}
+                onChange={(e) => setFormData({ ...formData, isi: e.target.value })}
+                placeholder="Tuliskan ulasan asli dari pelanggan..."
+                required
+                className="w-full rounded-lg border border-slate-200/90 bg-white p-3 text-sm text-ink-deep placeholder:text-slate-400 focus:border-brand-600 focus:outline-hidden"
+              />
+            </div>
+
+            <div className="flex items-center gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="testi-anon"
+                checked={formData.is_anonymous}
+                onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
+                className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-slate-300"
+              />
+              <label htmlFor="testi-anon" className="text-xs font-medium text-brand-900 cursor-pointer">
+                Tampilkan sebagai nama Anonim di website
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="testi-visible"
+                checked={formData.tampil}
+                onChange={(e) => setFormData({ ...formData, tampil: e.target.checked })}
+                className="w-4 h-4 text-brand-600 rounded-sm focus:ring-brand-600 border-slate-300"
+              />
+              <label htmlFor="testi-visible" className="text-xs font-medium text-brand-900 cursor-pointer">
+                Tampilkan di halaman utama website
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </Card>
+  </div>
   );
 }

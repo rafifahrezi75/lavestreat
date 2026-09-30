@@ -16,7 +16,8 @@ import {
   RotateCcw,
   Copy,
   Layers,
-  Move
+  Move,
+  Eye
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
@@ -265,24 +266,29 @@ export function GalleryManagePage() {
   const paginatedGallery = gallery.slice((validCurrentPage - 1) * pageSize, validCurrentPage * pageSize);
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-5 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="text-xs text-slate-wet">
-          Kelola hasil foto before-after, sudut cover yang tampil di Beranda, dan framing posisi crop sepatu.
-        </p>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Kelola Galeri
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Dokumentasi foto before-after pengerjaan sepatu, sudut cover, dan framing crop.
+          </p>
+        </div>
 
         <Link to="/admin/gallery/new">
-          <Button size="sm" className="flex items-center gap-1.5 shrink-0">
-            <Plus className="w-3.5 h-3.5" />
+          <Button size="sm" className="flex items-center gap-2 rounded-md shadow-xs shrink-0">
+            <Plus className="w-4 h-4" />
             <span>Tambah Before-After</span>
           </Button>
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-slate-wet text-xs">Memuat galeri...</div>
+        <div className="text-center py-12 text-slate-400 text-xs">Memuat galeri...</div>
       ) : gallery.length === 0 ? (
-        <Card className="text-center py-12 text-slate-wet border-brand-200 text-xs">
+        <Card rounded="xl" className="text-center py-12 text-slate-400 border-slate-200/80 bg-white text-xs shadow-xs">
           Belum ada foto galeri tersimpan. Klik tombol di atas untuk menambahkan.
         </Card>
       ) : (
@@ -294,62 +300,108 @@ export function GalleryManagePage() {
               const activeSlotNum = item.featured_slot || 1;
               const slotCount = item.slots?.length || 1;
               const objPos = item.object_position || `${item.pos_x ?? 50}% ${item.pos_y ?? 50}%`;
+              const displayTitle = item.caption || item.shoe_brand || 'Dokumentasi Sepatu';
+              const isBrandRedundant = !item.shoe_brand || (item.caption && item.caption.toLowerCase().trim() === item.shoe_brand.toLowerCase().trim());
 
               return (
-                <div key={item.id} className="flex flex-col bg-white rounded-lg border border-brand-200/90 shadow-xs hover:shadow-md transition-shadow overflow-hidden">
-                  <div className="p-3 border-b border-brand-200/60 bg-slate-50/70 flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5 font-bold text-brand-900">
-                      <Receipt className="w-3.5 h-3.5 text-brand-600 shrink-0" />
-                      {item.order_id ? (
-                        <Link
-                          to={`/admin/orders/${item.order_id}`}
-                          className="hover:text-brand-600 hover:underline flex items-center gap-1 font-mono text-[11px]"
-                          title="Buka detail pesanan"
-                        >
-                          <span>{invoiceNum}</span>
-                          <ExternalLink className="w-3 h-3 text-brand-600" />
-                        </Link>
-                      ) : (
-                        <span className="font-mono text-[11px]">{invoiceNum}</span>
-                      )}
+                <div key={item.id} className="flex flex-col bg-white rounded-xl border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow overflow-hidden">
+                  <div className="p-3 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex items-center gap-1.5 font-bold text-brand-900 shrink-0">
+                        <Receipt className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                        {item.order_id ? (
+                          <Link
+                            to={`/admin/orders/${item.order_id}`}
+                            className="hover:text-brand-600 hover:underline flex items-center gap-1 font-mono text-[11px]"
+                            title="Buka detail pesanan"
+                          >
+                            <span>{invoiceNum}</span>
+                            <ExternalLink className="w-3 h-3 text-brand-600" />
+                          </Link>
+                        ) : (
+                          <span className="font-mono text-[11px]">{invoiceNum}</span>
+                        )}
+                      </div>
+                      <span className="text-slate-300">•</span>
+                      <div className="flex items-center gap-1 text-slate-wet text-xs truncate">
+                        <User className="w-3.5 h-3.5 text-slate-wet/80 shrink-0" />
+                        <span className="font-medium truncate max-w-[110px]">{custName}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-slate-wet text-xs">
-                      <User className="w-3.5 h-3.5 text-slate-wet/80 shrink-0" />
-                      <span className="font-medium truncate max-w-[120px]">{custName}</span>
-                    </div>
-                  </div>
 
-                  <div className="relative isolate">
-                    <BeforeAfterCompare
-                      beforeUrl={item.before_url}
-                      afterUrl={item.after_url}
-                      beforeFraming={item.framing_before}
-                      afterFraming={item.framing_after}
-                      className="border-0 rounded-none shadow-none"
-                      imageClassName="aspect-[4/3] min-h-[220px]"
-                      objectPosition={objPos}
-                    />
-
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1 z-10 pointer-events-none">
-                      <span className="px-2 py-0.5 rounded-md bg-brand-900/85 backdrop-blur-xs text-white text-[10px] font-bold border border-white/20">
-                        Cover: Sudut #{activeSlotNum}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="px-2 py-0.5 rounded-md bg-brand-100 text-brand-900 text-[10px] font-semibold border border-brand-200">
+                        Sudut #{activeSlotNum}
                       </span>
                       {slotCount > 1 && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-800/80 backdrop-blur-xs text-slate-200 text-[10px] font-semibold border border-white/10">
+                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium border border-slate-200">
                           {slotCount} Sudut
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-3.5 flex flex-col justify-between gap-2.5 grow bg-white">
+                  <Link
+                    to={`/admin/gallery/${item.id}`}
+                    className="relative w-full aspect-[4/3] bg-slate-900 overflow-hidden block group cursor-pointer"
+                    title="Buka detail galeri"
+                  >
+                    <div className="absolute inset-0 grid grid-cols-2">
+                      <div className="relative h-full overflow-hidden border-r-2 border-white bg-slate-900">
+                        {item.before_url ? (
+                          <img
+                            src={item.before_url}
+                            alt={`${item.caption} sebelum`}
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            style={getImageFramingStyle(item, 'before')}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs">
+                            Kosong
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 inset-x-0 h-6 bg-black/60 backdrop-blur-xs text-center z-10 flex items-center justify-center">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-white">
+                            Sebelum
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="relative h-full overflow-hidden bg-slate-900">
+                        {item.after_url ? (
+                          <img
+                            src={item.after_url}
+                            alt={`${item.caption} sesudah`}
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            style={getImageFramingStyle(item, 'after')}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs">
+                            Kosong
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 inset-x-0 h-6 bg-brand-600/80 backdrop-blur-xs text-center z-10 flex items-center justify-center">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-white">
+                            Sesudah
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="p-3.5 flex flex-col justify-between gap-3 grow bg-white">
                     <div>
-                      <h3 className="text-sm font-bold text-brand-900 leading-snug">
-                        {item.caption}
-                      </h3>
+                      <Link
+                        to={`/admin/gallery/${item.id}`}
+                        className="text-sm font-bold text-brand-900 leading-snug hover:text-brand-600 transition-colors block"
+                      >
+                        {displayTitle}
+                      </Link>
                       <div className="flex items-center justify-between text-xs text-slate-wet mt-1">
                         <span className="font-medium text-brand-600">{item.layanan_terkait}</span>
-                        {item.shoe_brand && (
+                        {!isBrandRedundant && (
                           <span className="text-[11px] text-slate-500 font-medium">
                             {item.shoe_brand} {item.shoe_type && item.shoe_type !== '-' ? item.shoe_type : ''}
                           </span>
@@ -357,7 +409,7 @@ export function GalleryManagePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2.5 border-t border-brand-200/60">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
                       <button
                         type="button"
                         onClick={() => handleToggleHome(item)}
@@ -371,33 +423,14 @@ export function GalleryManagePage() {
                         )}
                       </button>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openFrameModal(item)}
-                          className="px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 hover:bg-brand-600 hover:text-white transition-colors inline-flex items-center gap-1 text-xs font-semibold cursor-pointer"
-                          title="Atur frame crop dan zoom per foto"
-                        >
-                          <Crop className="w-3 h-3" />
-                          <span>Atur Frame</span>
-                        </button>
-                        <Link
-                          to={`/admin/gallery/${item.id}/edit`}
-                          className="p-1.5 rounded-md border border-brand-200 text-slate-700 hover:bg-slate-100 transition-colors inline-flex items-center justify-center"
-                          title="Edit form lengkap & upload foto sudut"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.id)}
-                          className="p-1.5 rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-colors inline-flex items-center justify-center cursor-pointer"
-                          aria-label="Hapus foto galeri"
-                          title="Hapus foto galeri"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <Link
+                        to={`/admin/gallery/${item.id}`}
+                        className="w-8 h-8 rounded-md bg-brand-100 text-brand-900 hover:bg-brand-600 hover:text-white transition-colors inline-flex items-center justify-center shadow-2xs"
+                        title="Buka detail galeri"
+                        aria-label="Buka detail galeri"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -517,7 +550,7 @@ export function GalleryManagePage() {
                           Foto Sebelum
                         </span>
                         <span className="text-[10px] text-slate-wet block truncate font-mono">
-                          Zoom: {currentSlotFraming.before.zoom.toFixed(2)}x
+                          Zoom: {(currentSlotFraming?.before?.zoom || 1).toFixed(2)}x
                         </span>
                       </div>
                     </div>
@@ -544,7 +577,7 @@ export function GalleryManagePage() {
                           Foto Sesudah
                         </span>
                         <span className="text-[10px] text-slate-wet block truncate font-mono">
-                          Zoom: {currentSlotFraming.after.zoom.toFixed(2)}x
+                          Zoom: {(currentSlotFraming?.after?.zoom || 1).toFixed(2)}x
                         </span>
                       </div>
                     </div>
@@ -691,12 +724,12 @@ export function GalleryManagePage() {
                         alt=""
                         className="w-full h-full object-cover"
                         style={{
-                          transform: `translate(${currentSlotFraming.before.x}%, ${currentSlotFraming.before.y}%) scale(${currentSlotFraming.before.zoom})`,
+                          transform: `translate(${currentSlotFraming?.before?.x || 0}%, ${currentSlotFraming?.before?.y || 0}%) scale(${currentSlotFraming?.before?.zoom || 1})`,
                           transformOrigin: 'center center'
                         }}
                       />
                       <div className="absolute bottom-0 inset-x-0 py-0.5 bg-black/60 text-[9px] text-white font-bold uppercase text-center">
-                        Sebelum ({Math.round(currentSlotFraming.before.zoom * 100)}%)
+                        Sebelum ({Math.round((currentSlotFraming?.before?.zoom || 1) * 100)}%)
                       </div>
                     </div>
                     <div className="relative overflow-hidden">
@@ -705,12 +738,12 @@ export function GalleryManagePage() {
                         alt=""
                         className="w-full h-full object-cover"
                         style={{
-                          transform: `translate(${currentSlotFraming.after.x}%, ${currentSlotFraming.after.y}%) scale(${currentSlotFraming.after.zoom})`,
+                          transform: `translate(${currentSlotFraming?.after?.x || 0}%, ${currentSlotFraming?.after?.y || 0}%) scale(${currentSlotFraming?.after?.zoom || 1})`,
                           transformOrigin: 'center center'
                         }}
                       />
                       <div className="absolute bottom-0 inset-x-0 py-0.5 bg-brand-600/80 text-[9px] text-white font-bold uppercase text-center">
-                        Sesudah ({Math.round(currentSlotFraming.after.zoom * 100)}%)
+                        Sesudah ({Math.round((currentSlotFraming?.after?.zoom || 1) * 100)}%)
                       </div>
                     </div>
                   </div>
@@ -737,7 +770,7 @@ export function GalleryManagePage() {
                 className="text-xs font-semibold text-brand-600 hover:text-brand-900 hover:underline"
                 onClick={closeFrameModal}
               >
-                Buka Edit Lengkap &rarr;
+                Buka Edit Lengkap
               </Link>
 
               <div className="flex items-center gap-2">

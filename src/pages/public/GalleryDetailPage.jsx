@@ -147,7 +147,7 @@ export function GalleryDetailPage() {
               <Link
                 to="/galeri"
                 aria-label="Kembali ke Galeri"
-                className="inline-flex items-center justify-center p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors shrink-0 group"
+                className="inline-flex items-center justify-center p-1.5 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors shrink-0 group"
               >
                 <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
                 <span className="hidden sm:inline">Kembali ke Galeri</span>
@@ -321,7 +321,7 @@ export function GalleryDetailPage() {
                     href={`https://wa.me/6281234567890?text=${encodeURIComponent(waMessage)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors"
+                    className="flex items-center justify-center px-4 py-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors"
                   >
                     Tanya via WA
                   </a>

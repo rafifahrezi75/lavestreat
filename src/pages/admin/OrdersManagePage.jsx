@@ -92,18 +92,29 @@ export function OrdersManagePage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 w-full">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+    <div className="flex flex-col gap-5 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-brand-900 tracking-tight">
+            Kelola Pesanan
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Pantau status pengerjaan, verifikasi tiket, dan atur jadwal antar-jemput.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 w-full">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => handleTabChange(tab.id)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3.5 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-all ${
                 statusFilter === tab.id
-                  ? 'bg-brand-600 text-white shadow-xs'
-                  : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
+                  ? 'bg-brand-900 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200/90 hover:bg-slate-50 hover:text-brand-900'
               }`}
             >
               {tab.label}
@@ -111,22 +122,22 @@ export function OrdersManagePage() {
           ))}
         </div>
 
-        <div className="relative min-w-[240px]">
+        <div className="relative min-w-[260px]">
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Cari no. tiket, nama, telepon..."
-            className="w-full pl-9 pr-3 py-1.5 bg-white rounded-md border border-brand-200 text-xs text-ink-deep placeholder:text-slate-wet/60 focus:outline-hidden focus:border-brand-600"
+            className="w-full pl-9 pr-3.5 py-2 bg-white rounded-md border border-slate-200/90 text-xs text-brand-900 placeholder:text-slate-400 focus:outline-hidden focus:border-brand-600 shadow-xs"
           />
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-wet" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         </div>
       </div>
 
-      <Card noPadding rounded="sm" className="w-full border-brand-200 overflow-hidden shadow-subtle">
+      <Card noPadding rounded="2xl" className="w-full border-slate-200/80 bg-white overflow-hidden shadow-xs">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-brand-100/60 border-b border-brand-200 text-brand-900 font-semibold">
+            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-700 font-semibold">
               <tr>
                 <th scope="col" className="px-4 py-3">No. Tiket</th>
                 <th scope="col" className="px-4 py-3">Pelanggan</th>
@@ -137,10 +148,10 @@ export function OrdersManagePage() {
                 <th scope="col" className="px-4 py-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-200/60">
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-wet text-xs">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-xs">
                     Memuat pesanan...
                   </td>
                 </tr>

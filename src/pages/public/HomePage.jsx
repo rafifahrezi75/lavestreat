@@ -76,7 +76,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-light page-smooth-enter">
-      <section className="relative min-h-0 lg:min-h-screen flex items-center pt-28 pb-12 sm:pt-32 sm:pb-20 bg-[#072B4A] text-white overflow-hidden">
+      <section className="relative min-h-[100dvh] flex items-center pt-28 pb-12 sm:pt-32 sm:pb-20 bg-[#072B4A] text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="/hero-bg.jpg"
@@ -333,7 +333,7 @@ export function HomePage() {
                           key={item.id}
                           type="button"
                           onClick={() => setSelectedGalleryIdx(idx)}
-                          className={`text-left p-2.5 sm:p-3 rounded-xl border transition-all flex items-center gap-3.5 cursor-pointer ${
+                          className={`text-left p-2.5 sm:p-3 rounded-md border transition-all flex items-center gap-3.5 cursor-pointer ${
                             isSelected
                               ? 'bg-brand-50/80 border-brand-600 shadow-xs ring-1 ring-brand-600'
                               : 'bg-white border-brand-200 hover:bg-slate-50'
