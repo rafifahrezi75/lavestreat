@@ -76,7 +76,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-light page-smooth-enter">
-      <section className="relative min-h-[100dvh] flex flex-col justify-center pt-[68px] pb-[76px] sm:pt-28 sm:pb-20 lg:pt-32 bg-[#072B4A] text-white overflow-hidden">
+      <section className="relative min-h-[100dvh] flex flex-col justify-start lg:justify-center pt-14 pb-[76px] sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#072B4A] text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="/hero-bg.jpg"
@@ -91,15 +91,15 @@ export function HomePage() {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-sky-400/20 blur-3xl pointer-events-none z-1" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-brand-200/5 blur-3xl pointer-events-none z-1" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-8 lg:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-4 sm:py-0">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-6 flex flex-col justify-between py-1">
               <div className="flex flex-col items-start gap-2.5 sm:gap-5 lg:gap-6">
-                <h1 className="font-display font-extrabold text-xl sm:text-3xl lg:text-5xl text-white leading-tight lg:leading-[1.12] tracking-tight">
+                <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white leading-tight lg:leading-[1.12] tracking-tight">
                   {content?.hero_title || 'Perawatan & Restorasi Sepatu Spesialis Sidoarjo'}
                 </h1>
 
-                <p className="text-xs sm:text-sm lg:text-base text-brand-100/90 max-w-lg leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
+                <p className="text-xs sm:text-sm lg:text-base text-brand-100/90 max-w-lg leading-relaxed font-normal">
                   {content?.hero_subtitle || 'Layanan cuci mendalam, repaint restoratif, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.'}
                 </p>
 
@@ -139,7 +139,7 @@ export function HomePage() {
             </div>
 
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <div className="relative rounded-2xl sm:rounded-3xl border border-white/20 sm:border-2 shadow-2xl overflow-hidden bg-brand-900 group aspect-[16/9] sm:aspect-[16/10] lg:aspect-[4/3] max-h-[175px] sm:max-h-none w-full max-w-sm sm:max-w-lg mx-auto lg:max-w-none animate-float-smooth">
+              <div className="relative rounded-2xl sm:rounded-3xl border border-white/20 sm:border-2 shadow-2xl overflow-hidden bg-brand-900 group aspect-[16/10] lg:aspect-[4/3] w-full max-w-sm sm:max-w-lg mx-auto lg:max-w-none animate-float-smooth">
                 <img
                   src="/hero-sneaker.jpg"
                   alt="Lave Streat Perawatan Sepatu Spesialis"
@@ -162,7 +162,7 @@ export function HomePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-1 pt-2.5 mt-2.5 border-t border-white/15 text-[10px] text-brand-100 lg:hidden text-center">
+              <div className="grid grid-cols-3 gap-1 pt-2 mt-2 border-t border-white/15 text-[10px] text-brand-100 lg:hidden text-center">
                 <div className="flex items-center justify-center gap-1 font-medium">
                   <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
                   <span className="leading-tight">Antar-Jemput</span>
