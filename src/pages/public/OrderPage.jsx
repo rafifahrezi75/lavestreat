@@ -570,7 +570,7 @@ export function OrderPage() {
                     label="Nama Lengkap"
                     value={customer.nama}
                     onChange={(e) => setCustomer({ ...customer, nama: e.target.value })}
-                    placeholder="Contoh: Rian Pratama"
+                    placeholder="Nama lengkap Anda"
                     required
                   />
                   <Input

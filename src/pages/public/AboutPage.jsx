@@ -17,13 +17,13 @@ const teamMembers = [
     desc: 'Penanggung jawab standar mutu pengerjaan workshop dan kurasi formula chemical khusus ramah material.'
   },
   {
-    name: 'Dimas Wahyu',
+    name: 'Master Restorer Team',
     role: 'Senior Restorer & Paint Master',
     photo: '/team/restorer.jpg',
     desc: 'Spesialis detailing pengerjaan repaint presisi, unyellowing sol oksidasi, serta restorasi bahan suede.'
   },
   {
-    name: 'Kevin Arya',
+    name: 'Logistics Coordinator',
     role: 'Logistics & Kurir Coordinator',
     photo: '/team/logistics.jpg',
     desc: 'Koordinator rute penjemputan dan pengantaran tepat waktu untuk kawasan Sidoarjo dan Surabaya.'

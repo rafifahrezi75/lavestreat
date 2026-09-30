@@ -2,6 +2,7 @@ import {
   collection, 
   getDocs, 
   doc, 
+  getDoc,
   addDoc, 
   updateDoc, 
   deleteDoc, 
@@ -11,11 +12,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialGallery } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_gallery_data_v12';
+const STORAGE_KEY = 'lavestreat_gallery_data_v16';
 
 function getLocalGallery() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || data.includes('unsplash') || !data.includes('1ceec53b')) {
+  if (!data || data.includes('unsplash') || !data.includes('1ceec53b') || !data.includes('INV-2609-1029')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialGallery));
     return initialGallery;
   }
@@ -33,9 +34,7 @@ export const galleryApi = {
         const colRef = collection(db, 'gallery');
         const q = onlyHome ? query(colRef, where('tampil_di_home', '==', true)) : colRef;
         const snap = await getDocs(q);
-        if (!snap.empty) {
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        }
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       } catch (err) {
         console.warn('Firestore gallery fallback:', err.message);
       }
@@ -46,6 +45,24 @@ export const galleryApi = {
       return items.filter(i => i.tampil_di_home);
     }
     return items;
+  },
+
+  async getGalleryItemById(id) {
+    if (isFirebaseConfigured) {
+      try {
+        const snap = await getDoc(doc(db, 'gallery', id));
+        if (snap.exists()) {
+          return { id: snap.id, ...snap.data() };
+        }
+      } catch (err) {
+        console.warn('Firestore getGalleryItemById fallback:', err.message);
+      }
+    }
+
+    const items = getLocalGallery();
+    const found = items.find(i => i.id === id);
+    if (found) return found;
+    return null;
   },
 
   async createGalleryItem(payload) {
@@ -64,8 +81,12 @@ export const galleryApi = {
       shoe_brand: payload.shoe_brand || '',
       shoe_type: payload.shoe_type || '',
       object_position: payload.object_position || '50% 50%',
+      pos_x: payload.pos_x ?? 50,
       pos_y: payload.pos_y ?? 50,
+      featured_slot: payload.featured_slot || 1,
       tampil_di_home: payload.tampil_di_home !== false,
+      framing_before: payload.framing_before || null,
+      framing_after: payload.framing_after || null,
       slots: payload.slots || [],
       created_at: new Date().toISOString()
     };
@@ -101,8 +122,12 @@ export const galleryApi = {
       shoe_brand: payload.shoe_brand || '',
       shoe_type: payload.shoe_type || '',
       object_position: payload.object_position || '50% 50%',
+      pos_x: payload.pos_x ?? 50,
       pos_y: payload.pos_y ?? 50,
+      featured_slot: payload.featured_slot || 1,
       tampil_di_home: payload.tampil_di_home !== false,
+      framing_before: payload.framing_before || null,
+      framing_after: payload.framing_after || null,
       slots: payload.slots || []
     };
 

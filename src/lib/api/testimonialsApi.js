@@ -11,7 +11,7 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialTestimonials } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_testimonials_data';
+const STORAGE_KEY = 'lavestreat_testimonials_data_v16';
 
 function getLocalTestimonials() {
   const data = localStorage.getItem(STORAGE_KEY);
@@ -20,12 +20,7 @@ function getLocalTestimonials() {
     return initialTestimonials;
   }
   try {
-    const parsed = JSON.parse(data);
-    if (parsed.length < initialTestimonials.length) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialTestimonials));
-      return initialTestimonials;
-    }
-    return parsed;
+    return JSON.parse(data);
   } catch {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialTestimonials));
     return initialTestimonials;
@@ -43,9 +38,7 @@ export const testimonialsApi = {
         const colRef = collection(db, 'testimonials');
         const q = onlyVisible ? query(colRef, where('tampil', '==', true)) : colRef;
         const snap = await getDocs(q);
-        if (!snap.empty) {
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        }
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       } catch (err) {
         console.warn('Firestore testimonials fallback:', err.message);
       }

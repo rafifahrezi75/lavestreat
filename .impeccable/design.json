@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T16:05:00Z",
+  "title": "Design System: Lave Streat",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Ocean Navy",
+        "canonical": "#0A3D66",
+        "tonalRamp": ["#031422", "#06233B", "#0A3D66", "#14598F", "#2A7BB8", "#5EA6DB", "#A4CEF0", "#EAF4FC"]
+      },
+      "action": {
+        "role": "primary-action",
+        "displayName": "Splash Blue",
+        "canonical": "#2F6FED",
+        "tonalRamp": ["#0C2B6B", "#1744A6", "#2F6FED", "#5B8FF3", "#8AB2F7", "#B9D2FB", "#DEEBFE", "#F2F7FF"]
+      },
+      "accent-gold": {
+        "role": "tertiary",
+        "displayName": "Bubble Gold",
+        "canonical": "#FDB813",
+        "tonalRamp": ["#664600", "#996A00", "#CC8D00", "#FDB813", "#FECB54", "#FEDE8E", "#FEEDC7", "#FFFBF2"]
+      },
+      "background": {
+        "role": "neutral-bg",
+        "displayName": "Cloud Canvas",
+        "canonical": "#EAF7FE",
+        "tonalRamp": ["#163242", "#2E5C78", "#528CAE", "#8ED1F0", "#BEE7FA", "#D9F1FD", "#EAF7FE", "#F7FCFF"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline landing page (Baloo 2)" },
+      "headline": { "displayName": "Headline", "purpose": "Judul section publik (Baloo 2)" },
+      "body": { "displayName": "Body", "purpose": "Teks utama & antarmuka operasional (Inter)" }
+    },
+    "shadows": [
+      { "name": "subtle", "value": "0 1px 2px 0 rgba(10, 61, 102, 0.05)", "purpose": "Pemisah kartu standar" },
+      { "name": "card-hover", "value": "0 10px 25px -5px rgba(10, 61, 102, 0.1)", "purpose": "Elevasi hover kartu" },
+      { "name": "modal", "value": "0 25px 50px -12px rgba(0, 0, 0, 0.35)", "purpose": "Dialog modal overlay" }
+    ],
+    "motion": [
+      { "name": "ease-out-smooth", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Transisi modal dan slider" }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Tombol aksi utama untuk konfirmasi & CTA",
+      "html": "<button class=\"ds-btn-primary\">Pesan Penjemputan</button>",
+      "css": ".ds-btn-primary { background: #2F6FED; color: #FFFFFF; padding: 10px 20px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: background 0.15s, transform 0.15s; } .ds-btn-primary:hover { background: #0A3D66; transform: translateY(-1px); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Tombol aksi sekunder ber-border",
+      "html": "<button class=\"ds-btn-secondary\">Atur Frame</button>",
+      "css": ".ds-btn-secondary { background: #FFFFFF; color: #0A3D66; border: 1px solid #8ED1F0; padding: 8px 16px; font-family: Inter, sans-serif; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background 0.15s; } .ds-btn-secondary:hover { background: #BEE7FA; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Water in Swift Motion (Gelembung Air Bersih Cepat & Hangat)",
+    "overview": "Lave Streat memancarkan bahasa visual air bersih yang energik dan ramah: kanvas biru muda hangat, panel navy pekat untuk kontras jangkar, dan headline tebal-bulat berkarakter.",
+    "keyCharacteristics": [
+      "Didominasi keluarga biru bertingkat (≈80% antarmuka)",
+      "Sudut membulat organik yang mencerminkan gelembung sabun",
+      "Dualitas tipografi tegas: Baloo 2 untuk display dan Inter untuk UI operasional"
+    ],
+    "rules": [
+      { "name": "The Bubble Gold Rarity Rule", "body": "Aksen Bubble Gold dibatasi maksimum 5% dari total area viewport.", "section": "colors" },
+      { "name": "The Headline Isolation Rule", "body": "Font Baloo 2 khusus diperuntukkan bagi judul besar landing page. Seluruh teks antarmuka admin, formulir, dan tabel menggunakan Inter.", "section": "typography" }
+    ],
+    "dos": [
+      "Gunakan rasio 4:3 untuk kartu gambar sampel sepatu agar konsisten dengan frame crop workshop.",
+      "Pertahankan padding vertikal yang seimbang antara batas atas modal ke navbar dan batas bawah modal ke layar."
+    ],
+    "donts": [
+      "Jangan menutupi navbar dengan modal jika kontainer modal berjangkar pada area konten.",
+      "Jangan menggunakan data grafik dummy mingguan; selalu kalkulasikan metrik dari pesanan riil."
+    ]
+  }
+}

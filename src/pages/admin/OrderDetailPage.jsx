@@ -26,6 +26,43 @@ import { useToast } from '../../context/ToastContext';
 import { ordersApi, settingsApi, galleryApi } from '../../lib/api';
 import { STATUS_TRANSITIONS } from '../../lib/constants';
 
+const SLOT_LABELS = {
+  1: 'Sudut Depan / Upper',
+  2: 'Sudut Samping Luar',
+  3: 'Sudut Samping Dalam',
+  4: 'Sudut Belakang / Sol'
+};
+
+function getItemSlots(item) {
+  if (item?.photos && item.photos.length > 0) return item.photos;
+  if (item?.gallery && item.gallery.length > 0) {
+    const slotMap = new Map();
+    item.gallery.forEach(p => {
+      const s = p.slot || 1;
+      if (!slotMap.has(s)) {
+        slotMap.set(s, {
+          slot: s,
+          label: SLOT_LABELS[s] || `Sudut ${s}`,
+          before_id: null,
+          before_url: '',
+          after_id: null,
+          after_url: ''
+        });
+      }
+      const entry = slotMap.get(s);
+      if (p.kind === 'before') {
+        entry.before_id = p.id;
+        entry.before_url = p.url;
+      } else if (p.kind === 'after') {
+        entry.after_id = p.id;
+        entry.after_url = p.url;
+      }
+    });
+    return Array.from(slotMap.values()).sort((a, b) => a.slot - b.slot);
+  }
+  return [];
+}
+
 export function OrderDetailPage() {
   const { id } = useParams();
   const { showToast } = useToast();
@@ -236,14 +273,23 @@ export function OrderDetailPage() {
     );
   };
 
-  const itemsWithPhotos = order?.items?.filter(it => it.photos && it.photos.length > 0) || [];
+  const itemsWithPhotos = order?.items?.map((it, idx) => {
+    const slots = getItemSlots(it);
+    return {
+      ...it,
+      originalIndex: idx,
+      photos: slots
+    };
+  }).filter(it => it.photos.length > 0) || [];
+
   const currentPhotoItem = itemsWithPhotos[selectedItemIndex] || (order?.before_after ? {
     layanan: order.before_after.layanan_terkait,
+    service: order.before_after.layanan_terkait,
     shoe_brand: '',
     shoe_type: '',
     photos: order.before_after.slots || [{
       slot: 1,
-      label: 'Utama',
+      label: 'Sudut Depan / Upper',
       before_url: order.before_after.before_url,
       after_url: order.before_after.after_url
     }]
@@ -254,6 +300,8 @@ export function OrderDetailPage() {
     before_url: order.before_after.before_url,
     after_url: order.before_after.after_url
   } : null);
+
+  const hasPhotos = itemsWithPhotos.length > 0 || !!order?.before_after;
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -303,27 +351,106 @@ export function OrderDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
           <div className="lg:col-span-7 flex flex-col gap-6">
             <Card className="flex flex-col gap-4 border-brand-200/80 bg-brand-light/20">
-              <h2 className="font-display font-bold text-base sm:text-lg text-brand-900 border-b border-brand-200 pb-2">
-                Rincian Item Pesanan
-              </h2>
+              <div className="flex items-center justify-between border-b border-brand-200 pb-2">
+                <h2 className="font-display font-bold text-base sm:text-lg text-brand-900">
+                  Rincian Item Pesanan
+                </h2>
+                <span className="text-xs text-slate-wet">
+                  {order.items?.length || 0} Item Terdaftar
+                </span>
+              </div>
 
               <div className="flex flex-col divide-y divide-brand-200/60">
-                {order.items?.map((item, idx) => (
-                  <div key={idx} className="py-3 flex items-start justify-between text-sm gap-2">
-                    <div className="min-w-0">
-                      <span className="font-bold text-brand-900 block text-sm">{item.nama_snapshot}</span>
-                      <span className="text-[10px] text-slate-wet font-mono block mt-0.5">
-                        ID Item: {item.id}
-                      </span>
-                      <span className="text-xs sm:text-sm text-slate-wet mt-0.5 block">
-                        {formatPrice(item.harga_snapshot)} x {item.qty}
-                      </span>
+                {order.items?.map((item, idx) => {
+                  const slots = getItemSlots(item);
+                  return (
+                    <div key={item.id || idx} className="py-4 flex flex-col gap-3">
+                      <div className="flex items-start justify-between text-sm gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-brand-900 block text-sm">
+                              {item.position ? `Item #${item.position}: ` : ''}{item.nama_snapshot || `${item.shoe_brand} ${item.shoe_type}`}
+                            </span>
+                            {slots.length > 0 && (
+                              <Badge variant="success" size="sm">
+                                {slots.length} Sudut Foto
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-slate-wet mt-0.5 flex-wrap">
+                            <span className="font-mono text-[11px]">ID: {item.id}</span>
+                            <span>Layanan: <strong className="text-brand-900">{item.service || item.layanan}</strong></span>
+                            <span>Sepatu: <strong className="text-brand-900">{item.shoe_brand} {item.shoe_type}</strong></span>
+                            <span>{formatPrice(item.harga_snapshot || item.price)} x {item.qty || 1}</span>
+                          </div>
+                        </div>
+                        <span className="font-bold text-brand-900 text-sm shrink-0">
+                          {formatPrice((item.harga_snapshot || item.price) * (item.qty || 1))}
+                        </span>
+                      </div>
+
+                      {slots.length > 0 && (
+                        <div className="bg-white rounded-xl p-3 border border-brand-200/80 flex flex-col gap-2.5 shadow-2xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-brand-900">
+                              Dokumentasi Item ({slots.length} Sudut Foto Lengkap):
+                            </span>
+                            <span className="text-[11px] text-slate-wet">
+                              Klik sudut foto untuk membuka slider komparasi
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            {slots.map((s, sIdx) => {
+                              const foundIdx = itemsWithPhotos.findIndex(it => it.id === item.id);
+                              const isSelected = selectedItemIndex === foundIdx && selectedOrderSlot === sIdx;
+                              return (
+                                <div
+                                  key={s.slot || sIdx}
+                                  onClick={() => {
+                                    if (foundIdx !== -1) setSelectedItemIndex(foundIdx);
+                                    setSelectedOrderSlot(sIdx);
+                                  }}
+                                  className={`p-2 rounded-lg border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                                    isSelected
+                                      ? 'border-brand-600 bg-brand-100/50 shadow-xs ring-1 ring-brand-600'
+                                      : 'border-brand-200 bg-brand-light/30 hover:border-brand-300'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between text-[11px] font-semibold text-brand-900">
+                                    <span className="truncate">{s.label || `Sudut ${s.slot}`}</span>
+                                    <span className="text-[10px] text-slate-wet shrink-0">Slot {s.slot}</span>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-1 rounded overflow-hidden">
+                                    <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
+                                      {s.before_url ? (
+                                        <>
+                                          <img src={s.before_url} alt="Before" className="w-full h-full object-cover" />
+                                          <span className="absolute bottom-0.5 left-0.5 bg-black/75 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">Before</span>
+                                        </>
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-wet italic p-1 text-center">No Before</div>
+                                      )}
+                                    </div>
+                                    <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
+                                      {s.after_url ? (
+                                        <>
+                                          <img src={s.after_url} alt="After" className="w-full h-full object-cover" />
+                                          <span className="absolute bottom-0.5 left-0.5 bg-brand-600 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">After</span>
+                                        </>
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-wet italic p-1 text-center">No After</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <span className="font-bold text-brand-900 text-sm shrink-0">
-                      {formatPrice(item.harga_snapshot * item.qty)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="pt-3 border-t border-brand-200 flex items-center justify-between text-base font-bold text-brand-900">
@@ -402,7 +529,7 @@ export function OrderDetailPage() {
                     Dokumentasi Before-After (Galeri)
                   </h2>
                 </div>
-                {order.before_after && (
+                {hasPhotos && (
                   <Button
                     type="button"
                     variant="outline"
@@ -415,7 +542,7 @@ export function OrderDetailPage() {
                 )}
               </div>
 
-              {order.before_after && !showGalleryForm ? (
+              {hasPhotos && !showGalleryForm ? (
                 <div className="flex flex-col gap-3">
                   {itemsWithPhotos.length > 1 && (
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
@@ -431,7 +558,7 @@ export function OrderDetailPage() {
                               : 'bg-brand-100/70 text-brand-900 hover:bg-brand-200 border border-brand-200'
                           }`}
                         >
-                          {it.shoe_brand} {it.shoe_type} ({it.layanan})
+                          {it.shoe_brand} {it.shoe_type} ({it.layanan || it.service})
                         </button>
                       ))}
                     </div>
@@ -459,10 +586,10 @@ export function OrderDetailPage() {
 
                   <div className="rounded-xl overflow-hidden border border-brand-200 bg-slate-900">
                     <BeforeAfterCompare
-                      beforeUrl={currentSlotObj?.before_url || order.before_after.before_url}
-                      afterUrl={currentSlotObj?.after_url || order.before_after.after_url}
+                      beforeUrl={currentSlotObj?.before_url || order.before_after?.before_url}
+                      afterUrl={currentSlotObj?.after_url || order.before_after?.after_url}
                       className="border-0 rounded-none shadow-none"
-                      objectPosition={order.before_after.object_position || (order.before_after.pos_y != null ? `50% ${order.before_after.pos_y}%` : 'center')}
+                      objectPosition={order.before_after?.object_position || (order.before_after?.pos_y != null ? `50% ${order.before_after.pos_y}%` : 'center')}
                     />
                   </div>
 
@@ -483,12 +610,24 @@ export function OrderDetailPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-1 rounded overflow-hidden">
                           <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
-                            <img src={s.before_url} alt="Before" className="w-full h-full object-cover" />
-                            <span className="absolute bottom-0.5 left-0.5 bg-black/75 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">Before</span>
+                            {s.before_url ? (
+                              <>
+                                <img src={s.before_url} alt="Before" className="w-full h-full object-cover" />
+                                <span className="absolute bottom-0.5 left-0.5 bg-black/75 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">Before</span>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-wet italic p-1 text-center">No Before</div>
+                            )}
                           </div>
                           <div className="relative aspect-square bg-slate-100 rounded overflow-hidden">
-                            <img src={s.after_url} alt="After" className="w-full h-full object-cover" />
-                            <span className="absolute bottom-0.5 left-0.5 bg-brand-600 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">After</span>
+                            {s.after_url ? (
+                              <>
+                                <img src={s.after_url} alt="After" className="w-full h-full object-cover" />
+                                <span className="absolute bottom-0.5 left-0.5 bg-brand-600 text-white text-[8px] font-bold px-1 py-0.5 rounded leading-none">After</span>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-wet italic p-1 text-center">No After</div>
+                            )}
                           </div>
                         </div>
                         {s.before_id && (
@@ -503,7 +642,7 @@ export function OrderDetailPage() {
                   <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-brand-200/60 text-xs text-slate-wet">
                     <div>
                       <span>
-                        Item: <strong className="text-brand-900">{currentPhotoItem?.shoe_brand ? `${currentPhotoItem.shoe_brand} ${currentPhotoItem.shoe_type}` : order.before_after.caption}</strong> ({currentPhotoItem?.layanan || order.before_after.layanan_terkait})
+                        Item: <strong className="text-brand-900">{currentPhotoItem?.shoe_brand ? `${currentPhotoItem.shoe_brand} ${currentPhotoItem.shoe_type}` : (order.before_after?.caption || 'Sepatu')}</strong> ({currentPhotoItem?.layanan || currentPhotoItem?.service || order.before_after?.layanan_terkait})
                       </span>
                       {currentPhotoItem?.id && (
                         <span className="ml-2 font-mono text-[10px] text-slate-wet bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
@@ -513,13 +652,13 @@ export function OrderDetailPage() {
                     </div>
                     <span className="inline-flex items-center gap-1 text-success font-medium">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Aktif di Galeri Publik ({currentPhotoSlots.length} Sudut)</span>
+                      <span>Aktif di Galeri Publik ({currentPhotoSlots.length} Sudut Foto)</span>
                     </span>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  {!order.before_after && (
+                  {!hasPhotos && (
                     <p className="text-xs text-slate-wet">
                       Dokumentasikan hasil treatment sepatu pesanan ini. Foto yang diunggah di sini akan otomatis terhubung ke pesanan dan terdaftar di Galeri Publik.
                     </p>
@@ -558,7 +697,7 @@ export function OrderDetailPage() {
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2 border-t border-brand-200">
-                      {order.before_after && (
+                      {hasPhotos && (
                         <Button
                           type="button"
                           variant="secondary"

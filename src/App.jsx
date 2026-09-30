@@ -10,6 +10,7 @@ import { HomePage } from './pages/public/HomePage';
 import { AboutPage } from './pages/public/AboutPage';
 import { ServicesPage } from './pages/public/ServicesPage';
 import { GalleryPage } from './pages/public/GalleryPage';
+import { GalleryDetailPage } from './pages/public/GalleryDetailPage';
 import { ContactPage } from './pages/public/ContactPage';
 import { OrderPage } from './pages/public/OrderPage';
 
@@ -91,6 +92,7 @@ export default function App() {
               <Route path="/tentang-kami" element={<AboutPage />} />
               <Route path="/layanan" element={<ServicesPage />} />
               <Route path="/galeri" element={<GalleryPage />} />
+              <Route path="/galeri/:id" element={<GalleryDetailPage />} />
               <Route path="/kontak" element={<ContactPage />} />
               <Route path="/pesan" element={<OrderPage />} />
               <Route path="*" element={<NotFoundPage />} />

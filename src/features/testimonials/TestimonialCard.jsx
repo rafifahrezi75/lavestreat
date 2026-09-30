@@ -7,7 +7,7 @@ export function TestimonialCard({ testimonial }) {
   const displayName = isAnonymous ? 'Anonim' : testimonial.nama_pelanggan;
 
   return (
-    <div className="bg-white rounded-2xl border border-brand-200/90 p-6 flex flex-col justify-between gap-5 shadow-xs hover:border-brand-600/30 hover:shadow-md transition-all duration-300 h-full">
+    <div className="bg-white rounded-lg border border-brand-200/90 p-6 flex flex-col justify-between gap-5 shadow-xs hover:border-brand-600/30 hover:shadow-md transition-all duration-300 h-full">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-1">
           {[...Array(5)].map((_, i) => (

@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Truck, X, ChevronLeft, ChevronRight, Expand } from 'lucide-react';
-import { BeforeAfterCompare } from '../../features/gallery/BeforeAfterCompare';
+import { useNavigate, Link } from 'react-router-dom';
+import { Truck, ChevronLeft, ChevronRight, Eye, Layers } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { PageHeader } from '../../components/common/PageHeader';
 import { galleryApi } from '../../lib/api';
+import { getImageFramingStyle } from '../../lib/framing';
 
 const ITEMS_PER_PAGE = 12;
 
-function GalleryCard({ item, onOpen }) {
+function GalleryCard({ item }) {
   const [hovered, setHovered] = useState(false);
-  const objPos = item.object_position || (item.pos_y != null ? `50% ${item.pos_y}%` : 'center');
 
   return (
-    <div
-      className="group relative bg-white rounded-2xl overflow-hidden border border-brand-200/80 shadow-xs hover:shadow-lg hover:border-brand-300 transition-all duration-300 cursor-pointer"
+    <Link
+      to={`/galeri/${item.id}`}
+      className="group relative bg-white rounded-lg overflow-hidden border border-brand-200/80 shadow-xs hover:shadow-lg hover:border-brand-300 transition-all duration-300 flex flex-col"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => onOpen(item)}
     >
       <div className="relative w-full aspect-[4/3] min-h-[190px] overflow-hidden bg-slate-100">
         <div className="absolute inset-0 grid grid-cols-2">
@@ -27,7 +26,7 @@ function GalleryCard({ item, onOpen }) {
               alt={`${item.caption} sebelum`}
               loading="lazy"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              style={{ objectPosition: objPos }}
+              style={getImageFramingStyle(item, 'before')}
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-black/50 backdrop-blur-xs text-center z-10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sebelum</span>
@@ -39,7 +38,7 @@ function GalleryCard({ item, onOpen }) {
               alt={`${item.caption} sesudah`}
               loading="lazy"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              style={{ objectPosition: objPos }}
+              style={getImageFramingStyle(item, 'after')}
             />
             <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/70 backdrop-blur-xs text-center z-10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Sesudah</span>
@@ -48,21 +47,23 @@ function GalleryCard({ item, onOpen }) {
         </div>
 
         <div className={`absolute inset-0 bg-brand-900/60 backdrop-blur-[2px] flex items-center justify-center transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="w-12 h-12 rounded-full bg-white/90 text-brand-900 flex items-center justify-center shadow-lg">
-            <Expand className="w-5 h-5 stroke-[2.5]" />
+          <div className="px-3.5 py-1.5 rounded-md bg-white/95 text-brand-900 flex items-center gap-1.5 shadow-lg text-xs font-bold">
+            <Eye className="w-4 h-4 text-brand-600" />
+            <span>Lihat Detail Restorasi</span>
           </div>
         </div>
 
         {item.slots && item.slots.length > 1 && (
-          <span className="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-brand-900/80 backdrop-blur-xs text-white text-[10px] font-semibold border border-white/20 shadow-xs">
-            {item.slots.length} Sudut Foto
+          <span className="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-md bg-brand-900/80 backdrop-blur-xs text-white text-[10px] font-semibold border border-white/20 shadow-xs flex items-center gap-1">
+            <Layers className="w-3 h-3" />
+            <span>{item.slots.length} Sudut</span>
           </span>
         )}
       </div>
 
-      <div className="px-4 py-3.5 flex items-start justify-between gap-3">
+      <div className="px-4 py-3.5 flex items-start justify-between gap-3 grow bg-white">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-brand-900 leading-snug truncate">
+          <h3 className="text-sm font-semibold text-brand-900 leading-snug truncate group-hover:text-brand-600 transition-colors">
             {item.caption}
           </h3>
           <span className="text-[11px] text-slate-wet mt-0.5 block truncate">
@@ -70,7 +71,7 @@ function GalleryCard({ item, onOpen }) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -163,15 +164,8 @@ export function GalleryPage() {
   const [gallery, setGallery] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState(null);
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const gridRef = useRef(null);
-
-  const handleOpenItem = (item) => {
-    setSelectedSlotIndex(0);
-    setActiveItem(item);
-  };
 
   useEffect(() => {
     async function loadGallery() {
@@ -224,12 +218,11 @@ export function GalleryPage() {
       <PageHeader
         title="Galeri Restorasi"
         breadcrumb={[{ label: 'Galeri' }]}
-        subtitle="Dokumentasi resmi sebelum dan sesudah pengerjaan perawatan sepatu dari workshop Lave Streat. Klik foto untuk melihat perbandingan interaktif."
+        subtitle="Dokumentasi resmi sebelum dan sesudah pengerjaan perawatan sepatu dari workshop Lave Streat. Klik foto untuk membuka detail restorasi interaktif."
         bgImage="/services/repaint.jpg"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-
         <div ref={gridRef} className="scroll-mt-24">
           <div className="flex items-center justify-center flex-wrap gap-2 mb-10">
             {GALLERY_CATEGORIES.map((cat) => {
@@ -263,9 +256,9 @@ export function GalleryPage() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden">
+              <div key={i} className="rounded-lg overflow-hidden">
                 <div className="w-full aspect-[4/3] min-h-[190px] bg-slate-200 animate-pulse" />
-                <div className="bg-white p-4 space-y-2 border border-brand-200 border-t-0 rounded-b-2xl">
+                <div className="bg-white p-4 space-y-2 border border-brand-200 border-t-0 rounded-b-lg">
                   <div className="h-4 bg-slate-200 rounded w-3/4 animate-pulse" />
                   <div className="h-3 bg-slate-100 rounded w-1/2 animate-pulse" />
                 </div>
@@ -273,7 +266,7 @@ export function GalleryPage() {
             ))}
           </div>
         ) : filteredGallery.length === 0 ? (
-          <div className="text-center py-16 text-slate-wet bg-white rounded-2xl border border-brand-200 shadow-xs">
+          <div className="text-center py-16 text-slate-wet bg-white rounded-lg border border-brand-200 shadow-xs">
             <p className="text-sm">Belum ada dokumentasi untuk kategori ini.</p>
           </div>
         ) : (
@@ -283,7 +276,6 @@ export function GalleryPage() {
                 <GalleryCard
                   key={item.id}
                   item={item}
-                  onOpen={handleOpenItem}
                 />
               ))}
             </div>
@@ -319,85 +311,6 @@ export function GalleryPage() {
           </div>
         </div>
       </section>
-
-      {activeItem && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm overflow-y-auto p-3 sm:p-5 md:p-6 flex items-center justify-center page-smooth-enter"
-          onClick={() => setActiveItem(null)}
-        >
-          <div
-            className="relative max-w-xl sm:max-w-2xl lg:max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col my-auto border border-brand-200/80 max-h-[92vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-brand-200/60 bg-white shrink-0">
-              <div className="min-w-0 pr-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600 block">
-                  {activeItem.layanan_terkait || 'Treatment Sepatu'}
-                </span>
-                <h2 className="text-sm sm:text-base font-bold text-brand-900 truncate">
-                  {activeItem.caption}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveItem(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                aria-label="Tutup"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-3 sm:p-5 md:p-6 bg-slate-50/60 flex-1 min-h-0 flex flex-col justify-center">
-              {activeItem.slots && activeItem.slots.length > 1 && (
-                <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1">
-                  <span className="text-[11px] font-semibold text-slate-wet shrink-0 mr-1">Sudut Foto:</span>
-                  {activeItem.slots.map((s, idx) => (
-                    <button
-                      key={s.slot || idx}
-                      type="button"
-                      onClick={() => setSelectedSlotIndex(idx)}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                        selectedSlotIndex === idx
-                          ? 'bg-brand-600 text-white shadow-xs'
-                          : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
-                      }`}
-                    >
-                      {s.label || `Sudut ${s.slot || (idx + 1)}`}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="w-full rounded-xl overflow-hidden border border-brand-200/80 shadow-subtle bg-slate-100">
-                <BeforeAfterCompare
-                  beforeUrl={activeItem.slots?.[selectedSlotIndex]?.before_url || activeItem.before_url}
-                  afterUrl={activeItem.slots?.[selectedSlotIndex]?.after_url || activeItem.after_url}
-                  className="border-0 rounded-none shadow-none"
-                  imageClassName="aspect-[4/3] sm:aspect-[16/10] max-h-[52vh] min-h-[220px]"
-                  objectPosition={activeItem.object_position || (activeItem.pos_y != null ? `50% ${activeItem.pos_y}%` : 'center')}
-                />
-              </div>
-            </div>
-
-            <div className="px-4 sm:px-6 py-3 sm:py-3.5 bg-white border-t border-brand-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-              <p className="text-xs text-slate-wet text-center sm:text-left">
-                Geser slider tengah untuk membandingkan detail hasil restorasi.
-              </p>
-              <Button
-                onClick={() => {
-                  setActiveItem(null);
-                  navigate('/pesan');
-                }}
-                size="sm"
-                className="flex items-center justify-center gap-1.5 w-full sm:w-auto shrink-0"
-              >
-                <Truck className="w-3.5 h-3.5" />
-                <span>Pesan Treatment Ini</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

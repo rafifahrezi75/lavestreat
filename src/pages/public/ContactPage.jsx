@@ -111,7 +111,7 @@ export function ContactPage() {
                       type="text"
                       value={form.nama}
                       onChange={(e) => setForm({ ...form, nama: e.target.value })}
-                      placeholder="Contoh: Rian Pratama"
+                      placeholder="Nama lengkap Anda"
                       className="w-full px-3.5 py-2.5 bg-slate-50 border border-brand-200 rounded-lg text-sm text-ink-deep focus:bg-white focus:border-brand-600 focus:outline-none transition-colors"
                     />
                   </div>

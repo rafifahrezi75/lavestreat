@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { Card } from '../../components/common/Card';
@@ -34,6 +34,12 @@ export function GalleryFormPage() {
     { slot: 4, label: 'Sudut Belakang / Sol', before_url: '', after_url: '' }
   ]);
 
+  const [featuredSlot, setFeaturedSlot] = useState(1);
+  const [posX, setPosX] = useState(50);
+  const [posY, setPosY] = useState(50);
+  const previewRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const [formData, setFormData] = useState({
     before_url: '',
     after_url: '',
@@ -43,8 +49,10 @@ export function GalleryFormPage() {
     customer_name: '',
     shoe_brand: '',
     shoe_type: '',
+    pos_x: 50,
     pos_y: 50,
     object_position: '50% 50%',
+    featured_slot: 1,
     tampil_di_home: true
   });
 
@@ -77,6 +85,21 @@ export function GalleryFormPage() {
 
             setSlots(loadedSlots);
 
+            const fSlot = found.featured_slot || 1;
+            setFeaturedSlot(fSlot);
+
+            let initialX = found.pos_x ?? 50;
+            let initialY = found.pos_y ?? 50;
+            if (found.object_position) {
+              const match = found.object_position.match(/(\d+)%\s+(\d+)%/);
+              if (match) {
+                initialX = Number(match[1]);
+                initialY = Number(match[2]);
+              }
+            }
+            setPosX(initialX);
+            setPosY(initialY);
+
             setFormData({
               before_url: found.before_url || loadedSlots[0].before_url || '',
               after_url: found.after_url || loadedSlots[0].after_url || '',
@@ -86,8 +109,10 @@ export function GalleryFormPage() {
               customer_name: found.customer_name || '',
               shoe_brand: found.shoe_brand || '',
               shoe_type: found.shoe_type || '',
-              pos_y: found.pos_y ?? 50,
-              object_position: found.object_position || `50% ${found.pos_y ?? 50}%`,
+              pos_x: initialX,
+              pos_y: initialY,
+              object_position: `${initialX}% ${initialY}%`,
+              featured_slot: fSlot,
               tampil_di_home: found.tampil_di_home !== false
             });
           } else {
@@ -113,15 +138,72 @@ export function GalleryFormPage() {
         return s;
       });
 
-      const firstSlot = updated[0];
+      const chosen = updated.find(s => s.slot === featuredSlot) || updated[0];
       setFormData(fd => ({
         ...fd,
-        before_url: firstSlot.before_url || updated.find(s => s.before_url)?.before_url || '',
-        after_url: firstSlot.after_url || updated.find(s => s.after_url)?.after_url || ''
+        before_url: chosen.before_url || '',
+        after_url: chosen.after_url || ''
       }));
 
       return updated;
     });
+  };
+
+  const handleSelectFeaturedSlot = (slotNum) => {
+    setFeaturedSlot(slotNum);
+    setActiveSlot(slotNum);
+    const chosen = slots.find(s => s.slot === slotNum);
+    if (chosen) {
+      setFormData(fd => ({
+        ...fd,
+        featured_slot: slotNum,
+        before_url: chosen.before_url || fd.before_url,
+        after_url: chosen.after_url || fd.after_url
+      }));
+    }
+  };
+
+  const updatePosition = (newX, newY) => {
+    const x = Math.max(0, Math.min(100, Math.round(newX)));
+    const y = Math.max(0, Math.min(100, Math.round(newY)));
+    setPosX(x);
+    setPosY(y);
+    setFormData(prev => ({
+      ...prev,
+      pos_x: x,
+      pos_y: y,
+      object_position: `${x}% ${y}%`
+    }));
+  };
+
+  const updateFromPointer = (e) => {
+    if (!previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+    const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+    if (clientX == null || clientY == null) return;
+
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    const y = ((clientY - rect.top) / rect.height) * 100;
+    updatePosition(x, y);
+  };
+
+  const handlePointerDown = (e) => {
+    setIsDragging(true);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    updateFromPointer(e);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    updateFromPointer(e);
+  };
+
+  const handlePointerUp = (e) => {
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    } catch {}
   };
 
   const handleSubmit = async (e) => {
@@ -136,11 +218,15 @@ export function GalleryFormPage() {
     setSubmitting(true);
     setFormError('');
 
-    const primary = filledSlots[0] || slots[0];
+    const chosen = slots.find(s => s.slot === featuredSlot) || filledSlots[0] || slots[0];
     const payload = {
       ...formData,
-      before_url: primary.before_url || formData.before_url,
-      after_url: primary.after_url || formData.after_url,
+      featured_slot: featuredSlot,
+      before_url: chosen.before_url || formData.before_url,
+      after_url: chosen.after_url || formData.after_url,
+      pos_x: posX,
+      pos_y: posY,
+      object_position: `${posX}% ${posY}%`,
       slots: slots
     };
 
@@ -170,6 +256,7 @@ export function GalleryFormPage() {
 
   const currentSlotData = slots.find(s => s.slot === activeSlot) || slots[0];
   const currentAngle = ANGLE_SLOTS.find(a => a.slot === activeSlot) || ANGLE_SLOTS[0];
+  const featuredSlotData = slots.find(s => s.slot === featuredSlot) || slots[0];
 
   return (
     <div className="flex flex-col gap-5 w-full">
@@ -191,63 +278,99 @@ export function GalleryFormPage() {
           </div>
         )}
 
-        <Card className="p-5 sm:p-6 border-brand-200 w-full flex flex-col gap-4">
-          <div className="border-b border-brand-200/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <Card className="p-5 sm:p-6 border-brand-200 w-full flex flex-col gap-6">
+          <div className="border-b border-brand-200/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h2 className="font-display font-bold text-base sm:text-lg text-brand-900">
-                Dokumentasi Foto Sepatu (4 Sudut Before & After)
+                1. Pilih Sudut Foto & Sudut Utama Beranda
               </h2>
-              <p className="text-xs text-slate-wet">
-                Satu pasang sepatu mencakup 4 sudut foto: Depan/Upper, Samping Luar, Samping Dalam, dan Belakang/Sol.
+              <p className="text-xs text-slate-wet mt-0.5">
+                Pilih sudut untuk mengunggah foto, dan tentukan sudut mana yang menjadi tampilan utama di Beranda & Kartu.
               </p>
             </div>
             <span className="text-xs font-semibold px-2.5 py-1 bg-brand-100 text-brand-900 rounded-full border border-brand-200 shrink-0 self-start sm:self-auto">
-              Total 4 Sudut (8 Foto)
+              Total 4 Sudut Foto
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {ANGLE_SLOTS.map((angle) => {
               const sData = slots.find(s => s.slot === angle.slot) || { before_url: '', after_url: '' };
               const hasBefore = Boolean(sData.before_url);
               const hasAfter = Boolean(sData.after_url);
               const isComplete = hasBefore && hasAfter;
               const isActive = activeSlot === angle.slot;
+              const isFeatured = featuredSlot === angle.slot;
 
               return (
-                <button
+                <div
                   key={angle.slot}
-                  type="button"
-                  onClick={() => setActiveSlot(angle.slot)}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-1.5 relative ${
-                    isActive
-                      ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-600/30 shadow-xs'
+                  className={`p-3 rounded-xl border transition-all flex flex-col justify-between gap-2 relative ${
+                    isFeatured
+                      ? 'border-brand-600 bg-brand-50/80 ring-2 ring-brand-600/30 shadow-xs'
+                      : isActive
+                      ? 'border-brand-300 bg-slate-50'
                       : 'border-brand-200 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-brand-900">
-                      Sudut #{angle.slot}
-                    </span>
-                    {isComplete ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    ) : (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                        hasBefore || hasAfter ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {hasBefore || hasAfter ? '1 Foto' : 'Kosong'}
+                  <div
+                    onClick={() => setActiveSlot(angle.slot)}
+                    className="cursor-pointer flex flex-col gap-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-900 flex items-center gap-1.5">
+                        <span>Sudut #{angle.slot}</span>
+                        {isFeatured && (
+                          <span className="text-[10px] bg-accent-gold text-brand-900 font-extrabold px-1.5 py-0.2 rounded shadow-2xs">
+                            Utama Beranda
+                          </span>
+                        )}
                       </span>
-                    )}
+                      {isComplete ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      ) : (
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                          hasBefore || hasAfter ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {hasBefore || hasAfter ? '1 Foto' : 'Kosong'}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-slate-wet font-medium truncate">
+                      {angle.label}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-slate-wet font-medium truncate">
-                    {angle.label}
-                  </span>
-                </button>
+
+                  <div className="pt-2 border-t border-brand-200/60 flex items-center justify-between gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSlot(angle.slot)}
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded cursor-pointer transition-colors ${
+                        isActive ? 'text-brand-900 font-bold underline' : 'text-slate-wet hover:text-brand-900'
+                      }`}
+                    >
+                      {isActive ? 'Sedang Diedit' : 'Edit Foto'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSelectFeaturedSlot(angle.slot)}
+                      className={`text-[11px] font-bold px-2 py-1 rounded transition-all cursor-pointer ${
+                        isFeatured
+                          ? 'bg-brand-600 text-white'
+                          : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-100'
+                      }`}
+                      title="Jadikan sudut ini sebagai foto yang tampil di Beranda dan Kartu Galeri"
+                    >
+                      {isFeatured ? 'Aktif di Beranda' : 'Pilih ke Beranda'}
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>
 
-          <div className="p-4 bg-slate-50/70 rounded-xl border border-brand-200 flex flex-col gap-3">
+          <div className="p-4 bg-slate-50 rounded-xl border border-brand-200 flex flex-col gap-3">
             <div className="flex items-center justify-between border-b border-brand-200/60 pb-2">
               <span className="text-xs font-bold text-brand-900">
                 Upload Foto Sudut #{activeSlot}: {currentAngle.label}
@@ -271,111 +394,172 @@ export function GalleryFormPage() {
             </div>
           </div>
 
-          <div className="p-4 bg-brand-light/40 border border-brand-200/80 rounded-xl flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <div className="p-5 bg-brand-light/40 border border-brand-200/80 rounded-xl flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-200/60 pb-3">
               <div>
-                <h3 className="text-xs font-bold text-brand-900 uppercase tracking-wide">
-                  Atur Posisi Fokus Frame (Crop & Geser Tampilan)
+                <h3 className="text-xs font-bold text-brand-900 uppercase tracking-wide flex items-center gap-1.5">
+                  <span>2. Atur Posisi Framing & Crop (Tampilan Beranda)</span>
+                  <span className="px-2 py-0.5 rounded-full bg-brand-600 text-white text-[10px] font-bold">
+                    Sudut #{featuredSlot}
+                  </span>
                 </h3>
-                <p className="text-[11px] text-slate-wet">
-                  Geser posisi vertikal agar bagian sepatu yang penting (atas atau sol bawah) tampil pas di dalam frame kartu 4:3.
+                <p className="text-[11px] text-slate-wet mt-0.5">
+                  Klik & geser langsung pada gambar di bawah atau gunakan kontrol posisi untuk menentukan bagian sepatu yang ingin ditonjolkan di kartu 4:3.
                 </p>
               </div>
-              <span className="text-xs font-semibold text-brand-600 px-2 py-0.5 bg-white border border-brand-200 rounded-md shrink-0">
-                Posisi: {formData.pos_y}%
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-brand-900 px-2 py-1 bg-white border border-brand-200 rounded-md shrink-0">
+                  X: {posX}% | Y: {posY}%
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-semibold text-slate-wet mr-1">Preset Fokus:</span>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, pos_y: 15, object_position: '50% 15%' }))}
+                onClick={() => updatePosition(50, 50)}
                 className={`text-xs px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
-                  formData.pos_y <= 25 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
+                  posX === 50 && posY === 50 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
                 }`}
               >
-                Fokus Atas (Sepatu Tinggi)
+                Tengah (50% 50%)
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, pos_y: 50, object_position: '50% 50%' }))}
+                onClick={() => updatePosition(50, 15)}
                 className={`text-xs px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
-                  formData.pos_y > 25 && formData.pos_y < 75 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
+                  posY <= 25 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
                 }`}
               >
-                Fokus Tengah (Standar)
+                Fokus Atas (Upper)
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, pos_y: 85, object_position: '50% 85%' }))}
+                onClick={() => updatePosition(50, 85)}
                 className={`text-xs px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
-                  formData.pos_y >= 75 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
+                  posY >= 75 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
                 }`}
               >
-                Fokus Bawah (Sol / Midsole)
+                Fokus Bawah (Sol)
+              </button>
+              <button
+                type="button"
+                onClick={() => updatePosition(20, 50)}
+                className={`text-xs px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
+                  posX <= 30 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
+                }`}
+              >
+                Fokus Kiri
+              </button>
+              <button
+                type="button"
+                onClick={() => updatePosition(80, 50)}
+                className={`text-xs px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
+                  posX >= 70 ? 'bg-brand-600 text-white border-brand-600 font-semibold' : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-100'
+                }`}
+              >
+                Fokus Kanan
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-slate-wet shrink-0">Atas (0%)</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={formData.pos_y}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setFormData(prev => ({
-                    ...prev,
-                    pos_y: val,
-                    object_position: `50% ${val}%`
-                  }));
-                }}
-                className="w-full accent-brand-600 cursor-pointer"
-              />
-              <span className="text-xs font-medium text-slate-wet shrink-0">Bawah (100%)</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-3.5 rounded-xl border border-brand-200">
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-brand-900">
+                  <span>Posisi Vertikal (Atas - Bawah)</span>
+                  <span className="text-brand-600">{posY}%</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-wet shrink-0">Atas (0%)</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={posY}
+                    onChange={(e) => updatePosition(posX, Number(e.target.value))}
+                    className="w-full accent-brand-600 cursor-pointer"
+                  />
+                  <span className="text-[11px] text-slate-wet shrink-0">Bawah (100%)</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-brand-900">
+                  <span>Posisi Horizontal (Kiri - Kanan)</span>
+                  <span className="text-brand-600">{posX}%</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-wet shrink-0">Kiri (0%)</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={posX}
+                    onChange={(e) => updatePosition(Number(e.target.value), posY)}
+                    className="w-full accent-brand-600 cursor-pointer"
+                  />
+                  <span className="text-[11px] text-slate-wet shrink-0">Kanan (100%)</span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-1">
-              <span className="text-[11px] font-semibold text-slate-wet block mb-1.5">
-                Live Preview Frame Kartu (Sudut #{activeSlot}: {currentAngle.label}) Rasio 4:3:
-              </span>
-              <div className="w-full max-w-sm mx-auto aspect-[4/3] rounded-xl overflow-hidden border border-brand-200 bg-slate-100 shadow-xs relative">
-                <div className="absolute inset-0 grid grid-cols-2">
-                  <div className="relative overflow-hidden border-r border-white">
-                    {currentSlotData.before_url ? (
+            <div className="mt-1 flex flex-col items-center">
+              <div className="w-full max-w-md flex items-center justify-between text-[11px] font-semibold text-slate-wet mb-1.5 px-1">
+                <span>Live Preview Kartu Beranda (Rasio 4:3):</span>
+                <span className="text-brand-600 font-bold">Tahan & Geser mouse pada foto untuk menggeser</span>
+              </div>
+
+              <div
+                ref={previewRef}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                className="w-full max-w-md aspect-[4/3] rounded-xl overflow-hidden border-2 border-brand-300 bg-slate-900 shadow-md relative cursor-grab active:cursor-grabbing select-none touch-none"
+              >
+                <div className="absolute inset-0 grid grid-cols-2 pointer-events-none">
+                  <div className="relative overflow-hidden border-r-2 border-white">
+                    {featuredSlotData.before_url ? (
                       <img
-                        src={currentSlotData.before_url}
+                        src={featuredSlotData.before_url}
                         alt="Preview Sebelum"
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-150"
-                        style={{ objectPosition: `50% ${formData.pos_y}%` }}
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-none"
+                        style={{ objectPosition: `${posX}% ${posY}%` }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-wet">
-                        Belum ada foto
+                      <div className="w-full h-full flex items-center justify-center text-[10px] text-white/70 bg-slate-800">
+                        Belum ada foto sebelum
                       </div>
                     )}
-                    <div className="absolute bottom-0 inset-x-0 py-0.5 bg-black/50 text-center text-[9px] text-white font-bold uppercase">
+                    <div className="absolute bottom-0 inset-x-0 py-1 bg-black/60 text-center text-[10px] text-white font-bold uppercase tracking-wider">
                       Sebelum
                     </div>
                   </div>
+
                   <div className="relative overflow-hidden">
-                    {currentSlotData.after_url ? (
+                    {featuredSlotData.after_url ? (
                       <img
-                        src={currentSlotData.after_url}
+                        src={featuredSlotData.after_url}
                         alt="Preview Sesudah"
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-150"
-                        style={{ objectPosition: `50% ${formData.pos_y}%` }}
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-none"
+                        style={{ objectPosition: `${posX}% ${posY}%` }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-wet">
-                        Belum ada foto
+                      <div className="w-full h-full flex items-center justify-center text-[10px] text-white/70 bg-slate-800">
+                        Belum ada foto sesudah
                       </div>
                     )}
-                    <div className="absolute bottom-0 inset-x-0 py-0.5 bg-brand-600/70 text-center text-[9px] text-white font-bold uppercase">
+                    <div className="absolute bottom-0 inset-x-0 py-1 bg-brand-600/80 text-center text-[10px] text-white font-bold uppercase tracking-wider">
                       Sesudah
                     </div>
                   </div>
+                </div>
+
+                <div
+                  className="absolute w-6 h-6 -translate-x-1/2 -translate-y-1/2 pointer-events-none border-2 border-accent-gold rounded-full shadow-md flex items-center justify-center bg-black/40 z-20"
+                  style={{ left: `${posX}%`, top: `${posY}%` }}
+                >
+                  <div className="w-1.5 h-1.5 bg-accent-gold rounded-full" />
                 </div>
               </div>
             </div>
