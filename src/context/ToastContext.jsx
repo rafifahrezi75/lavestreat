@@ -24,11 +24,11 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+      <div className="fixed bottom-5 right-5 z-[100000] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center justify-between px-4 py-3 rounded-lg shadow-md border text-sm font-medium transition-all duration-200 animate-in fade-in slide-in-from-bottom-2 ${
+            className={`pointer-events-auto flex items-center justify-between px-4 py-3 rounded-md shadow-md border text-sm font-medium transition-all duration-200 animate-in fade-in slide-in-from-bottom-2 ${
               toast.type === 'danger'
                 ? 'bg-brand-900 text-white border-danger/40 shadow-danger/10'
                 : 'bg-brand-900 text-white border-brand-200/20 shadow-brand-900/15'

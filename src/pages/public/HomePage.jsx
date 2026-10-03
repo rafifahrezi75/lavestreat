@@ -110,7 +110,7 @@ export function HomePage() {
                     className="flex-1 sm:flex-none justify-center bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg hover:shadow-brand-600/40 flex items-center gap-2 py-2 sm:py-3 text-xs sm:text-sm"
                   >
                     <Truck className="w-4 h-4" />
-                    <span>Pesan Penjemputan</span>
+                    <span>Pesan Sekarang</span>
                   </Button>
 
                   <Link to="/layanan" className="flex-1 sm:flex-none">
@@ -621,7 +621,7 @@ export function HomePage() {
               className="shadow-md flex items-center gap-2"
             >
               <Truck className="w-4 h-4" />
-              <span>Pesan Penjemputan</span>
+              <span>Pesan Sekarang</span>
             </Button>
           </div>
         </div>

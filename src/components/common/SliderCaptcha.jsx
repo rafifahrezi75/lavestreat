@@ -192,7 +192,7 @@ export function SliderCaptcha({ onSuccess, onFail }) {
 
   return (
     <div className="w-full select-none">
-      <div className="relative w-full aspect-2/1 bg-slate-100 rounded-lg overflow-hidden border border-brand-200">
+      <div className="relative w-full aspect-2/1 bg-slate-100 rounded-md overflow-hidden border border-brand-200">
         <canvas
           ref={bgCanvasRef}
           width={300}
@@ -216,8 +216,8 @@ export function SliderCaptcha({ onSuccess, onFail }) {
 
         {verified && (
           <div className="absolute inset-0 bg-emerald-600/90 backdrop-blur-xs flex flex-col items-center justify-center text-white">
-            <div className="w-10 h-10 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-md mb-1">
-              <Check size={22} weight="bold" />
+            <div className="w-9 h-9 rounded-md bg-white text-emerald-600 flex items-center justify-center shadow-sm mb-1">
+              <Check size={20} weight="bold" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider">Verifikasi Berhasil</span>
           </div>
@@ -227,7 +227,7 @@ export function SliderCaptcha({ onSuccess, onFail }) {
       <div className="mt-3">
         <div
           ref={trackRef}
-          className={`relative w-full h-11 bg-slate-50 border rounded-lg overflow-hidden transition-colors ${
+          className={`relative w-full h-11 bg-slate-50 border rounded-md overflow-hidden transition-colors ${
             verified
               ? 'border-emerald-500 bg-emerald-50'
               : hasError

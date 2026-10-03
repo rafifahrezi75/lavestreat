@@ -6,7 +6,7 @@ export const initialServices = [
     "deskripsi": "Pencucian menyeluruh mencakup upper, midsole, outsole, insole, dan tali sepatu untuk berbagai jenis material.",
     "harga": 25000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/deep-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-10T00:00:00.000Z"
   },
@@ -17,7 +17,7 @@ export const initialServices = [
     "deskripsi": "Pembersihan cepat bagian luar (upper dan midsole), solusi praktis saat butuh sepatu bersih dalam waktu singkat.",
     "harga": 20000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/medium-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-10T00:00:00.000Z"
   },
@@ -28,7 +28,7 @@ export const initialServices = [
     "deskripsi": "Treatment khusus mengembalikan midsole dan bodi sepatu yang menguning menjadi putih bersih kembali.",
     "harga": 35000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-11T00:00:00.000Z"
   },
@@ -39,7 +39,7 @@ export const initialServices = [
     "deskripsi": "Pembersihan luar express disertai treatment pemutih midsole untuk menjaga estetika harian.",
     "harga": 30000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-11T00:00:00.000Z"
   },
@@ -50,7 +50,7 @@ export const initialServices = [
     "deskripsi": "Restorasi khusus warna putih pada material canvas, mesh, dan midsole agar cerah seperti baru.",
     "harga": 35000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-11T00:00:00.000Z"
   },
@@ -61,7 +61,7 @@ export const initialServices = [
     "deskripsi": "Perawatan khusus bahan suede dan nubuck agar tekstur tetap lembut, bersih dari debu, dan warna tidak pudar.",
     "harga": 50000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/suede-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-12T00:00:00.000Z"
   },
@@ -72,7 +72,7 @@ export const initialServices = [
     "deskripsi": "Layanan cepat pembersihan sepatu putih dengan waktu pengerjaan 24 jam untuk kebutuhan mendesak.",
     "harga": 45000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-12T00:00:00.000Z"
   },
@@ -83,7 +83,7 @@ export const initialServices = [
     "deskripsi": "Pengecatan ulang canvas atau leather untuk mengembalikan kesegaran warna sepatu sekaligus pencucian menyeluruh.",
     "harga": 50000,
     "satuan": "per pasang",
-    "foto": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/repaint.jpg",
     "aktif": true,
     "created_at": "2026-01-12T00:00:00.000Z"
   },
@@ -94,7 +94,7 @@ export const initialServices = [
     "deskripsi": "Formula pembersih khusus berbahan alami yang aman untuk semua jenis material sepatu, tidak merusak warna atau serat.",
     "harga": 35000,
     "satuan": "per botol 250ml",
-    "foto": "https://images.unsplash.com/photo-1608248597359-54bc0c1a7e4b?w=800&auto=format&fit=crop&q=80",
+    "foto": "/services/shoe-cleaner.jpg",
     "aktif": true,
     "created_at": "2026-01-13T00:00:00.000Z"
   }
@@ -7547,7 +7547,7 @@ export const initialGeneralSettings = {
     }
   },
   kontak: {
-    whatsapp: '6281234567890',
+    whatsapp: '6285128024120',
     email: 'info@lavestreat.com',
     instagram: 'lave_streat'
   },

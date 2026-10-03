@@ -31,33 +31,37 @@ function saveLocalOrders(orders) {
 
 export const ordersApi = {
   async getOrders() {
+    let remoteOrders = [];
     if (isFirebaseConfigured) {
       try {
         const colRef = collection(db, 'orders');
         const q = query(colRef, orderBy('created_at', 'desc'));
-        const snap = await getDocs(q);
+        const snap = await Promise.race([
+          getDocs(q),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+        ]);
         if (!snap.empty) {
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          remoteOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
       } catch {
-        try {
-          const snap = await getDocs(collection(db, 'orders'));
-          if (!snap.empty) {
-            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          }
-        } catch {
-        }
       }
     }
 
-    const orders = getLocalOrders();
-    return [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const localOrders = getLocalOrders();
+    const map = new Map();
+    localOrders.forEach(o => map.set(o.id, o));
+    remoteOrders.forEach(o => map.set(o.id, o));
+
+    return Array.from(map.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
 
   async getOrderById(id) {
     if (isFirebaseConfigured) {
       try {
-        const snap = await getDoc(doc(db, 'orders', id));
+        const snap = await Promise.race([
+          getDoc(doc(db, 'orders', id)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+        ]);
         if (snap.exists()) return { id: snap.id, ...snap.data() };
       } catch {
       }
@@ -98,14 +102,24 @@ export const ordersApi = {
 
     const computedTotal = snappedItems.reduce((acc, curr) => acc + (curr.harga_snapshot * curr.qty), 0);
     const nowIso = new Date().toISOString();
-    const orderNumber = 'ORD-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + Math.floor(1000 + Math.random() * 9000);
+    const orderNumber = payload.id || ('ORD-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + Math.floor(1000 + Math.random() * 9000));
+
+    const customerNama = payload.pelanggan?.nama || payload.customer?.nama || '';
+    const customerTelepon = payload.pelanggan?.telepon || payload.customer?.telepon || '';
+    const customerEmail = payload.pelanggan?.email || payload.customer?.email || '';
 
     const newOrder = {
       id: orderNumber,
       pelanggan: {
-        nama: payload.pelanggan.nama,
-        telepon: payload.pelanggan.telepon,
-        email: payload.pelanggan.email || ''
+        nama: customerNama,
+        telepon: customerTelepon,
+        email: customerEmail
+      },
+      customer: {
+        nama: customerNama,
+        telepon: customerTelepon,
+        email: customerEmail,
+        catatan: payload.catatan || ''
       },
       items: snappedItems,
       metode: payload.metode,
@@ -113,6 +127,10 @@ export const ordersApi = {
       alamat_antar: payload.alamat_antar || payload.alamat_jemput || null,
       jadwal_tanggal: payload.jadwal_tanggal,
       jadwal_slot: payload.jadwal_slot,
+      jadwal: {
+        tanggal: payload.jadwal_tanggal,
+        slot: payload.jadwal_slot
+      },
       catatan: payload.catatan || '',
       total_harga: computedTotal,
       status: 'Menunggu Konfirmasi',
@@ -133,19 +151,19 @@ export const ordersApi = {
     saveLocalOrders(orders);
 
     if (isFirebaseConfigured) {
-      try {
-        const createOrderFn = httpsCallable(functions, 'verifyCaptchaAndCreateOrder');
-        const result = await Promise.race([
-          createOrderFn(payload),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
-        ]);
-        return result.data;
-      } catch {
+      if (import.meta.env.VITE_USE_CLOUD_FUNCTIONS === 'true') {
         try {
-          await setDoc(doc(db, 'orders', orderNumber), newOrder);
+          const createOrderFn = httpsCallable(functions, 'verifyCaptchaAndCreateOrder');
+          const result = await Promise.race([
+            createOrderFn(payload),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
+          ]);
+          if (result && result.data) return result.data;
         } catch {
         }
       }
+
+      setDoc(doc(db, 'orders', orderNumber), newOrder).catch(() => {});
     }
 
     return newOrder;
@@ -186,47 +204,54 @@ export const ordersApi = {
     }
 
     if (isFirebaseConfigured) {
-      try {
-        const updateFn = httpsCallable(functions, 'updateOrderStatus');
-        const result = await Promise.race([
-          updateFn({ orderId, newStatus, catatan }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
-        ]);
-        return result.data;
-      } catch {
+      if (import.meta.env.VITE_USE_CLOUD_FUNCTIONS === 'true') {
         try {
-          const snap = await getDoc(doc(db, 'orders', orderId));
-          if (snap.exists()) {
-            const currentData = snap.data();
-            const allowedNext = STATUS_TRANSITIONS[currentData.status] || [];
-            if (!allowedNext.includes(newStatus)) {
-              throw new Error(`Tidak dapat mengubah status dari "${currentData.status}" menjadi "${newStatus}".`);
+          const updateFn = httpsCallable(functions, 'updateOrderStatus');
+          const result = await Promise.race([
+            updateFn({ orderId, newStatus, catatan }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Function timeout')), 2500))
+          ]);
+          return result.data;
+        } catch {
+        }
+      }
+
+      try {
+        const snap = await Promise.race([
+          getDoc(doc(db, 'orders', orderId)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+        ]);
+        if (snap.exists()) {
+          const currentData = snap.data();
+          const allowedNext = STATUS_TRANSITIONS[currentData.status] || [];
+          if (!allowedNext.includes(newStatus)) {
+            throw new Error(`Tidak dapat mengubah status dari "${currentData.status}" menjadi "${newStatus}".`);
+          }
+          const updatedHistory = [
+            ...(currentData.status_history || []),
+            {
+              status: newStatus,
+              timestamp: nowIso,
+              catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
             }
-            const updatedHistory = [
-              ...(currentData.status_history || []),
-              {
-                status: newStatus,
-                timestamp: nowIso,
-                catatan: catatan || `Status diubah menjadi ${newStatus} oleh ${adminName}`
-              }
-            ];
-            await updateDoc(doc(db, 'orders', orderId), {
-              status: newStatus,
-              status_history: updatedHistory,
-              updated_at: nowIso
-            });
-            return {
-              id: orderId,
-              ...currentData,
-              status: newStatus,
-              status_history: updatedHistory,
-              updated_at: nowIso
-            };
-          }
-        } catch (e) {
-          if (e.message && e.message.includes('Tidak dapat mengubah status')) {
-            throw e;
-          }
+          ];
+          updateDoc(doc(db, 'orders', orderId), {
+            status: newStatus,
+            status_history: updatedHistory,
+            updated_at: nowIso
+          }).catch(() => {});
+
+          return {
+            id: orderId,
+            ...currentData,
+            status: newStatus,
+            status_history: updatedHistory,
+            updated_at: nowIso
+          };
+        }
+      } catch (e) {
+        if (e.message && e.message.includes('Tidak dapat mengubah status')) {
+          throw e;
         }
       }
     }
@@ -243,8 +268,7 @@ export const ordersApi = {
     const cleanPatch = { ...patch, updated_at: nowIso };
 
     if (isFirebaseConfigured) {
-      await updateDoc(doc(db, 'orders', orderId), cleanPatch);
-      return { id: orderId, ...cleanPatch };
+      updateDoc(doc(db, 'orders', orderId), cleanPatch).catch(() => {});
     }
 
     const orders = getLocalOrders();
@@ -257,4 +281,5 @@ export const ordersApi = {
     return { id: orderId, ...cleanPatch };
   }
 };
+
 

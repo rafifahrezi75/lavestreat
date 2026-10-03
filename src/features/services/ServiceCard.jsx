@@ -16,13 +16,16 @@ export function ServiceCard({ service, onSelect, selected = false }) {
   };
 
   return (
-    <div className={`h-full bg-white rounded-card border transition-all duration-300 ease-out flex flex-col overflow-hidden shadow-subtle ${
+    <div className={`h-full bg-white rounded-md border transition-all duration-300 ease-out flex flex-col overflow-hidden shadow-subtle ${
       selected ? 'border-brand-600 ring-2 ring-brand-600/20 -translate-y-0.5' : 'border-brand-200 hover:border-brand-600/50 hover:-translate-y-1 hover:shadow-md'
     }`}>
       <div className="relative w-full aspect-[4/3] min-h-[180px] overflow-hidden bg-brand-100 shrink-0">
         <img
-          src={service.foto || '/hero-sneaker.jpg'}
+          src={service.foto || '/services/deep-clean.jpg'}
           alt={service.nama}
+          onError={(e) => {
+            e.currentTarget.src = '/services/deep-clean.jpg';
+          }}
           className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
         />
         <div className="absolute top-3 left-3">

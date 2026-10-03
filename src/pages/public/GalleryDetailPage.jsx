@@ -318,7 +318,7 @@ export function GalleryDetailPage() {
                     Pesan Layanan Serupa
                   </Button>
                   <a
-                    href={`https://wa.me/6281234567890?text=${encodeURIComponent(waMessage)}`}
+                    href={`https://wa.me/6285128024120?text=${encodeURIComponent(waMessage)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center px-4 py-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors"

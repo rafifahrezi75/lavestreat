@@ -42,7 +42,7 @@ export function PublicFooter({ settings }) {
                 to="/pesan"
                 className="text-left hover:text-white transition-colors font-medium text-blue-400 mt-1 inline-flex items-center gap-1.5"
               >
-                <span>Pesan Penjemputan</span>
+                <span>Pesan Sekarang</span>
                 <ArrowRight size={13} className="shrink-0" />
               </Link>
             </div>

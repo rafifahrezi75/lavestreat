@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapPin } from '@phosphor-icons/react';
+import { useToast } from '../../context/ToastContext';
 
 const createCustomIcon = (color = '#2F6FED') => {
   return L.divIcon({
@@ -20,6 +21,7 @@ export function LocationPicker({
   height = '320px',
   label = 'Pilih Titik Lokasi Penjemputan'
 }) {
+  const { showToast } = useToast();
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
@@ -118,19 +120,27 @@ export function LocationPicker({
   };
 
   const handleGetCurrentLocation = () => {
-    if (navigator.geolocation && mapInstanceRef.current && markerRef.current) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          setCoordinates({ lat, lng });
+    if (!navigator.geolocation) {
+      showToast('Perangkat tidak mendukung fitur lokasi.', 'danger');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCoordinates({ lat, lng });
+        if (mapInstanceRef.current && markerRef.current) {
           mapInstanceRef.current.setView([lat, lng], 15);
           markerRef.current.setLatLng([lat, lng]);
-          reverseGeocode(lat, lng);
-        },
-        () => {}
-      );
-    }
+        }
+        reverseGeocode(lat, lng);
+        showToast('Titik lokasi berhasil didapatkan.', 'success');
+      },
+      () => {
+        showToast('Gagal mendeteksi lokasi. Pastikan izin lokasi browser aktif.', 'danger');
+      }
+    );
   };
 
   return (
@@ -143,7 +153,7 @@ export function LocationPicker({
         <button
           type="button"
           onClick={handleGetCurrentLocation}
-          className="text-xs text-brand-600 hover:text-brand-900 font-medium bg-brand-100 hover:bg-brand-200 px-3.5 py-1.5 rounded-full transition-colors"
+          className="text-xs text-brand-600 hover:text-brand-900 font-medium bg-brand-100 hover:bg-brand-200 px-3.5 py-1.5 rounded-md transition-colors"
         >
           Gunakan Lokasi Saya
         </button>
@@ -152,7 +162,7 @@ export function LocationPicker({
       <div
         ref={mapContainerRef}
         style={{ height }}
-        className="w-full rounded-card border border-brand-200 overflow-hidden shadow-subtle"
+        className="w-full rounded-md border border-brand-200 overflow-hidden shadow-subtle"
       />
 
       <div className="flex flex-col gap-1">

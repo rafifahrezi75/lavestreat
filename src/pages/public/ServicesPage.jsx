@@ -216,7 +216,7 @@ export function ServicesPage() {
             <Link to="/pesan">
               <Button size="md" className="bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-2 shadow-sm">
                 <Truck className="w-4 h-4" />
-                <span>Pesan Penjemputan</span>
+                <span>Pesan Sekarang</span>
               </Button>
             </Link>
           </div>

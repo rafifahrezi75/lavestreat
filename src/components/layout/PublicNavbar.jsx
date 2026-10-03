@@ -89,7 +89,7 @@ export function PublicNavbar() {
                 className="bg-brand-600 hover:bg-brand-500 text-white shadow-sm flex items-center gap-2"
               >
                 <Truck className="w-4 h-4" />
-                <span>Pesan Penjemputan</span>
+                <span>Pesan Sekarang</span>
               </Button>
             </Link>
           </div>
@@ -141,7 +141,7 @@ export function PublicNavbar() {
                 className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white"
               >
                 <Truck className="w-4 h-4" />
-                <span>Pesan Penjemputan</span>
+                <span>Pesan Sekarang</span>
               </Button>
             </Link>
           </div>

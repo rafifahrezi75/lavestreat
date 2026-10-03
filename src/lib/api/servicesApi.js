@@ -11,11 +11,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialServices } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_services_data_v5';
+const STORAGE_KEY = 'lavestreat_services_data_v8';
 
 function getLocalServices() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
+  if (!data || !data.includes('/services/shoe-cleaner.jpg')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialServices));
     return initialServices;
   }
@@ -26,6 +26,30 @@ function saveLocalServices(services) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
 }
 
+const defaultPhotoMap = {
+  'srv-1': '/services/deep-clean.jpg',
+  'srv-2': '/services/medium-clean.jpg',
+  'srv-3': '/services/white-clean.jpg',
+  'srv-4': '/services/white-clean.jpg',
+  'srv-5': '/services/white-clean.jpg',
+  'srv-6': '/services/suede-clean.jpg',
+  'srv-7': '/services/white-clean.jpg',
+  'srv-8': '/services/repaint.jpg',
+  'srv-9': '/services/shoe-cleaner.jpg'
+};
+
+function normalizeService(service) {
+  if (!service) return service;
+  let foto = service.foto;
+  if (!foto || typeof foto !== 'string' || foto.includes('images.unsplash.com')) {
+    foto = defaultPhotoMap[service.id] || '/services/deep-clean.jpg';
+  }
+  return {
+    ...service,
+    foto
+  };
+}
+
 export const servicesApi = {
   async getServices(onlyActive = true) {
     if (isFirebaseConfigured) {
@@ -34,7 +58,7 @@ export const servicesApi = {
         const q = onlyActive ? query(colRef, where('aktif', '==', true)) : colRef;
         const snap = await getDocs(q);
         if (!snap.empty) {
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          return snap.docs.map(d => normalizeService({ id: d.id, ...d.data() }));
         }
       } catch (err) {
         console.warn('Firestore services fallback:', err.message);
@@ -43,19 +67,20 @@ export const servicesApi = {
 
     const services = getLocalServices();
     if (onlyActive) {
-      return services.filter(s => s.aktif);
+      return services.filter(s => s.aktif).map(normalizeService);
     }
-    return services;
+    return services.map(normalizeService);
   },
 
   async getServiceById(id) {
     if (isFirebaseConfigured) {
       const snap = await getDoc(doc(db, 'services', id));
-      return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+      return snap.exists() ? normalizeService({ id: snap.id, ...snap.data() }) : null;
     }
 
     const services = getLocalServices();
-    return services.find(s => s.id === id) || null;
+    const found = services.find(s => s.id === id) || null;
+    return normalizeService(found);
   },
 
   async createService(payload) {

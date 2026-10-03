@@ -306,7 +306,7 @@ export function GalleryPage() {
               className="shadow-md flex items-center gap-2"
             >
               <Truck className="w-4 h-4" />
-              <span>Pesan Penjemputan Sekarang</span>
+              <span>Pesan Sekarang</span>
             </Button>
           </div>
         </div>

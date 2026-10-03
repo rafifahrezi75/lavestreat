@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { 
   Check, 
   Plus, 
@@ -7,36 +7,38 @@ import {
   Truck, 
   Storefront, 
   Package, 
-  CalendarCheck, 
   ShieldCheck,
   ShoppingBag,
-  MapPin,
+  Sparkle,
   ArrowRight,
   ArrowLeft,
-  Sparkle
+  Printer
 } from '@phosphor-icons/react';
-import { MessageCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { MessageCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Select } from '../../components/common/Select';
 import { LocationPicker } from '../../components/map/LocationPicker';
-import { SliderCaptcha } from '../../components/common/SliderCaptcha';
+import { SliderCaptchaModal } from '../../components/common/SliderCaptchaModal';
 import { PageHeader } from '../../components/common/PageHeader';
+import { useToast } from '../../context/ToastContext';
 import { servicesApi, ordersApi } from '../../lib/api';
 import { ORDER_METHODS } from '../../lib/constants';
+import { printOrderReceipt } from '../../lib/orderReceiptPdf';
 
 export function OrderPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const preselectedServiceId = searchParams.get('service');
+  const { showToast } = useToast();
 
-  const [step, setStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1);
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [waRedirectUrl, setWaRedirectUrl] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
 
   const [selectedItems, setSelectedItems] = useState({});
   const [method, setMethod] = useState('');
@@ -55,7 +57,6 @@ export function OrderPage() {
     lat: -7.4478,
     lng: 112.7183
   });
-  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -67,19 +68,15 @@ export function OrderPage() {
         if (preselectedServiceId && list.some(s => s.id === preselectedServiceId)) {
           setSelectedItems({ [preselectedServiceId]: 1 });
         }
-      } catch (err) {
-        setErrorMessage('Gagal memuat katalog layanan.');
+      } catch {
+        showToast('Gagal memuat katalog layanan.', 'danger');
       } finally {
         setLoadingServices(false);
       }
     }
 
     loadData();
-  }, [preselectedServiceId]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [step]);
+  }, [preselectedServiceId, showToast]);
 
   const hasShoeTreatment = Object.keys(selectedItems).some(id => {
     const s = services.find(item => item.id === id);
@@ -125,61 +122,119 @@ export function OrderPage() {
   });
 
   const handleNextFromStep1 = () => {
-    if (Object.keys(selectedItems).length === 0) {
-      setErrorMessage('Pilih minimal satu layanan atau produk sebelum melanjutkan.');
+    if (totalItemCount === 0) {
+      showToast('Pilih minimal satu layanan atau produk sebelum melanjutkan.', 'danger');
       return;
     }
-    setErrorMessage('');
-    setStep(2);
+    setCurrentStep(2);
+    window.scrollTo({ top: 180, behavior: 'smooth' });
   };
 
   const handleNextFromStep2 = () => {
-    setErrorMessage('');
-    setStep(3);
+    setCurrentStep(3);
+    window.scrollTo({ top: 180, behavior: 'smooth' });
   };
 
   const handleNextFromStep3 = () => {
     if (!customer.nama.trim()) {
-      setErrorMessage('Nama lengkap pemesan wajib diisi.');
+      showToast('Nama lengkap pemesan wajib diisi.', 'danger');
       return;
     }
+
     if (!customer.telepon.trim()) {
-      setErrorMessage('Nomor WhatsApp wajib diisi untuk konfirmasi dan jadwal.');
+      showToast('Nomor WhatsApp wajib diisi untuk koordinasi jadwal.', 'danger');
       return;
     }
 
     const needsAddress = currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM;
     if (needsAddress && !pickupLocation.teks.trim()) {
-      setErrorMessage('Alamat lokasi wajib diisi.');
+      showToast('Alamat lokasi penjemputan atau pengantaran wajib diisi.', 'danger');
       return;
     }
 
-    setErrorMessage('');
-    setStep(4);
+    setCurrentStep(4);
+    window.scrollTo({ top: 180, behavior: 'smooth' });
   };
 
-  const handleSubmitOrder = async () => {
-    if (!captchaVerified) {
-      setErrorMessage('Harap selesaikan verifikasi puzzle keamanan terlebih dahulu.');
+  const handleInitiateOrder = () => {
+    if (totalItemCount === 0) {
+      showToast('Pilih minimal satu layanan atau produk sebelum memesan.', 'danger');
+      setCurrentStep(1);
       return;
     }
 
+    if (!customer.nama.trim() || !customer.telepon.trim()) {
+      showToast('Lengkapi data kontak pemesan sebelum mengirim pesanan.', 'danger');
+      setCurrentStep(3);
+      return;
+    }
+
+    const needsAddress = currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM;
+    if (needsAddress && !pickupLocation.teks.trim()) {
+      showToast('Alamat lokasi penjemputan atau pengantaran wajib diisi.', 'danger');
+      setCurrentStep(3);
+      return;
+    }
+
+    setIsCaptchaOpen(true);
+  };
+
+  const handleCaptchaSuccess = async () => {
+    setIsCaptchaOpen(false);
     setSubmitting(true);
-    setErrorMessage('');
+
+    const needsAddress = currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM;
+    const itemsPayload = Object.entries(selectedItems).map(([service_id, qty]) => ({
+      service_id,
+      qty
+    }));
+
+    const now = new Date();
+    const orderId = 'ORD-' + now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + '-' + Math.floor(1000 + Math.random() * 9000);
+
+    const itemLines = itemsPayload.map((it, idx) => {
+      const s = services.find(x => x.id === it.service_id);
+      const name = s ? s.nama : 'Layanan';
+      const price = s ? s.harga * it.qty : 0;
+      return `${idx + 1}. ${name} (${it.qty}x) - ${formatPrice(price)}`;
+    }).join('\n');
+
+    const addressText = needsAddress && pickupLocation?.teks ? `\n*Alamat:* ${pickupLocation.teks}` : '';
+    const notesText = customer.catatan ? `\n*Catatan:* ${customer.catatan}` : '';
+
+    const waMessage = `Halo Lave Streat, saya membuat pesanan melalui website:
+
+*Nomor Tiket:* ${orderId}
+*Nama Pemesan:* ${customer.nama}
+*WhatsApp:* ${customer.telepon}
+*Metode:* ${(currentMethod || '').replace(/_/g, ' ').toUpperCase()}
+*Jadwal:* ${schedule.tanggal} (${schedule.slot})${addressText}${notesText}
+
+*Rincian Layanan:*
+${itemLines}
+
+*Total Estimasi:* ${formatPrice(calculateSubtotal())}
+
+Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya. Terima kasih!`;
+
+    const targetWaNumber = '6285128024120';
+    const waUrl = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(waMessage)}`;
+    setWaRedirectUrl(waUrl);
+
+    let waWindow = null;
+    try {
+      waWindow = window.open(waUrl, '_blank');
+    } catch {
+    }
 
     try {
-      const itemsPayload = Object.entries(selectedItems).map(([service_id, qty]) => ({
-        service_id,
-        qty
-      }));
-
       const payload = {
+        id: orderId,
         pelanggan: customer,
         items: itemsPayload,
         metode: currentMethod,
-        alamat_jemput: (currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM)
-          ? pickupLocation
-          : null,
+        alamat_jemput: needsAddress ? pickupLocation : null,
+        alamat_antar: needsAddress ? pickupLocation : null,
         jadwal_tanggal: schedule.tanggal,
         jadwal_slot: schedule.slot,
         catatan: customer.catatan
@@ -187,685 +242,716 @@ export function OrderPage() {
 
       const res = await ordersApi.createOrder(payload);
       setCreatedOrder(res);
-      setStep(5);
+      showToast('Pesanan Anda berhasil dikirim.', 'success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+        window.location.assign(waUrl);
+      }
     } catch (err) {
-      setErrorMessage(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda dan coba lagi.');
+      showToast(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda dan coba lagi.', 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const stepLabels = [
-    { num: 1, title: 'Layanan', desc: 'Pilih perawatan' },
-    { num: 2, title: 'Metode', desc: 'Jemput / kirim' },
-    { num: 3, title: 'Data & Lokasi', desc: 'Alamat & waktu' },
-    { num: 4, title: 'Ringkasan', desc: 'Verifikasi order' }
-  ];
-
   return (
     <div className="min-h-screen bg-brand-light/30 pb-20 page-smooth-enter">
       <PageHeader
-        title={step === 5 ? 'Pesanan Berhasil' : 'Formulir Pemesanan'}
+        title={createdOrder ? 'Pesanan Berhasil' : 'Formulir Pemesanan'}
         breadcrumb={[{ label: 'Pemesanan' }]}
-        subtitle={step === 5
+        subtitle={createdOrder
           ? 'Terima kasih atas pesanan Anda. Tim teknisi dan kurir kami akan segera memproses.'
           : 'Layanan cuci, repaint sepatu, dan sabun perawatan dengan fasilitas antar-jemput Sidoarjo dan Surabaya.'
         }
         bgImage="/services/white-clean.jpg"
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
 
-        {step < 5 && (
-          <div className="bg-white rounded-card border border-brand-200 p-4 sm:p-6 mb-8 shadow-xs">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {stepLabels.map((s) => {
-                const isCompleted = step > s.num;
-                const isCurrent = step === s.num;
-                return (
-                  <div
-                    key={s.num}
-                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${
-                      isCurrent
-                        ? 'bg-brand-100/60 border border-brand-200'
-                        : isCompleted
-                        ? 'bg-white'
-                        : 'opacity-60'
-                    }`}
-                  >
-                    <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
-                        isCompleted
-                          ? 'bg-success text-white'
-                          : isCurrent
-                          ? 'bg-brand-600 text-white'
-                          : 'bg-brand-100 text-slate-wet'
-                      }`}
-                    >
-                      {isCompleted ? <Check size={18} weight="bold" /> : s.num}
-                    </div>
-                    <div className="min-w-0">
-                      <div className={`text-xs font-bold truncate ${isCurrent ? 'text-brand-900' : 'text-slate-wet'}`}>
-                        {s.title}
-                      </div>
-                      <div className="text-[11px] text-slate-wet/80 truncate hidden sm:block">
-                        {s.desc}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+        {createdOrder ? (
+          <div className="bg-white rounded-md border border-brand-200 p-6 sm:p-10 text-center shadow-xs">
+            <div className="w-14 h-14 rounded-md bg-success/15 text-success mx-auto flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <div className="w-full bg-brand-100 h-1.5 rounded-full mt-4 overflow-hidden">
-              <div
-                className="bg-brand-600 h-full transition-all duration-300"
-                style={{ width: `${(step / 4) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="mb-6 p-4 bg-danger/10 border border-danger/30 rounded-xl text-danger text-sm font-medium flex items-center justify-between">
-            <span>{errorMessage}</span>
-            <button
-              type="button"
-              onClick={() => setErrorMessage('')}
-              className="text-danger hover:underline text-xs ml-4"
-            >
-              Tutup
-            </button>
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-card border border-brand-200 shadow-xs">
-              <div className="flex items-center gap-2">
-                <ShoppingBag size={20} className="text-brand-600" />
-                <span className="text-sm font-bold text-brand-900">Kategori Layanan</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: 'all', label: 'Semua Layanan' },
-                  { id: 'cuci', label: 'Cuci Sepatu' },
-                  { id: 'repaint', label: 'Repaint & Unyellowing' },
-                  { id: 'sabun', label: 'Produk Sabun' }
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveCategory(tab.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                      activeCategory === tab.id
-                        ? 'bg-brand-600 text-white shadow-xs'
-                        : 'bg-brand-100 text-brand-900 hover:bg-brand-200'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {loadingServices ? (
-              <div className="py-20 text-center text-slate-wet bg-white rounded-card border border-brand-200">
-                Memuat daftar layanan Lave Streat...
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredServices.map((service) => {
-                  const qty = selectedItems[service.id] || 0;
-                  const isSelected = qty > 0;
-                  return (
-                    <div
-                      key={service.id}
-                      className={`h-full bg-white rounded-card border p-4.5 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${
-                        isSelected
-                          ? 'border-brand-600 bg-brand-100/20 ring-2 ring-brand-600/15'
-                          : 'border-brand-200 hover:border-brand-600/40'
-                      }`}
-                    >
-                      <div>
-                        <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden mb-3 bg-brand-100 border border-brand-200 shrink-0">
-                          <img
-                            src={service.foto || '/hero-sneaker.jpg'}
-                            alt={service.nama}
-                            className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
-                          />
-                          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-xs text-brand-900 shadow-xs">
-                            {service.kategori}
-                          </span>
-                        </div>
-
-                        <h3 className="font-bold text-base text-brand-900 mb-1 leading-snug line-clamp-1">
-                          {service.nama}
-                        </h3>
-
-                        <p className="text-xs text-slate-wet line-clamp-2 min-h-[2.5rem] mb-3 leading-relaxed">
-                          {service.deskripsi || 'Layanan perawatan sepatu profesional dari workshop Lave Streat.'}
-                        </p>
-                      </div>
-
-                      <div className="pt-3 border-t border-brand-200/60 flex items-center justify-between mt-auto">
-                        <div>
-                          <div className="text-[11px] text-slate-wet">Biaya Layanan</div>
-                          <div className="text-base font-bold text-brand-600">
-                            {formatPrice(service.harga)}
-                            <span className="text-xs font-normal text-slate-wet">/{service.satuan}</span>
-                          </div>
-                        </div>
-
-                        <div>
-                          {isSelected ? (
-                            <div className="flex items-center gap-2 bg-white border border-brand-200 rounded-full px-2 py-1 shadow-xs">
-                              <button
-                                type="button"
-                                onClick={() => handleQtyChange(service.id, -1)}
-                                className="w-7 h-7 rounded-full bg-brand-100 text-brand-900 flex items-center justify-center hover:bg-brand-200 transition-colors"
-                                aria-label="Kurangi kuantitas"
-                              >
-                                <Minus size={14} weight="bold" />
-                              </button>
-                              <span className="text-sm font-bold w-5 text-center text-brand-900">
-                                {qty}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleQtyChange(service.id, 1)}
-                                className="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center hover:bg-brand-900 transition-colors"
-                                aria-label="Tambah kuantitas"
-                              >
-                                <Plus size={14} weight="bold" />
-                              </button>
-                            </div>
-                          ) : (
-                            <Button
-                              onClick={() => handleQtyChange(service.id, 1)}
-                              size="sm"
-                              variant="secondary"
-                              className="px-4"
-                            >
-                              Pilih
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="sticky bottom-4 z-30 bg-brand-900 text-white p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-brand-900">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-brand-200 shrink-0">
-                  <ShoppingBag size={24} weight="bold" />
-                </div>
-                <div>
-                  <div className="text-xs text-brand-200">
-                    {totalItemCount} item dipilih
-                  </div>
-                  <div className="text-xl font-bold font-display text-white">
-                    {formatPrice(calculateSubtotal())}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <Button
-                  onClick={handleNextFromStep1}
-                  variant="primary"
-                  size="lg"
-                  className="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white font-bold flex items-center justify-center gap-2"
-                >
-                  <span>Lanjut ke Metode Penjemputan</span>
-                  <ArrowRight size={18} weight="bold" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-card border border-brand-200 p-6 sm:p-8 shadow-xs">
-              <h2 className="text-xl font-bold font-display text-brand-900 mb-2">
-                Pilih Metode Penyerahan Pesanan
-              </h2>
-              <p className="text-sm text-slate-wet mb-6">
-                Tentukan bagaimana sepatu atau produk akan diserahkan antara Anda dan tim Lave Streat.
-              </p>
-
-              {hasShoeTreatment ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setMethod(ORDER_METHODS.DIJEMPUT)}
-                    className={`flex flex-col items-start p-5 rounded-2xl border text-left transition-all relative ${
-                      currentMethod === ORDER_METHODS.DIJEMPUT
-                        ? 'border-brand-600 bg-brand-100/40 ring-2 ring-brand-600/25 shadow-sm'
-                        : 'border-brand-200 hover:border-brand-600/40 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between w-full mb-3">
-                      <div className="w-12 h-12 rounded-xl bg-brand-600 text-white flex items-center justify-center">
-                        <Truck size={26} weight="bold" />
-                      </div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider bg-brand-600 text-white px-2.5 py-0.5 rounded-full">
-                        Rekomendasi
-                      </span>
-                    </div>
-                    <span className="text-base font-bold text-brand-900 mb-1">
-                      Dijemput oleh Kurir Lave Streat
-                    </span>
-                    <span className="text-xs text-slate-wet leading-relaxed">
-                      Kurir kami mengambil sepatu kotor langsung ke rumah atau kantor Anda di area Sidoarjo dan Surabaya sesuai jadwal yang ditentukan.
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setMethod(ORDER_METHODS.ANTAR_SENDIRI)}
-                    className={`flex flex-col items-start p-5 rounded-2xl border text-left transition-all ${
-                      currentMethod === ORDER_METHODS.ANTAR_SENDIRI
-                        ? 'border-brand-600 bg-brand-100/40 ring-2 ring-brand-600/25 shadow-sm'
-                        : 'border-brand-200 hover:border-brand-600/40 bg-white'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-brand-100 text-brand-900 flex items-center justify-center mb-3">
-                      <Storefront size={26} weight="bold" />
-                    </div>
-                    <span className="text-base font-bold text-brand-900 mb-1">
-                      Antar Sendiri ke Studio Outlet
-                    </span>
-                    <span className="text-xs text-slate-wet leading-relaxed">
-                      Anda mengantar sepatu langsung ke outlet Lave Streat di Jl. Raya Ponti No. 18, Sidoarjo saat jam operasional 09.00 - 21.00 WIB.
-                    </span>
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setMethod(ORDER_METHODS.DIKIRIM)}
-                    className={`flex flex-col items-start p-5 rounded-2xl border text-left transition-all ${
-                      currentMethod === ORDER_METHODS.DIKIRIM
-                        ? 'border-brand-600 bg-brand-100/40 ring-2 ring-brand-600/25 shadow-sm'
-                        : 'border-brand-200 hover:border-brand-600/40 bg-white'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-brand-600 text-white flex items-center justify-center mb-3">
-                      <Package size={26} weight="bold" />
-                    </div>
-                    <span className="text-base font-bold text-brand-900 mb-1">
-                      Dikirim Langsung ke Alamat
-                    </span>
-                    <span className="text-xs text-slate-wet leading-relaxed">
-                      Produk sabun dan perawatan sepatu dikirim langsung ke alamat rumah Anda melalui kurir pengantaran.
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setMethod(ORDER_METHODS.AMBIL_SENDIRI)}
-                    className={`flex flex-col items-start p-5 rounded-2xl border text-left transition-all ${
-                      currentMethod === ORDER_METHODS.AMBIL_SENDIRI
-                        ? 'border-brand-600 bg-brand-100/40 ring-2 ring-brand-600/25 shadow-sm'
-                        : 'border-brand-200 hover:border-brand-600/40 bg-white'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-brand-100 text-brand-900 flex items-center justify-center mb-3">
-                      <Storefront size={26} weight="bold" />
-                    </div>
-                    <span className="text-base font-bold text-brand-900 mb-1">
-                      Ambil di Outlet
-                    </span>
-                    <span className="text-xs text-slate-wet leading-relaxed">
-                      Ambil produk secara langsung di studio Lave Streat Sidoarjo.
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              <div className="mt-8 pt-6 border-t border-brand-200 flex items-center justify-between">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setStep(1)}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft size={16} weight="bold" />
-                  <span>Kembali ke Layanan</span>
-                </Button>
-
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleNextFromStep2}
-                  className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white"
-                >
-                  <span>Lanjut ke Data & Lokasi</span>
-                  <ArrowRight size={16} weight="bold" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-card border border-brand-200 p-6 sm:p-8 shadow-xs">
-              <h2 className="text-xl font-bold font-display text-brand-900 mb-2">
-                Informasi Pemesan & Jadwal
-              </h2>
-              <p className="text-sm text-slate-wet mb-6">
-                Mohon lengkapi informasi kontak pemesan dan waktu penjemputan/pengantaran.
-              </p>
-
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Nama Lengkap"
-                    value={customer.nama}
-                    onChange={(e) => setCustomer({ ...customer, nama: e.target.value })}
-                    placeholder="Nama lengkap Anda"
-                    required
-                  />
-                  <Input
-                    label="Nomor WhatsApp"
-                    value={customer.telepon}
-                    onChange={(e) => setCustomer({ ...customer, telepon: e.target.value })}
-                    placeholder="Contoh: 081234567890"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Input
-                    label="Email (Opsional)"
-                    type="email"
-                    value={customer.email}
-                    onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-                    placeholder="nama@email.com"
-                  />
-                  <Input
-                    label="Pilih Tanggal"
-                    type="date"
-                    value={schedule.tanggal}
-                    onChange={(e) => setSchedule({ ...schedule, tanggal: e.target.value })}
-                    required
-                  />
-                  <Select
-                    label="Slot Waktu"
-                    value={schedule.slot}
-                    onChange={(e) => setSchedule({ ...schedule, slot: e.target.value })}
-                    options={[
-                      { value: 'pagi', label: 'Pagi (09:00 - 12:00)' },
-                      { value: 'siang', label: 'Siang (13:00 - 16:00)' },
-                      { value: 'sore', label: 'Sore (16:00 - 19:00)' }
-                    ]}
-                  />
-                </div>
-
-                {(currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM) && (
-                  <div className="pt-2">
-                    <LocationPicker
-                      value={pickupLocation}
-                      onChange={(loc) => setPickupLocation(loc)}
-                      height="320px"
-                      label={currentMethod === ORDER_METHODS.DIJEMPUT ? 'Titik Lokasi Penjemputan di Peta' : 'Titik Lokasi Pengiriman di Peta'}
-                    />
-                  </div>
-                )}
-
-                <Input
-                  label="Catatan Khusus untuk Tim Lave Streat (Opsional)"
-                  value={customer.catatan}
-                  onChange={(e) => setCustomer({ ...customer, catatan: e.target.value })}
-                  placeholder="Contoh: Sepatu putih ada noda minyak membandel di bagian suede / Titip pos satpam."
-                />
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-brand-200 flex items-center justify-between">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setStep(2)}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft size={16} weight="bold" />
-                  <span>Kembali ke Metode</span>
-                </Button>
-
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleNextFromStep3}
-                  className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white"
-                >
-                  <span>Lanjut ke Ringkasan</span>
-                  <ArrowRight size={16} weight="bold" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-card border border-brand-200 p-6 sm:p-8 shadow-xs">
-              <h2 className="text-xl font-bold font-display text-brand-900 mb-2">
-                Ringkasan & Konfirmasi Pesanan
-              </h2>
-              <p className="text-sm text-slate-wet mb-6">
-                Periksa kembali data pesanan Anda sebelum dikirimkan ke sistem Lave Streat.
-              </p>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="bg-brand-light/50 rounded-2xl border border-brand-200 p-5">
-                    <h3 className="text-sm font-bold text-brand-900 uppercase tracking-wider mb-3">
-                      Daftar Item Perawatan
-                    </h3>
-                    <div className="divide-y divide-brand-200">
-                      {Object.entries(selectedItems).map(([id, qty]) => {
-                        const s = services.find(item => item.id === id);
-                        if (!s) return null;
-                        return (
-                          <div key={id} className="py-3 flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-3">
-                              {s.foto && (
-                                <img
-                                  src={s.foto}
-                                  alt={s.nama}
-                                  className="w-11 h-11 rounded-lg object-cover bg-brand-100 shrink-0 border border-brand-200"
-                                />
-                              )}
-                              <div>
-                                <span className="font-bold text-brand-900">{s.nama}</span>
-                                <div className="text-xs text-slate-wet">
-                                  {qty} unit x {formatPrice(s.harga)}
-                                </div>
-                              </div>
-                            </div>
-                            <span className="font-bold text-brand-900">
-                              {formatPrice(s.harga * qty)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="pt-4 mt-2 border-t border-brand-200 flex items-center justify-between">
-                      <span className="font-bold text-brand-900">Total Biaya Perawatan</span>
-                      <span className="text-xl font-bold font-display text-brand-600">
-                        {formatPrice(calculateSubtotal())}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-2xl border border-brand-200 p-5 space-y-3 text-sm">
-                    <h3 className="text-sm font-bold text-brand-900 uppercase tracking-wider mb-2">
-                      Data Pemesan & Penjemputan
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
-                      <div>
-                        <span className="text-slate-wet block text-xs">Nama Lengkap</span>
-                        <span className="font-semibold text-brand-900">{customer.nama}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-wet block text-xs">Nomor WhatsApp</span>
-                        <span className="font-semibold text-brand-900">{customer.telepon}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-wet block text-xs">Metode Penyerahan</span>
-                        <span className="font-semibold text-brand-900 capitalize">
-                          {currentMethod === ORDER_METHODS.DIJEMPUT ? 'Dijemput Kurir Lave Streat' :
-                           currentMethod === ORDER_METHODS.ANTAR_SENDIRI ? 'Antar Sendiri ke Studio Outlet' :
-                           currentMethod === ORDER_METHODS.DIKIRIM ? 'Dikirim ke Alamat' : 'Ambil di Outlet'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-wet block text-xs">Jadwal</span>
-                        <span className="font-semibold text-brand-900 capitalize">
-                          {schedule.tanggal} ({schedule.slot})
-                        </span>
-                      </div>
-                    </div>
-
-                    {(currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM) && (
-                      <div className="pt-2 border-t border-brand-200/60">
-                        <span className="text-slate-wet block text-xs mb-1">Alamat Penjemputan:</span>
-                        <span className="font-medium text-brand-900 leading-relaxed">
-                          {pickupLocation.teks || 'Sidoarjo'}
-                        </span>
-                      </div>
-                    )}
-
-                    {customer.catatan && (
-                      <div className="pt-2 border-t border-brand-200/60">
-                        <span className="text-slate-wet block text-xs mb-1">Catatan Tambahan:</span>
-                        <span className="text-brand-900 italic">
-                          "{customer.catatan}"
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="bg-white rounded-2xl border border-brand-200 p-5 shadow-xs">
-                    <h3 className="text-xs font-bold text-brand-900 uppercase tracking-wider mb-3">
-                      Verifikasi Keamanan
-                    </h3>
-                    <p className="text-xs text-slate-wet mb-4 leading-relaxed">
-                      Geser potongan puzzle ke posisi yang tepat untuk memverifikasi pesanan Anda.
-                    </p>
-                    <SliderCaptcha
-                      onSuccess={() => setCaptchaVerified(true)}
-                      onFail={() => setCaptchaVerified(false)}
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-brand-100/60 border border-brand-200 text-xs text-brand-900 flex items-start gap-2.5">
-                    <ShieldCheck size={20} className="text-brand-600 shrink-0 mt-0.5" />
-                    <span>
-                      Data pesanan Anda aman dan terenkripsi. Pembayaran dilakukan secara off-platform saat proses serah terima sepatu.
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-brand-200 flex items-center justify-between">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setStep(3)}
-                  disabled={submitting}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft size={16} weight="bold" />
-                  <span>Kembali ke Data</span>
-                </Button>
-
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={handleSubmitOrder}
-                  disabled={submitting || !captchaVerified}
-                  className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-bold"
-                >
-                  {submitting ? (
-                    'Memproses Pesanan...'
-                  ) : (
-                    <>
-                      <Check size={18} weight="bold" />
-                      <span>Kirim Pesanan Sekarang</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 5 && createdOrder && (
-          <div className="max-w-2xl mx-auto bg-white rounded-card border border-brand-200 p-8 sm:p-10 text-center shadow-md">
-            <div className="w-20 h-20 rounded-full bg-success/15 text-success mx-auto flex items-center justify-center mb-6">
-              <CheckCircle2 className="w-10 h-10" />
-            </div>
-
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-wet block mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-wet block mb-1">
               Nomor Tiket Pesanan
             </span>
-            <div className="text-3xl font-extrabold font-display text-brand-900 tracking-tight mb-4">
+            <div className="text-2xl sm:text-3xl font-extrabold font-display text-brand-900 tracking-tight mb-3">
               {createdOrder.id}
             </div>
 
             <p className="text-slate-wet text-sm sm:text-base leading-relaxed mb-6">
-              Terima kasih, <strong>{customer.nama}</strong>! Pesanan Anda telah tersimpan di sistem Lave Streat. Tim kami akan segera memverifikasi dan menghubungi nomor WhatsApp Anda untuk koordinasi jadwal dan penjemputan sepatu.
+              Terima kasih, <strong className="text-brand-900">{customer.nama}</strong>. Pesanan Anda berhasil disimpan di sistem Lave Streat. Tim kami akan segera menghubungi nomor WhatsApp Anda untuk konfirmasi jadwal.
             </p>
 
-            <div className="bg-brand-light/60 rounded-2xl border border-brand-200 p-5 text-left text-xs sm:text-sm space-y-2 mb-8">
+            <div className="bg-slate-50 rounded-md border border-brand-200 p-4 sm:p-5 text-left text-xs sm:text-sm space-y-2 mb-6">
               <div className="flex justify-between py-1">
                 <span className="text-slate-wet">Pemesan:</span>
                 <span className="font-semibold text-brand-900">{customer.nama}</span>
               </div>
               <div className="flex justify-between py-1">
+                <span className="text-slate-wet">Nomor WhatsApp:</span>
+                <span className="font-semibold text-brand-900">{customer.telepon}</span>
+              </div>
+              <div className="flex justify-between py-1">
                 <span className="text-slate-wet">Metode:</span>
                 <span className="font-semibold text-brand-900 capitalize">{createdOrder.metode?.replace('_', ' ')}</span>
               </div>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-wet">Jadwal:</span>
+                <span className="font-semibold text-brand-900">{schedule.tanggal} ({schedule.slot})</span>
+              </div>
               <div className="flex justify-between py-1 border-t border-brand-200/60 pt-2">
-                <span className="text-slate-wet">Estimasi Biaya:</span>
+                <span className="text-slate-wet">Total Estimasi:</span>
                 <span className="text-base font-bold text-brand-600">{formatPrice(createdOrder.total_harga)}</span>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center flex-wrap">
+              <Button
+                variant="primary"
+                size="md"
+                className="rounded-md bg-brand-900 hover:bg-brand-950 text-white flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 shadow-xs"
+                onClick={() => printOrderReceipt(createdOrder)}
+              >
+                <Printer size={16} weight="bold" />
+                <span>Unduh Struk</span>
+              </Button>
+
               <a
-                href={`https://wa.me/6281234567890?text=${encodeURIComponent(
-                  `Halo Lave Streat, saya baru saja membuat pesanan di website dengan nomor tiket ${createdOrder.id} atas nama ${customer.nama}. Mohon konfirmasinya.`
+                href={waRedirectUrl || `https://wa.me/6285128024120?text=${encodeURIComponent(
+                  `Halo Lave Streat, saya membuat pesanan di website dengan nomor tiket ${createdOrder.id} atas nama ${customer.nama}. Mohon konfirmasinya.`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 font-semibold rounded-full bg-success hover:bg-emerald-700 text-white px-6 py-3.5 text-sm transition-all duration-150 active:scale-[0.98] shadow-xs"
+                className="inline-flex items-center justify-center gap-2 font-semibold rounded-md bg-success hover:bg-emerald-700 text-white px-5 py-2.5 text-sm transition-all duration-150 active:scale-[0.98] shadow-xs w-full sm:w-auto"
               >
-                <MessageCircle className="w-5 h-5 shrink-0" />
-                <span>Konfirmasi via WhatsApp</span>
+                <MessageCircle className="w-4 h-4 shrink-0" />
+                <span>Buka WhatsApp</span>
               </a>
 
-              <Link to="/">
-                <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="md"
+                className="rounded-md w-full sm:w-auto"
+                onClick={() => {
+                  setCreatedOrder(null);
+                  setSelectedItems({});
+                  setCurrentStep(1);
+                }}
+              >
+                Buat Pesanan Baru
+              </Button>
+
+              <Link to="/" className="w-full sm:w-auto">
+                <Button variant="ghost" size="md" className="rounded-md w-full">
                   Kembali ke Beranda
                 </Button>
               </Link>
             </div>
           </div>
+        ) : (
+          <div className="bg-white rounded-md border border-brand-200 shadow-xs overflow-hidden">
+            <div className="bg-snow-foam/70 border-b border-brand-200 px-5 sm:px-7 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-brand-900 flex items-center gap-2">
+                    <span>Formulir Pemesanan</span>
+                  </h2>
+                  <p className="text-xs text-slate-wet mt-0.5">
+                    Lengkapi langkah pemesanan di bawah ini secara bertahap.
+                  </p>
+                </div>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 border border-brand-200 self-start sm:self-auto">
+                  Area Sidoarjo & Surabaya
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                {[
+                  { num: 1, title: '1. Layanan' },
+                  { num: 2, title: '2. Metode' },
+                  { num: 3, title: '3. Data & Waktu' },
+                  { num: 4, title: '4. Ringkasan' }
+                ].map((s) => {
+                  const isDone = currentStep > s.num;
+                  const isCurrent = currentStep === s.num;
+                  return (
+                    <div
+                      key={s.num}
+                      className={`p-2.5 rounded-md border transition-all ${
+                        isCurrent
+                          ? 'bg-white border-brand-600 shadow-xs ring-1 ring-brand-600/30'
+                          : isDone
+                          ? 'bg-brand-100/60 border-brand-200 text-brand-900'
+                          : 'bg-white/60 border-brand-200/60 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[11px] shrink-0 ${
+                            isDone
+                              ? 'bg-success text-white'
+                              : isCurrent
+                              ? 'bg-brand-600 text-white'
+                              : 'bg-slate-200 text-slate-wet'
+                          }`}
+                        >
+                          {isDone ? <Check size={12} weight="bold" /> : s.num}
+                        </span>
+                        <span className={`text-xs font-bold truncate ${isCurrent ? 'text-brand-900' : 'text-slate-wet'}`}>
+                          {s.title}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-7">
+              {currentStep === 1 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-brand-200/80">
+                    <div>
+                      <h3 className="font-bold text-sm sm:text-base text-brand-900">
+                        Langkah 1: Pilih Layanan & Produk
+                      </h3>
+                      <p className="text-xs text-slate-wet mt-0.5">
+                        Tentukan layanan pencucian, restorasi, atau produk sabun yang dibutuhkan.
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200 shrink-0">
+                      {totalItemCount} item dipilih
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { id: 'all', label: 'Semua' },
+                      { id: 'cuci', label: 'Cuci Sepatu' },
+                      { id: 'repaint', label: 'Repaint & Unyellowing' },
+                      { id: 'sabun', label: 'Produk Sabun' }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveCategory(tab.id)}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                          activeCategory === tab.id
+                            ? 'bg-brand-600 text-white shadow-xs'
+                            : 'bg-brand-100/50 text-brand-900 hover:bg-brand-100 border border-brand-200'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {loadingServices ? (
+                    <div className="py-12 text-center text-xs text-slate-wet bg-slate-50 rounded-md border border-brand-200">
+                      Memuat daftar layanan Lave Streat...
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {filteredServices.map((service) => {
+                        const qty = selectedItems[service.id] || 0;
+                        const isSelected = qty > 0;
+                        return (
+                          <div
+                            key={service.id}
+                            className={`rounded-md border p-3 flex flex-col justify-between transition-all ${
+                              isSelected
+                                ? 'border-brand-600 bg-brand-100/15 ring-1 ring-brand-600/30'
+                                : 'border-brand-200 hover:border-brand-600/40 bg-white'
+                            }`}
+                          >
+                            <div className="flex gap-3 items-start mb-2.5">
+                              <img
+                                src={service.foto || '/services/deep-clean.jpg'}
+                                alt={service.nama}
+                                onError={(e) => {
+                                  e.currentTarget.src = '/services/deep-clean.jpg';
+                                }}
+                                className="w-16 h-16 rounded-md object-cover bg-brand-100 border border-brand-200 shrink-0"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 mb-1">
+                                  <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200">
+                                    {service.kategori}
+                                  </span>
+                                </div>
+                                <h4 className="font-bold text-xs sm:text-sm text-brand-900 line-clamp-1">
+                                  {service.nama}
+                                </h4>
+                                <p className="text-[11px] text-slate-wet line-clamp-1 mt-0.5">
+                                  {service.deskripsi}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-brand-200/60 mt-auto">
+                              <div>
+                                <span className="text-xs sm:text-sm font-bold text-brand-600">
+                                  {formatPrice(service.harga)}
+                                </span>
+                                <span className="text-[11px] text-slate-wet">/{service.satuan}</span>
+                              </div>
+
+                              <div>
+                                {isSelected ? (
+                                  <div className="flex items-center gap-1.5 bg-white border border-brand-200 rounded-md p-0.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleQtyChange(service.id, -1)}
+                                      className="w-6 h-6 rounded-md bg-brand-100 text-brand-900 flex items-center justify-center hover:bg-brand-200 transition-colors"
+                                      aria-label="Kurangi kuantitas"
+                                    >
+                                      <Minus size={12} weight="bold" />
+                                    </button>
+                                    <span className="text-xs font-bold w-5 text-center text-brand-900">
+                                      {qty}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleQtyChange(service.id, 1)}
+                                      className="w-6 h-6 rounded-md bg-brand-600 text-white flex items-center justify-center hover:bg-brand-900 transition-colors"
+                                      aria-label="Tambah kuantitas"
+                                    >
+                                      <Plus size={12} weight="bold" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleQtyChange(service.id, 1)}
+                                    className="px-3 py-1 rounded-md text-xs font-semibold bg-brand-100/60 hover:bg-brand-100 text-brand-900 border border-brand-200 transition-colors"
+                                  >
+                                    + Pilih
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="pt-4 border-t border-brand-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="text-xs text-slate-wet">
+                      Subtotal: <strong className="text-brand-900 text-sm">{formatPrice(calculateSubtotal())}</strong> ({totalItemCount} item)
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleNextFromStep1}
+                      className="w-full sm:w-auto rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
+                    >
+                      <span>Lanjut ke Metode Penyerahan</span>
+                      <ArrowRight size={16} weight="bold" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 2 && (
+                <div className="space-y-6">
+                  <div className="pb-3 border-b border-brand-200/80">
+                    <h3 className="font-bold text-sm sm:text-base text-brand-900">
+                      Langkah 2: Pilih Metode Penyerahan
+                    </h3>
+                    <p className="text-xs text-slate-wet mt-0.5">
+                      Pilih bagaimana barang diserahkan antara Anda dan tim Lave Streat.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {hasShoeTreatment ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setMethod(ORDER_METHODS.DIJEMPUT)}
+                          className={`rounded-md border p-4 text-left transition-all relative ${
+                            currentMethod === ORDER_METHODS.DIJEMPUT
+                              ? 'border-brand-600 bg-brand-100/25 ring-1 ring-brand-600/30'
+                              : 'border-brand-200 hover:border-brand-600/40 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-9 h-9 rounded-md bg-brand-600 text-white flex items-center justify-center">
+                              <Truck size={20} weight="bold" />
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-600 text-white px-2 py-0.5 rounded-md">
+                              Rekomendasi
+                            </span>
+                          </div>
+                          <div className="font-bold text-sm text-brand-900 mb-0.5">
+                            Dijemput Kurir Lave Streat
+                          </div>
+                          <p className="text-xs text-slate-wet leading-relaxed">
+                            Kurir kami mengambil sepatu langsung ke rumah atau kantor Anda di area Sidoarjo dan Surabaya.
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setMethod(ORDER_METHODS.ANTAR_SENDIRI)}
+                          className={`rounded-md border p-4 text-left transition-all ${
+                            currentMethod === ORDER_METHODS.ANTAR_SENDIRI
+                              ? 'border-brand-600 bg-brand-100/25 ring-1 ring-brand-600/30'
+                              : 'border-brand-200 hover:border-brand-600/40 bg-white'
+                          }`}
+                        >
+                          <div className="w-9 h-9 rounded-md bg-brand-100 text-brand-900 flex items-center justify-center mb-2">
+                            <Storefront size={20} weight="bold" />
+                          </div>
+                          <div className="font-bold text-sm text-brand-900 mb-0.5">
+                            Antar Sendiri ke Outlet
+                          </div>
+                          <p className="text-xs text-slate-wet leading-relaxed">
+                            Anda mengantar langsung ke studio Lave Streat di Jl. Raya Ponti No. 18, Sidoarjo.
+                          </p>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setMethod(ORDER_METHODS.DIKIRIM)}
+                          className={`rounded-md border p-4 text-left transition-all ${
+                            currentMethod === ORDER_METHODS.DIKIRIM
+                              ? 'border-brand-600 bg-brand-100/25 ring-1 ring-brand-600/30'
+                              : 'border-brand-200 hover:border-brand-600/40 bg-white'
+                          }`}
+                        >
+                          <div className="w-9 h-9 rounded-md bg-brand-600 text-white flex items-center justify-center mb-2">
+                            <Package size={20} weight="bold" />
+                          </div>
+                          <div className="font-bold text-sm text-brand-900 mb-0.5">
+                            Dikirim Langsung ke Alamat
+                          </div>
+                          <p className="text-xs text-slate-wet leading-relaxed">
+                            Produk sabun dan perawatan dikirim melalui kurir langsung ke alamat Anda.
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setMethod(ORDER_METHODS.AMBIL_SENDIRI)}
+                          className={`rounded-md border p-4 text-left transition-all ${
+                            currentMethod === ORDER_METHODS.AMBIL_SENDIRI
+                              ? 'border-brand-600 bg-brand-100/25 ring-1 ring-brand-600/30'
+                              : 'border-brand-200 hover:border-brand-600/40 bg-white'
+                          }`}
+                        >
+                          <div className="w-9 h-9 rounded-md bg-brand-100 text-brand-900 flex items-center justify-center mb-2">
+                            <Storefront size={20} weight="bold" />
+                          </div>
+                          <div className="font-bold text-sm text-brand-900 mb-0.5">
+                            Ambil di Outlet
+                          </div>
+                          <p className="text-xs text-slate-wet leading-relaxed">
+                            Ambil produk secara langsung di studio Lave Streat Sidoarjo.
+                          </p>
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t border-brand-200 flex items-center justify-between gap-3">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setCurrentStep(1)}
+                      className="rounded-md flex items-center gap-1.5"
+                    >
+                      <ArrowLeft size={16} weight="bold" />
+                      <span>Kembali ke Layanan</span>
+                    </Button>
+
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleNextFromStep2}
+                      className="rounded-md font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
+                    >
+                      <span>Lanjut ke Data & Waktu</span>
+                      <ArrowRight size={16} weight="bold" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 3 && (
+                <div className="space-y-6">
+                  <div className="pb-3 border-b border-brand-200/80">
+                    <h3 className="font-bold text-sm sm:text-base text-brand-900">
+                      Langkah 3: Data Pemesan & Jadwal
+                    </h3>
+                    <p className="text-xs text-slate-wet mt-0.5">
+                      Lengkapi identitas pemesan, waktu penjemputan, dan alamat pengiriman.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <Input
+                        label="Nama Lengkap"
+                        value={customer.nama}
+                        onChange={(e) => setCustomer({ ...customer, nama: e.target.value })}
+                        placeholder="Nama lengkap pemesan"
+                        required
+                        className="text-sm"
+                      />
+                      <Input
+                        label="Nomor WhatsApp"
+                        value={customer.telepon}
+                        onChange={(e) => setCustomer({ ...customer, telepon: e.target.value })}
+                        placeholder="Contoh: 081234567890"
+                        required
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <Input
+                        label="Email (Opsional)"
+                        type="email"
+                        value={customer.email}
+                        onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
+                        placeholder="nama@email.com"
+                        className="text-sm"
+                      />
+                      <Input
+                        label="Catatan Khusus (Opsional)"
+                        value={customer.catatan}
+                        onChange={(e) => setCustomer({ ...customer, catatan: e.target.value })}
+                        placeholder="Contoh: Titip di pos satpam / noda minyak di midsole"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <Input
+                        label="Pilih Tanggal"
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={schedule.tanggal}
+                        onChange={(e) => setSchedule({ ...schedule, tanggal: e.target.value })}
+                        required
+                        className="text-sm"
+                      />
+                      <Select
+                        label="Slot Waktu"
+                        value={schedule.slot}
+                        onChange={(e) => setSchedule({ ...schedule, slot: e.target.value })}
+                        options={[
+                          { value: 'pagi', label: 'Pagi (09:00 - 12:00 WIB)' },
+                          { value: 'siang', label: 'Siang (13:00 - 16:00 WIB)' },
+                          { value: 'sore', label: 'Sore (16:00 - 19:00 WIB)' }
+                        ]}
+                        className="text-sm"
+                      />
+                    </div>
+
+                    {(currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM) && (
+                      <div className="pt-2">
+                        <LocationPicker
+                          value={pickupLocation}
+                          onChange={(loc) => setPickupLocation(loc)}
+                          height="260px"
+                          label={currentMethod === ORDER_METHODS.DIJEMPUT ? 'Titik Penjemputan di Peta' : 'Titik Pengiriman di Peta'}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t border-brand-200 flex items-center justify-between gap-3">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setCurrentStep(2)}
+                      className="rounded-md flex items-center gap-1.5"
+                    >
+                      <ArrowLeft size={16} weight="bold" />
+                      <span>Kembali ke Metode</span>
+                    </Button>
+
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleNextFromStep3}
+                      className="rounded-md font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
+                    >
+                      <span>Lanjut ke Ringkasan</span>
+                      <ArrowRight size={16} weight="bold" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 4 && (
+                <div className="space-y-6">
+                  <div className="pb-3 border-b border-brand-200/80">
+                    <h3 className="font-bold text-sm sm:text-base text-brand-900">
+                      Langkah 4: Ringkasan & Konfirmasi Pesanan
+                    </h3>
+                    <p className="text-xs text-slate-wet mt-0.5">
+                      Periksa kembali rincian pesanan Anda sebelum mengirimkan data ke sistem.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-slate-50/80 rounded-md border border-brand-200 p-4 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-brand-200">
+                        <div className="flex items-center gap-2">
+                          <ShoppingBag size={18} className="text-brand-600" weight="bold" />
+                          <h4 className="font-bold text-xs sm:text-sm text-brand-900">Item Layanan</h4>
+                        </div>
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200">
+                          {totalItemCount} item
+                        </span>
+                      </div>
+
+                      <div className="divide-y divide-brand-200/60 max-h-52 overflow-y-auto pr-1">
+                        {Object.entries(selectedItems).map(([id, qty]) => {
+                          const s = services.find((item) => item.id === id);
+                          if (!s) return null;
+                          return (
+                            <div key={id} className="py-2 flex items-center justify-between text-xs">
+                              <div className="min-w-0 pr-2">
+                                <div className="font-bold text-brand-900 truncate">{s.nama}</div>
+                                <div className="text-[11px] text-slate-wet">
+                                  {qty} x {formatPrice(s.harga)}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="font-bold text-brand-900">
+                                  {formatPrice(s.harga * qty)}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleQtyChange(id, -qty)}
+                                  className="text-slate-wet hover:text-danger p-1 rounded-md transition-colors"
+                                  title="Hapus item"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-2 border-t border-brand-200 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-brand-900">Total Estimasi:</span>
+                        <span className="text-base font-bold font-display text-brand-600">
+                          {formatPrice(calculateSubtotal())}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50/80 rounded-md border border-brand-200 p-4 space-y-2.5 text-xs">
+                      <h4 className="font-bold text-xs sm:text-sm text-brand-900 pb-2 border-b border-brand-200">
+                        Data Pengantaran & Kontak
+                      </h4>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between">
+                          <span className="text-slate-wet">Nama:</span>
+                          <span className="font-semibold text-brand-900">{customer.nama}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-wet">WhatsApp:</span>
+                          <span className="font-semibold text-brand-900">{customer.telepon}</span>
+                        </div>
+                        {customer.email && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-wet">Email:</span>
+                            <span className="font-semibold text-brand-900">{customer.email}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-slate-wet">Metode:</span>
+                          <span className="font-semibold text-brand-900 capitalize">
+                            {currentMethod === ORDER_METHODS.DIJEMPUT ? 'Dijemput Kurir Lave Streat' :
+                             currentMethod === ORDER_METHODS.ANTAR_SENDIRI ? 'Antar Sendiri ke Studio Outlet' :
+                             currentMethod === ORDER_METHODS.DIKIRIM ? 'Dikirim Kurir ke Alamat' : 'Ambil di Outlet'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-wet">Jadwal:</span>
+                          <span className="font-semibold text-brand-900">
+                            {schedule.tanggal} ({schedule.slot})
+                          </span>
+                        </div>
+                        {(currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM) && pickupLocation.teks && (
+                          <div className="pt-1 border-t border-brand-200/60 text-[11px] text-slate-wet line-clamp-2">
+                            Alamat: <span className="font-medium text-brand-900">{pickupLocation.teks}</span>
+                          </div>
+                        )}
+                        {customer.catatan && (
+                          <div className="pt-1 border-t border-brand-200/60 text-[11px] text-slate-wet italic">
+                            Catatan: {customer.catatan}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-md bg-brand-light/60 border border-brand-200 flex items-start gap-2.5 text-xs text-brand-900">
+                    <ShieldCheck size={20} className="text-brand-600 shrink-0 mt-0.5" />
+                    <span>
+                      Verifikasi puzzle keamanan akan muncul setelah tombol Pesan Sekarang ditekan untuk mencegah bot dan spam. Pembayaran dilakukan secara off-platform saat proses serah terima.
+                    </span>
+                  </div>
+
+                  <div className="pt-4 border-t border-brand-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setCurrentStep(3)}
+                      className="w-full sm:w-auto rounded-md flex items-center justify-center gap-1.5"
+                    >
+                      <ArrowLeft size={16} weight="bold" />
+                      <span>Kembali ke Data</span>
+                    </Button>
+
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleInitiateOrder}
+                      disabled={submitting || totalItemCount === 0}
+                      className="w-full sm:w-auto rounded-md font-bold text-sm px-6 h-11 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-900 text-white shadow-xs"
+                    >
+                      {submitting ? (
+                        'Memproses Pesanan...'
+                      ) : (
+                        <>
+                          <Check size={18} weight="bold" />
+                          <span>Pesan Sekarang</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
       </div>
+
+      <SliderCaptchaModal
+        isOpen={isCaptchaOpen}
+        onClose={() => setIsCaptchaOpen(false)}
+        onSuccess={handleCaptchaSuccess}
+        title="Verifikasi Keamanan Pemesanan"
+      />
     </div>
   );
 }

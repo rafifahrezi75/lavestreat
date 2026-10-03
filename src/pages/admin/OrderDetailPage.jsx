@@ -12,7 +12,8 @@ import {
   Image,
   Camera,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Printer
 } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
@@ -26,6 +27,7 @@ import { RouteMap } from '../../components/map/RouteMap';
 import { useToast } from '../../context/ToastContext';
 import { ordersApi, settingsApi, galleryApi } from '../../lib/api';
 import { STATUS_TRANSITIONS } from '../../lib/constants';
+import { printOrderReceipt } from '../../lib/orderReceiptPdf';
 
 const SLOT_LABELS = {
   1: 'Sudut Depan / Upper',
@@ -82,6 +84,7 @@ export function OrderDetailPage() {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [selectedOrderSlot, setSelectedOrderSlot] = useState(0);
   const [routeOriginType, setRouteOriginType] = useState('outlet');
+  const [selectedWorkerId, setSelectedWorkerId] = useState('');
   const [gpsLocation, setGpsLocation] = useState(null);
   const [detectingGps, setDetectingGps] = useState(false);
   const [galleryData, setGalleryData] = useState({
@@ -102,6 +105,10 @@ export function OrderDetailPage() {
         setSettings(sett);
         if (sett?.default_route_origin) {
           setRouteOriginType(sett.default_route_origin);
+        }
+        if (sett?.workers && sett.workers.length > 0) {
+          const firstActive = sett.workers.find(w => w.aktif !== false) || sett.workers[0];
+          if (firstActive) setSelectedWorkerId(firstActive.id);
         }
 
         const transitions = STATUS_TRANSITIONS[ord?.status] || [];
@@ -247,16 +254,26 @@ export function OrderDetailPage() {
     address: settings?.outlet_address || 'Outlet Toko Lave Streat'
   };
 
-  const workerBasecampOrigin = {
-    lat: settings?.worker_lat ?? -7.4505,
-    lng: settings?.worker_lng ?? 112.7150,
-    address: settings?.worker_address || 'Pos / Basecamp Worker Kurir'
+  const activeWorkerList = (settings?.workers || []).filter(w => w.aktif !== false);
+  const selectedWorker = (settings?.workers || []).find(w => w.id === selectedWorkerId) 
+    || activeWorkerList[0] 
+    || {
+      lat: settings?.worker_lat ?? -7.4505,
+      lng: settings?.worker_lng ?? 112.7150,
+      address: settings?.worker_address || 'Pos / Basecamp Worker Kurir',
+      nama: 'Pos Worker'
+    };
+
+  const workerOrigin = {
+    lat: selectedWorker.lat ?? -7.4505,
+    lng: selectedWorker.lng ?? 112.7150,
+    address: `${selectedWorker.nama ? selectedWorker.nama + ': ' : ''}${selectedWorker.address || 'Pos Standby Kurir'}`
   };
 
   const activeOrigin = routeOriginType === 'gps' && gpsLocation
     ? gpsLocation
     : routeOriginType === 'worker'
-    ? workerBasecampOrigin
+    ? workerOrigin
     : outletOrigin;
 
   const handleSelectGpsOrigin = () => {
@@ -345,6 +362,16 @@ export function OrderDetailPage() {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => printOrderReceipt(order)}
+              className="rounded-md border-brand-200 text-brand-900 hover:bg-brand-100 flex items-center gap-1.5"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Cetak Struk PDF</span>
+            </Button>
+
             <a
               href={`https://wa.me/62${(order.pelanggan?.telepon || '').replace(/^0/, '')}?text=${encodeURIComponent(
                 `Halo kak ${order.pelanggan?.nama}, kami dari Lave Streat mengonfirmasi pesanan ${order.id}.`
@@ -810,7 +837,7 @@ export function OrderDetailPage() {
                         : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
                     }`}
                   >
-                    Pos Worker
+                    Pos Kurir
                   </button>
                   <button
                     type="button"
@@ -822,9 +849,34 @@ export function OrderDetailPage() {
                         : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
                     }`}
                   >
-                    {detectingGps ? 'Mendeteksi...' : 'GPS Worker'}
+                    {detectingGps ? 'Mendeteksi...' : 'GPS Perangkat'}
                   </button>
                 </div>
+
+                {routeOriginType === 'worker' && (settings?.workers || []).length > 0 && (
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="text-[11px] font-semibold text-slate-wet shrink-0">Pilih Kurir:</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {(settings.workers || []).map((w) => {
+                        const isChosen = (selectedWorkerId || activeWorkerList[0]?.id) === w.id;
+                        return (
+                          <button
+                            key={w.id}
+                            type="button"
+                            onClick={() => setSelectedWorkerId(w.id)}
+                            className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                              isChosen
+                                ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                            }`}
+                          >
+                            {w.nama || 'Kurir'}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <RouteMap

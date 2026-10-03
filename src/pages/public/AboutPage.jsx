@@ -11,22 +11,25 @@ import { contentApi } from '../../lib/api';
 
 const teamMembers = [
   {
-    name: 'Rafi Pratama',
-    role: 'Founder & Lead Shoe Specialist',
-    photo: '/team/founder.jpg',
-    desc: 'Penanggung jawab standar mutu pengerjaan workshop dan kurasi formula chemical khusus ramah material.'
+    name: 'Naufal Ghani',
+    role: 'Chief Executive Officer (CEO)',
+    badge: 'CEO',
+    photo: '/team/naufal-ghani.png',
+    desc: 'Pemimpin visi strategis bisnis, pengembangan inovasi layanan, dan tata kelola kepemimpinan Lave Streat.'
   },
   {
-    name: 'Master Restorer Team',
-    role: 'Senior Restorer & Paint Master',
-    photo: '/team/restorer.jpg',
-    desc: 'Spesialis detailing pengerjaan repaint presisi, unyellowing sol oksidasi, serta restorasi bahan suede.'
+    name: 'M. Rafi Fahrezi',
+    role: 'Chief Operating Officer (COO)',
+    badge: 'COO',
+    photo: '/team/rafi-fahrezi.png',
+    desc: 'Penanggung jawab eksekusi operasional workshop harian, kontrol kualitas mutu perawatan, dan manajemen logistik.'
   },
   {
-    name: 'Logistics Coordinator',
-    role: 'Logistics & Kurir Coordinator',
-    photo: '/team/logistics.jpg',
-    desc: 'Koordinator rute penjemputan dan pengantaran tepat waktu untuk kawasan Sidoarjo dan Surabaya.'
+    name: 'M. Raditya P. P.',
+    role: 'Chief Marketing Officer (CMO)',
+    badge: 'CMO',
+    photo: '/team/raditya.png',
+    desc: 'Pengembang strategi pemasaran kreatif, komunikasi brand, serta perluasan jangkauan pelanggan Sidoarjo dan Surabaya.'
   }
 ];
 
@@ -149,33 +152,42 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-bold uppercase tracking-widest text-brand-600 block mb-2">
-              DEDIKASI KEAHLIAN
+              TIM KEPEMIMPINAN
             </span>
             <h2 className="font-display font-bold text-2xl sm:text-4xl text-brand-900 tracking-tight">
               Meet Our Team
             </h2>
             <p className="text-xs sm:text-sm text-slate-wet mt-3 max-w-xl mx-auto leading-relaxed">
-              Para spesialis workshop dan tim kurir berpengalaman yang siap memberikan penanganan terbaik untuk setiap pasang sepatu Anda.
+              Tim kepemimpinan dan pendiri Lave Streat yang berdedikasi menghadirkan standar perawatan sepatu profesional dan terpercaya.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
             {teamMembers.map((member) => (
-              <div key={member.name} className="flex flex-col items-center text-center group">
-                <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg ring-2 ring-brand-200 group-hover:ring-brand-600 group-hover:scale-105 transition-all duration-300 mb-5 bg-brand-100">
+              <div
+                key={member.name}
+                className="bg-white rounded-md border border-brand-200 p-5 shadow-xs flex flex-col items-center text-center transition-all duration-200 hover:shadow-md hover:border-brand-600/40 group"
+              >
+                <div className="w-full aspect-[4/5] rounded-md overflow-hidden bg-gradient-to-b from-brand-100/50 via-brand-100/20 to-transparent border border-brand-200/60 mb-4 flex items-end justify-center pt-4 relative">
                   <img
                     src={member.photo}
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain object-bottom transition-transform duration-300 group-hover:scale-105"
                   />
+                  <div className="absolute top-2.5 right-2.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white text-brand-900 border border-brand-200 shadow-2xs">
+                      {member.badge}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="font-display font-bold text-lg text-brand-900">
+
+                <h3 className="font-display font-bold text-base sm:text-lg text-brand-900 leading-snug">
                   {member.name}
                 </h3>
-                <span className="text-xs font-semibold text-brand-600 mb-2">
+                <span className="text-xs font-semibold text-brand-600 mt-0.5 mb-2">
                   {member.role}
                 </span>
-                <p className="text-xs text-slate-600 leading-relaxed max-w-xs">
+                <p className="text-xs text-slate-wet leading-relaxed">
                   {member.desc}
                 </p>
               </div>
