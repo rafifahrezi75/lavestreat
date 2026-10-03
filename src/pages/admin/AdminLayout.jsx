@@ -61,8 +61,8 @@ export function AdminLayout() {
           isSidebarOpen={sidebarOpen}
         />
 
-        <main className="grow p-3 sm:p-5 lg:p-7 pb-24 lg:pb-8 overflow-x-auto w-full">
-          <div className="max-w-7xl mx-auto w-full">
+        <main className="grow px-3 sm:px-5 lg:px-6 py-4 sm:py-5 pb-24 sm:pb-8 overflow-x-auto w-full">
+          <div className="w-full">
             <React.Suspense
               fallback={
                 <div className="min-h-[40vh] flex items-center justify-center">

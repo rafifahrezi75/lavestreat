@@ -227,7 +227,6 @@ export function SettingsPage() {
     }
   ];
 
-  const activeWorkerForMap = (settings.workers || []).find(w => w.id === activeWorkerMapId);
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -430,16 +429,17 @@ export function SettingsPage() {
                 <div key={worker.id || index} className="p-4 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center shrink-0">
+                      <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-900 font-bold text-xs flex items-center justify-center shrink-0">
                         {index + 1}
                       </span>
-                      <input
-                        type="text"
-                        value={worker.nama || ''}
-                        onChange={(e) => handleWorkerFieldChange(worker.id, 'nama', e.target.value)}
-                        placeholder="Nama Kurir / Pos Standby"
-                        className="font-bold text-sm text-brand-900 px-2 py-1 rounded-md border border-transparent hover:border-brand-200 focus:border-brand-600 focus:bg-white focus:outline-hidden transition-colors"
-                      />
+                      <span className="font-bold text-sm text-brand-900">
+                        {worker.nama || `Kurir ${index + 1}`}
+                      </span>
+                      {worker.telepon && (
+                        <span className="text-xs text-slate-500 font-mono hidden sm:inline">
+                          ({worker.telepon})
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -491,29 +491,40 @@ export function SettingsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
                     <div className="md:col-span-3 flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium">Nomor Telepon / WA Kurir</label>
+                      <label className="text-slate-600 font-semibold">Nama Kurir / Identitas</label>
+                      <input
+                        type="text"
+                        value={worker.nama || ''}
+                        onChange={(e) => handleWorkerFieldChange(worker.id, 'nama', e.target.value)}
+                        placeholder="Contoh: Kurir 1 - Sidoarjo Kota"
+                        className="px-3 py-1.5 rounded-md border border-brand-200 bg-white text-brand-900 font-medium focus:outline-hidden focus:ring-1 focus:ring-brand-600"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 flex flex-col gap-1">
+                      <label className="text-slate-600 font-semibold">Nomor Telepon / WA</label>
                       <input
                         type="text"
                         value={worker.telepon || ''}
                         onChange={(e) => handleWorkerFieldChange(worker.id, 'telepon', e.target.value)}
-                        placeholder="Contoh: 085128024120"
+                        placeholder="085128024120"
                         className="px-3 py-1.5 rounded-md border border-brand-200 bg-white text-brand-900 focus:outline-hidden focus:ring-1 focus:ring-brand-600"
                       />
                     </div>
 
-                    <div className="md:col-span-5 flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium">Alamat Pos / Basecamp Standby</label>
+                    <div className="md:col-span-3 flex flex-col gap-1">
+                      <label className="text-slate-600 font-semibold">Alamat Pos / Basecamp Standby</label>
                       <input
                         type="text"
                         value={worker.address || ''}
                         onChange={(e) => handleWorkerFieldChange(worker.id, 'address', e.target.value)}
-                        placeholder="Alamat standby atau nama area pangkalan"
+                        placeholder="Alamat standby atau nama pos"
                         className="px-3 py-1.5 rounded-md border border-brand-200 bg-white text-brand-900 focus:outline-hidden focus:ring-1 focus:ring-brand-600"
                       />
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium">Latitude</label>
+                      <label className="text-slate-600 font-semibold">Latitude</label>
                       <input
                         type="number"
                         step="any"
@@ -525,7 +536,7 @@ export function SettingsPage() {
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium">Longitude</label>
+                      <label className="text-slate-600 font-semibold">Longitude</label>
                       <input
                         type="number"
                         step="any"
@@ -536,43 +547,43 @@ export function SettingsPage() {
                       />
                     </div>
                   </div>
+
+                  {activeWorkerMapId === worker.id && (
+                    <div className="mt-2 pt-3 border-t border-brand-200/80 flex flex-col gap-2.5">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-bold text-brand-900">
+                            Pilih Titik Lokasi {worker.nama || `Kurir ${index + 1}`} di Peta Leaflet
+                          </span>
+                          <p className="text-[11px] text-slate-wet mt-0.5">
+                            Klik pada peta untuk menetapkan koordinat standby kurir ini
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setActiveWorkerMapId(null)}
+                          className="text-xs rounded-md"
+                        >
+                          Tutup Peta
+                        </Button>
+                      </div>
+                      <LocationPicker
+                        value={{
+                          lat: worker.lat,
+                          lng: worker.lng,
+                          teks: worker.address
+                        }}
+                        onChange={handleWorkerMapLocationChange}
+                        height="300px"
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </Card>
-
-          {activeWorkerForMap && (
-            <Card className="p-4 border-brand-200 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-brand-900">
-                    Pilih Titik Lokasi {activeWorkerForMap.nama || 'Worker / Kurir'} di Peta Leaflet
-                  </span>
-                  <p className="text-xs text-slate-wet mt-0.5">
-                    Klik pada peta untuk menetapkan koordinat standby kurir ini
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setActiveWorkerMapId(null)}
-                  className="text-xs rounded-md"
-                >
-                  Selesai
-                </Button>
-              </div>
-              <LocationPicker
-                value={{
-                  lat: activeWorkerForMap.lat,
-                  lng: activeWorkerForMap.lng,
-                  teks: activeWorkerForMap.address
-                }}
-                onChange={handleWorkerMapLocationChange}
-                height="320px"
-              />
-            </Card>
-          )}
 
           <div className="flex justify-end">
             <Button

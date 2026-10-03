@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   ChevronLeft, 
@@ -58,7 +57,7 @@ export function GalleryFormPage() {
 
   const [featuredSlot, setFeaturedSlot] = useState(1);
   const [previewMode, setPreviewMode] = useState('split');
-  const [isFrameModalOpen, setIsFrameModalOpen] = useState(false);
+  const [isCropViewOpen, setIsCropViewOpen] = useState(false);
   const [modalSlot, setModalSlot] = useState(1);
   const [activeTarget, setActiveTarget] = useState('after');
   const [isFrameDragging, setIsFrameDragging] = useState(false);
@@ -198,7 +197,7 @@ export function GalleryFormPage() {
     }
   };
 
-  const openFrameModal = (targetSlot = activeSlot, initialTarget = 'after') => {
+  const openCropView = (targetSlot = activeSlot, initialTarget = 'after') => {
     const hasAnyPhoto = slots.some(s => s.before_url || s.after_url);
     if (!hasAnyPhoto) {
       showToast('Silakan unggah foto terlebih dahulu sebelum mengatur frame crop.', 'danger');
@@ -206,11 +205,12 @@ export function GalleryFormPage() {
     }
     setModalSlot(targetSlot);
     setActiveTarget(initialTarget);
-    setIsFrameModalOpen(true);
+    setIsCropViewOpen(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const closeFrameModal = () => {
-    setIsFrameModalOpen(false);
+  const closeCropView = () => {
+    setIsCropViewOpen(false);
   };
 
   const currentModalSlotFraming = slotFramings[modalSlot] || {
@@ -227,18 +227,37 @@ export function GalleryFormPage() {
         after: { zoom: 1, x: 0, y: 0 }
       };
       const targetData = slotData[activeTarget] || { zoom: 1, x: 0, y: 0 };
+      const nextTarget = typeof updates === 'function' ? updates(targetData) : { ...targetData, ...updates };
       return {
         ...prev,
         [modalSlot]: {
           ...slotData,
-          [activeTarget]: {
-            ...targetData,
-            ...updates
-          }
+          [activeTarget]: nextTarget
         }
       };
     });
   };
+
+  useEffect(() => {
+    const el = frameViewportRef.current;
+    if (!el || !isCropViewOpen) return;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY < 0 ? 0.08 : -0.08;
+      updateActiveFraming((cur) => {
+        const curZoom = cur?.zoom || 1;
+        const newZoom = Math.max(1, Math.min(3.5, curZoom + delta));
+        return { ...cur, zoom: Number(newZoom.toFixed(2)) };
+      });
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [isCropViewOpen, modalSlot, activeTarget]);
 
   const handlePointerDownFrame = (e) => {
     setIsFrameDragging(true);
@@ -269,20 +288,29 @@ export function GalleryFormPage() {
     } catch {}
   };
 
-  const handleWheelZoom = (e) => {
-    e.preventDefault();
-    const currentZoom = activeFraming?.zoom || 1;
-    const delta = e.deltaY < 0 ? 0.08 : -0.08;
-    const newZoom = Math.max(1, Math.min(3.5, currentZoom + delta));
-    updateActiveFraming({ zoom: Number(newZoom.toFixed(2)) });
-  };
-
   const handleZoomSlider = (val) => {
     updateActiveFraming({ zoom: Math.max(1, Math.min(3.5, Number(val))) });
   };
 
   const handleResetFraming = () => {
     updateActiveFraming({ zoom: 1, x: 0, y: 0 });
+    showToast('Posisi frame dan zoom berhasil direset.');
+  };
+
+  const handleResetSlotFraming = (slotNum) => {
+    setSlotFramings(prev => ({
+      ...prev,
+      [slotNum]: {
+        before: { zoom: 1, x: 0, y: 0 },
+        after: { zoom: 1, x: 0, y: 0 }
+      }
+    }));
+    setSlots(prev => prev.map(s => s.slot === slotNum ? {
+      ...s,
+      framing_before: { zoom: 1, x: 0, y: 0 },
+      framing_after: { zoom: 1, x: 0, y: 0 }
+    } : s));
+    showToast(`Framing Sudut #${slotNum} berhasil direset ke default.`);
   };
 
   const handleCopyFromOther = () => {
@@ -306,8 +334,8 @@ export function GalleryFormPage() {
         framing_after: sF.after
       };
     }));
-    setIsFrameModalOpen(false);
-    showToast('Frame crop berhasil diterapkan ke formulir.');
+    setIsCropViewOpen(false);
+    showToast('Frame crop berhasil disimpan.');
   };
 
   const handleSubmit = async (e) => {
@@ -407,6 +435,293 @@ export function GalleryFormPage() {
   const modalSlotData = slots.find(s => s.slot === modalSlot) || slots[0];
   const modalImgSrc = activeTarget === 'before' ? (modalSlotData?.before_url || '') : (modalSlotData?.after_url || '');
 
+  if (isCropViewOpen) {
+    const modalAngle = ANGLE_SLOTS.find(a => a.slot === modalSlot) || ANGLE_SLOTS[0];
+
+    return (
+      <div className="w-full animate-in fade-in duration-150">
+        <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={closeCropView}
+                className="w-9 h-9 rounded-md border border-slate-200/90 text-slate-600 hover:text-brand-900 hover:bg-white flex items-center justify-center transition-colors shadow-2xs shrink-0 cursor-pointer"
+                title="Kembali ke formulir"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold font-display text-brand-900 tracking-tight truncate">
+                  Atur Framing & Crop (4:3) - Sudut #{modalSlot}
+                </h1>
+                <p className="text-xs text-slate-500 mt-0.5 truncate">
+                  {modalAngle.label} • {formData.caption || formData.shoe_brand || 'Foto Galeri'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleResetFraming}
+                className="flex items-center gap-1.5 rounded-md shadow-2xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={closeCropView}
+                className="rounded-md shadow-2xs"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleApplyFrame}
+                className="flex items-center gap-1.5 rounded-md shadow-xs"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Selesai & Terapkan</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 flex flex-col gap-5">
+              <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
+                <span className="font-bold text-xs text-brand-900 uppercase tracking-wide">
+                  1. Pilih Sudut Dokumentasi
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {ANGLE_SLOTS.map((angle) => {
+                    const sData = slots.find(s => s.slot === angle.slot) || { before_url: '', after_url: '' };
+                    const isChosen = modalSlot === angle.slot;
+                    const previewThumb = sData.after_url || sData.before_url;
+
+                    return (
+                      <button
+                        key={angle.slot}
+                        type="button"
+                        onClick={() => setModalSlot(angle.slot)}
+                        className={`p-2.5 rounded-lg border text-left flex flex-col gap-1.5 transition-all cursor-pointer ${
+                          isChosen
+                            ? 'border-brand-600 bg-brand-50/90 ring-2 ring-brand-600/30 shadow-xs'
+                            : 'border-slate-200 bg-white hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="w-full aspect-[4/3] rounded-md overflow-hidden relative bg-slate-100 border border-slate-200">
+                          {previewThumb ? (
+                            <img src={previewThumb} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">
+                              Kosong
+                            </div>
+                          )}
+                          {isChosen && (
+                            <div className="absolute top-1 right-1 bg-brand-600 text-white rounded-full p-0.5 shadow-xs">
+                              <CheckCircle2 className="w-3 h-3" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-brand-900 truncate">
+                          Sudut #{angle.slot}
+                        </span>
+                        <span className="text-[10px] text-slate-500 truncate">
+                          {angle.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
+                <span className="font-bold text-xs text-brand-900 uppercase tracking-wide">
+                  2. Pilih Foto yang Ingin Diframe
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTarget('before')}
+                    className={`p-3 rounded-lg border flex items-center justify-between gap-2 transition-all cursor-pointer ${
+                      activeTarget === 'before'
+                        ? 'border-amber-500 bg-amber-50/80 ring-2 ring-amber-500/30 shadow-xs'
+                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                      <div className="text-left min-w-0">
+                        <span className="text-xs font-bold text-brand-900 block truncate">
+                          Foto Sebelum
+                        </span>
+                        <span className="text-[10px] text-slate-500 block truncate font-mono">
+                          Zoom: {(currentModalSlotFraming?.before?.zoom || 1).toFixed(2)}x
+                        </span>
+                      </div>
+                    </div>
+                    {activeTarget === 'before' && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-white shrink-0">
+                        Aktif
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTarget('after')}
+                    className={`p-3 rounded-lg border flex items-center justify-between gap-2 transition-all cursor-pointer ${
+                      activeTarget === 'after'
+                        ? 'border-brand-600 bg-brand-50/80 ring-2 ring-brand-600/30 shadow-xs'
+                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-600 shrink-0" />
+                      <div className="text-left min-w-0">
+                        <span className="text-xs font-bold text-brand-900 block truncate">
+                          Foto Sesudah
+                        </span>
+                        <span className="text-[10px] text-slate-500 block truncate font-mono">
+                          Zoom: {(currentModalSlotFraming?.after?.zoom || 1).toFixed(2)}x
+                        </span>
+                      </div>
+                    </div>
+                    {activeTarget === 'after' && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-600 text-white shrink-0">
+                        Aktif
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between border-t border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={handleCopyFromOther}
+                    className="text-xs font-semibold text-brand-600 hover:text-brand-900 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Salin Frame dari {activeTarget === 'before' ? 'Sesudah' : 'Sebelum'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResetFraming}
+                    className="text-xs font-semibold text-slate-500 hover:text-danger flex items-center gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset Posisi</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-1 flex-wrap gap-2">
+                <span className="text-xs font-bold text-brand-900 flex items-center gap-1.5">
+                  <Move className="w-3.5 h-3.5 text-brand-600" />
+                  <span>Kanvas Framing & Crop (Aspek Rasio 4:3)</span>
+                </span>
+                <div className="text-[11px] font-mono text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
+                  Zoom: {(activeFraming?.zoom || 1).toFixed(2)}x • X: {activeFraming?.x || 0}% • Y: {activeFraming?.y || 0}%
+                </div>
+              </div>
+
+              <div
+                ref={frameViewportRef}
+                onPointerDown={handlePointerDownFrame}
+                onPointerMove={handlePointerMoveFrame}
+                onPointerUp={handlePointerUpFrame}
+                onPointerCancel={handlePointerUpFrame}
+                className="relative w-full max-w-lg mx-auto aspect-[4/3] rounded-xl overflow-hidden bg-slate-950 border-2 border-brand-500 shadow-md cursor-grab active:cursor-grabbing select-none touch-none overscroll-contain"
+              >
+                {modalImgSrc ? (
+                  <img
+                    src={modalImgSrc}
+                    alt="Framing preview"
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    style={{
+                      transform: `translate(${activeFraming?.x || 0}%, ${activeFraming?.y || 0}%) scale(${activeFraming?.zoom || 1})`,
+                      transformOrigin: 'center center'
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+                    Foto belum diunggah untuk sudut ini
+                  </div>
+                )}
+                <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md bg-black/70 text-white text-[10px] font-bold uppercase shadow-2xs">
+                  {activeTarget === 'before' ? 'Foto Sebelum' : 'Foto Sesudah'} (Sudut #{modalSlot})
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 max-w-lg mx-auto w-full pt-1">
+                <button
+                  type="button"
+                  onClick={() => updateActiveFraming((cur) => ({ zoom: Math.max(1, Number(((cur?.zoom || 1) - 0.1).toFixed(2))) }))}
+                  className="p-1.5 rounded-md hover:bg-slate-100 text-slate-600 cursor-pointer"
+                  title="Perkecil"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <input
+                  type="range"
+                  min="1"
+                  max="3.5"
+                  step="0.05"
+                  value={activeFraming?.zoom || 1}
+                  onChange={(e) => handleZoomSlider(e.target.value)}
+                  className="w-full accent-brand-600 cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={() => updateActiveFraming((cur) => ({ zoom: Math.min(3.5, Number(((cur?.zoom || 1) + 0.1).toFixed(2))) }))}
+                  className="p-1.5 rounded-md hover:bg-slate-100 text-slate-600 cursor-pointer"
+                  title="Perbesar"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-mono font-bold text-brand-900 w-12 text-right shrink-0">
+                  {(activeFraming?.zoom || 1).toFixed(2)}x
+                </span>
+              </div>
+
+              <p className="text-center text-[11px] text-slate-500">
+                Tahan & geser mouse/sentuhan pada foto untuk mengatur posisi crop. Roda mouse (scroll) atau slider untuk zoom.
+              </p>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={closeCropView}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleApplyFrame}
+                >
+                  Selesai & Terapkan
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <Card noPadding rounded="2xl" className="border-slate-200/80 bg-white shadow-xs w-full overflow-hidden">
@@ -433,19 +748,6 @@ export function GalleryFormPage() {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => openFrameModal(activeSlot, 'after')}
-                className="flex items-center gap-1.5 rounded-md shadow-xs"
-                title="Atur framing zoom dan posisi crop 4:3"
-              >
-                <Crop className="w-4 h-4 text-brand-600" />
-                <span className="hidden sm:inline">Atur Frame Crop</span>
-                <span className="sm:hidden">Frame Crop</span>
-              </Button>
-
               <Button
                 type="submit"
                 size="sm"
@@ -492,10 +794,10 @@ export function GalleryFormPage() {
                   <div
                     key={angle.slot}
                     className={`p-3 rounded-xl border transition-all flex flex-col justify-between gap-2 relative ${
-                      isFeatured
-                        ? 'border-brand-600 bg-brand-50/80 ring-2 ring-brand-600/30 shadow-xs'
-                        : isActive
-                        ? 'border-brand-300 bg-slate-50'
+                      isActive
+                        ? 'border-brand-600 bg-brand-50/90 ring-2 ring-brand-600/30 shadow-xs'
+                        : isFeatured
+                        ? 'border-amber-300 bg-amber-50/20 hover:bg-amber-50/40'
                         : 'border-brand-200 bg-white hover:bg-slate-50'
                     }`}
                   >
@@ -506,6 +808,11 @@ export function GalleryFormPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-brand-900 flex items-center gap-1.5">
                           <span>Sudut #{angle.slot}</span>
+                          {isActive && (
+                            <span className="text-[10px] bg-brand-600 text-white font-bold px-1.5 py-0.5 rounded-md shadow-2xs">
+                              Dipilih
+                            </span>
+                          )}
                           {isFeatured && (
                             <span className="text-[10px] bg-accent-gold text-brand-900 font-extrabold px-1.5 py-0.5 rounded-md shadow-2xs">
                               Utama Beranda
@@ -532,23 +839,12 @@ export function GalleryFormPage() {
                         type="button"
                         onClick={() => setActiveSlot(angle.slot)}
                         className={`text-[11px] font-semibold px-2 py-0.5 rounded-md cursor-pointer transition-colors ${
-                          isActive ? 'text-brand-900 font-bold underline' : 'text-slate-wet hover:text-brand-900'
+                          isActive
+                            ? 'bg-brand-600 text-white font-bold shadow-2xs'
+                            : 'text-slate-600 hover:text-brand-900 bg-slate-100 hover:bg-slate-200'
                         }`}
                       >
-                        {isActive ? 'Sedang Diedit' : 'Edit Foto'}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openFrameModal(angle.slot, 'after');
-                        }}
-                        className="text-[11px] font-semibold text-brand-600 hover:text-brand-900 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-brand-50 transition-colors cursor-pointer"
-                        title="Atur framing zoom dan posisi crop untuk sudut ini"
-                      >
-                        <Crop className="w-3 h-3" />
-                        <span>Frame Crop</span>
+                        {isActive ? 'Sedang Dipilih' : 'Pilih Sudut'}
                       </button>
 
                       <button
@@ -556,7 +852,7 @@ export function GalleryFormPage() {
                         onClick={() => handleSelectFeaturedSlot(angle.slot)}
                         className={`text-[11px] font-bold px-2 py-1 rounded-md transition-all cursor-pointer ${
                           isFeatured
-                            ? 'bg-brand-600 text-white'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
                             : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-100'
                         }`}
                         title="Jadikan sudut ini sebagai foto yang tampil di Beranda dan Kartu Galeri"
@@ -571,19 +867,9 @@ export function GalleryFormPage() {
 
             <div className="p-4 bg-slate-50 rounded-xl border border-brand-200 flex flex-col gap-3">
               <div className="flex items-center justify-between border-b border-brand-200/60 pb-2 flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-brand-900">
-                    Upload Foto Sudut #{activeSlot}: {currentAngle.label}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => openFrameModal(activeSlot, 'after')}
-                    className="text-[11px] font-semibold text-brand-600 hover:text-brand-900 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-brand-200 shadow-2xs hover:bg-brand-50 transition-colors cursor-pointer"
-                  >
-                    <Crop className="w-3.5 h-3.5" />
-                    <span>Atur Frame Sudut #{activeSlot}</span>
-                  </button>
-                </div>
+                <span className="text-xs font-bold text-brand-900">
+                  Upload Foto Sudut #{activeSlot}: {currentAngle.label}
+                </span>
                 <span className="text-[11px] text-slate-wet">
                   Status: {currentSlotData.before_url && currentSlotData.after_url ? 'Lengkap Sebelum & Sesudah' : 'Belum Lengkap'}
                 </span>
@@ -624,13 +910,24 @@ export function GalleryFormPage() {
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleResetSlotFraming(featuredSlot)}
+                    className="flex items-center gap-1.5 shadow-2xs rounded-md"
+                    title="Reset framing sudut ini ke default (1.00x, 0%, 0%)"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Reset</span>
+                  </Button>
+                  <Button
+                    type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={() => openFrameModal(featuredSlot, 'after')}
+                    onClick={() => openCropView(featuredSlot, 'after')}
                     className="flex items-center gap-1.5 shadow-xs"
                   >
                     <Crop className="w-4 h-4 text-brand-600" />
-                    <span>Buka Atur Frame Crop</span>
+                    <span>Atur Frame Crop</span>
                   </Button>
                 </div>
               </div>
@@ -677,7 +974,7 @@ export function GalleryFormPage() {
 
               <div className="mt-1 flex flex-col items-center">
                 <div
-                  onClick={() => openFrameModal(featuredSlot, 'after')}
+                  onClick={() => openCropView(featuredSlot, 'after')}
                   className="w-full max-w-md aspect-[4/3] rounded-xl overflow-hidden border-2 border-brand-300 bg-slate-900 shadow-md relative cursor-pointer group select-none"
                   title="Klik untuk membuka editor framing crop"
                 >
@@ -764,7 +1061,7 @@ export function GalleryFormPage() {
                 </div>
 
                 <span className="text-[11px] text-slate-500 mt-2 text-center">
-                  Klik preview atau tombol "Buka Atur Frame Crop" untuk menggeser posisi dan zoom foto secara presisi.
+                  Klik tombol "Atur Frame Crop" untuk menggeser posisi dan zoom foto secara presisi.
                 </span>
               </div>
             </div>
@@ -846,251 +1143,6 @@ export function GalleryFormPage() {
           </div>
         </form>
       </Card>
-
-      {isFrameModalOpen && createPortal(
-        <div
-          className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-sm p-3 sm:p-5 flex items-center justify-center animate-in fade-in duration-150 overflow-y-auto"
-          onClick={closeFrameModal}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="relative max-w-2xl w-full bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col border border-brand-200 max-h-[94vh] animate-in zoom-in-95 duration-150"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-brand-200/80 bg-slate-50 shrink-0">
-              <div className="min-w-0 pr-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600 block">
-                  Atur Frame & Zoom Per Foto (Display 4:3)
-                </span>
-                <h3 className="text-sm sm:text-base font-bold text-brand-900 truncate">
-                  {formData.caption || formData.shoe_brand || 'Frame Crop Foto Galeri'}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={closeFrameModal}
-                className="w-8 h-8 rounded-md bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-bold text-brand-900">
-                  1. Pilih Sudut Dokumentasi:
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {ANGLE_SLOTS.map((angle) => {
-                    const sData = slots.find(s => s.slot === angle.slot) || { before_url: '', after_url: '' };
-                    const isChosen = modalSlot === angle.slot;
-                    const previewThumb = sData.after_url || sData.before_url;
-
-                    return (
-                      <button
-                        key={angle.slot}
-                        type="button"
-                        onClick={() => setModalSlot(angle.slot)}
-                        className={`p-2 rounded-md border text-left flex flex-col gap-1.5 transition-all cursor-pointer ${
-                          isChosen
-                            ? 'border-brand-600 bg-brand-50/80 ring-2 ring-brand-600/30'
-                            : 'border-brand-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="w-full aspect-[4/3] rounded-sm overflow-hidden relative bg-slate-100 border border-brand-200/60">
-                          {previewThumb ? (
-                            <img
-                              src={previewThumb}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">
-                              Kosong
-                            </div>
-                          )}
-                          {isChosen && (
-                            <div className="absolute top-1 right-1 bg-brand-600 text-white rounded-full p-0.5 shadow-xs">
-                              <CheckCircle2 className="w-3 h-3" />
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-[11px] font-bold text-brand-900 truncate">
-                          Sudut #{angle.slot}
-                        </span>
-                        <span className="text-[10px] text-slate-wet truncate">
-                          {angle.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-bold text-brand-900">
-                  2. Pilih Foto yang Ingin Diframe:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTarget('before')}
-                    className={`p-2.5 rounded-md border flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                      activeTarget === 'before'
-                        ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-500/30'
-                        : 'border-brand-200 bg-white hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
-                      <div className="text-left min-w-0">
-                        <span className="text-xs font-bold text-brand-900 block truncate">
-                          Foto Sebelum
-                        </span>
-                        <span className="text-[10px] text-slate-wet block truncate font-mono">
-                          Zoom: {(currentModalSlotFraming?.before?.zoom || 1).toFixed(2)}x
-                        </span>
-                      </div>
-                    </div>
-                    {activeTarget === 'before' && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-white shrink-0">
-                        Aktif
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTarget('after')}
-                    className={`p-2.5 rounded-md border flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                      activeTarget === 'after'
-                        ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-600/30'
-                        : 'border-brand-200 bg-white hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-2.5 h-2.5 rounded-full bg-brand-600 shrink-0" />
-                      <div className="text-left min-w-0">
-                        <span className="text-xs font-bold text-brand-900 block truncate">
-                          Foto Sesudah
-                        </span>
-                        <span className="text-[10px] text-slate-wet block truncate font-mono">
-                          Zoom: {(currentModalSlotFraming?.after?.zoom || 1).toFixed(2)}x
-                        </span>
-                      </div>
-                    </div>
-                    {activeTarget === 'after' && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-600 text-white shrink-0">
-                        Aktif
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-brand-900 flex items-center gap-1.5">
-                    <Move className="w-3.5 h-3.5 text-brand-600" />
-                    <span>Geser & Zoom Foto dalam Frame 4:3:</span>
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleCopyFromOther}
-                      className="text-[11px] font-semibold text-brand-600 hover:text-brand-900 flex items-center gap-1 cursor-pointer"
-                      title="Salin frame dari foto lainnya"
-                    >
-                      <Copy className="w-3 h-3" />
-                      <span>Salin dari {activeTarget === 'before' ? 'Sesudah' : 'Sebelum'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleResetFraming}
-                      className="text-[11px] font-semibold text-slate-wet hover:text-danger flex items-center gap-1 cursor-pointer"
-                      title="Kembalikan posisi & zoom default"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Reset</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  ref={frameViewportRef}
-                  onPointerDown={handlePointerDownFrame}
-                  onPointerMove={handlePointerMoveFrame}
-                  onPointerUp={handlePointerUpFrame}
-                  onPointerCancel={handlePointerUpFrame}
-                  onWheel={handleWheelZoom}
-                  className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-lg overflow-hidden bg-slate-950 border-2 border-brand-500 shadow-md cursor-grab active:cursor-grabbing select-none touch-none"
-                  style={{ aspectRatio: '4/3' }}
-                >
-                  {modalImgSrc ? (
-                    <img
-                      src={modalImgSrc}
-                      alt="Framing preview"
-                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                      style={{
-                        transform: `translate(${activeFraming?.x || 0}%, ${activeFraming?.y || 0}%) scale(${activeFraming?.zoom || 1})`,
-                        transformOrigin: 'center center'
-                      }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
-                      Foto belum diunggah untuk sudut ini
-                    </div>
-                  )}
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 text-white text-[10px] font-bold uppercase">
-                    {activeTarget === 'before' ? 'Sebelum' : 'Sesudah'} (Sudut #{modalSlot})
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 max-w-sm sm:max-w-md mx-auto w-full pt-1">
-                  <ZoomOut className="w-4 h-4 text-slate-400 shrink-0" />
-                  <input
-                    type="range"
-                    min="1"
-                    max="3.5"
-                    step="0.05"
-                    value={activeFraming?.zoom || 1}
-                    onChange={(e) => handleZoomSlider(e.target.value)}
-                    className="w-full accent-brand-600 cursor-pointer"
-                  />
-                  <ZoomIn className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="text-xs font-mono font-bold text-brand-900 w-12 text-right shrink-0">
-                    {(activeFraming?.zoom || 1).toFixed(2)}x
-                  </span>
-                </div>
-
-                <span className="text-[11px] text-slate-500 text-center">
-                  Tahan & geser mouse langsung pada foto di atas untuk memposisikan. Scroll roda mouse atau slider untuk zoom.
-                </span>
-              </div>
-            </div>
-
-            <div className="px-5 py-3.5 border-t border-brand-200/80 bg-slate-50 flex items-center justify-end gap-2 shrink-0">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={closeFrameModal}
-              >
-                Batal
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleApplyFrame}
-              >
-                Terapkan Frame
-              </Button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   );
 }
