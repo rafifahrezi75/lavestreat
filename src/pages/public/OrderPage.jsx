@@ -14,7 +14,7 @@ import {
   ArrowLeft,
   Printer
 } from '@phosphor-icons/react';
-import { MessageCircle, CheckCircle2, Trash2 } from 'lucide-react';
+import { MessageCircle, CheckCircle2, Trash2, ChevronDown } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Select } from '../../components/common/Select';
@@ -24,7 +24,7 @@ import { PageHeader } from '../../components/common/PageHeader';
 import { useToast } from '../../context/ToastContext';
 import { servicesApi, ordersApi } from '../../lib/api';
 import { ORDER_METHODS } from '../../lib/constants';
-import { printOrderReceipt } from '../../lib/orderReceiptPdf';
+import { printOrderReceipt, downloadOrderReceiptPdf } from '../../lib/orderReceiptPdf';
 
 export function OrderPage() {
   const [searchParams] = useSearchParams();
@@ -38,6 +38,7 @@ export function OrderPage() {
   const [createdOrder, setCreatedOrder] = useState(null);
   const [waRedirectUrl, setWaRedirectUrl] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
 
   const [selectedItems, setSelectedItems] = useState({});
@@ -221,12 +222,6 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
     const waUrl = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(waMessage)}`;
     setWaRedirectUrl(waUrl);
 
-    let waWindow = null;
-    try {
-      waWindow = window.open(waUrl, '_blank');
-    } catch {
-    }
-
     try {
       const payload = {
         id: orderId,
@@ -242,11 +237,12 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
 
       const res = await ordersApi.createOrder(payload);
       setCreatedOrder(res);
-      showToast('Pesanan Anda berhasil dikirim.', 'success');
+      showToast('Pesanan berhasil! Struk sedang diunduh...', 'success');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
-        window.location.assign(waUrl);
+      try {
+        await downloadOrderReceiptPdf(res);
+      } catch {
       }
     } catch (err) {
       showToast(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda dan coba lagi.', 'danger');
@@ -314,10 +310,10 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                 variant="primary"
                 size="md"
                 className="rounded-md bg-brand-900 hover:bg-brand-950 text-white flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 shadow-xs"
-                onClick={() => printOrderReceipt(createdOrder)}
+                onClick={() => downloadOrderReceiptPdf(createdOrder)}
               >
                 <Printer size={16} weight="bold" />
-                <span>Unduh Struk</span>
+                <span>Unduh Struk PDF</span>
               </Button>
 
               <a
@@ -364,7 +360,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                     Lengkapi langkah pemesanan di bawah ini secara bertahap.
                   </p>
                 </div>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 border border-brand-200 self-start sm:self-auto">
+                <span className="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 border border-brand-200 self-start sm:self-auto">
                   Area Sidoarjo & Surabaya
                 </span>
               </div>
@@ -415,39 +411,76 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between gap-3 pb-3 border-b border-brand-200/80">
-                    <div>
-                      <h3 className="font-bold text-sm sm:text-base text-brand-900">
-                        Langkah 1: Pilih Layanan & Produk
-                      </h3>
-                      <p className="text-xs text-slate-wet mt-0.5">
-                        Tentukan layanan pencucian, restorasi, atau produk sabun yang dibutuhkan.
-                      </p>
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200 shrink-0">
+                    <h3 className="font-bold text-sm sm:text-base text-brand-900">
+                      Langkah 1: Pilih Layanan & Produk
+                    </h3>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-900 border border-brand-200 shrink-0">
                       {totalItemCount} item dipilih
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { id: 'all', label: 'Semua' },
-                      { id: 'cuci', label: 'Cuci Sepatu' },
-                      { id: 'repaint', label: 'Repaint & Unyellowing' },
-                      { id: 'sabun', label: 'Produk Sabun' }
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => setActiveCategory(tab.id)}
-                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                          activeCategory === tab.id
-                            ? 'bg-brand-600 text-white shadow-xs'
-                            : 'bg-brand-100/50 text-brand-900 hover:bg-brand-100 border border-brand-200'
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 bg-white border border-brand-200 rounded-md text-xs sm:text-sm font-medium text-brand-900 hover:border-brand-600 transition-colors shadow-2xs cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-wet text-xs">Filter Kategori:</span>
+                        <span className="font-bold text-brand-900">
+                          {[
+                            { id: 'all', label: 'Semua Layanan' },
+                            { id: 'cuci', label: 'Cuci Sepatu' },
+                            { id: 'repaint', label: 'Repaint & Unyellowing' },
+                            { id: 'sabun', label: 'Produk Sabun' }
+                          ].find((c) => c.id === activeCategory)?.label || 'Semua Layanan'}
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-wet transition-transform duration-200 ${
+                          isFilterDropdownOpen ? 'rotate-180' : ''
                         }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
+                      />
+                    </button>
+
+                    {isFilterDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-20"
+                          onClick={() => setIsFilterDropdownOpen(false)}
+                        />
+                        <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-white rounded-md border border-brand-200 shadow-lg py-1 animate-in fade-in zoom-in-95 duration-150">
+                          {[
+                            { id: 'all', label: 'Semua Layanan' },
+                            { id: 'cuci', label: 'Cuci Sepatu' },
+                            { id: 'repaint', label: 'Repaint & Unyellowing' },
+                            { id: 'sabun', label: 'Produk Sabun' }
+                          ].map((opt) => {
+                            const isSelected = activeCategory === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => {
+                                  setActiveCategory(opt.id);
+                                  setIsFilterDropdownOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-brand-50 text-brand-900 font-bold'
+                                    : 'text-slate-700 hover:bg-slate-50'
+                                }`}
+                              >
+                                <span>{opt.label}</span>
+                                {isSelected && (
+                                  <Check size={14} weight="bold" className="text-brand-600 shrink-0" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {loadingServices ? (
@@ -455,79 +488,79 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       Memuat daftar layanan Lave Streat...
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                       {filteredServices.map((service) => {
                         const qty = selectedItems[service.id] || 0;
                         const isSelected = qty > 0;
                         return (
                           <div
                             key={service.id}
-                            className={`rounded-md border p-3 flex flex-col justify-between transition-all ${
+                            className={`rounded-md border p-2.5 sm:p-3 flex flex-col justify-between transition-all ${
                               isSelected
                                 ? 'border-brand-600 bg-brand-100/15 ring-1 ring-brand-600/30'
                                 : 'border-brand-200 hover:border-brand-600/40 bg-white'
                             }`}
                           >
-                            <div className="flex gap-3 items-start mb-2.5">
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start mb-2">
                               <img
                                 src={service.foto || '/services/deep-clean.jpg'}
                                 alt={service.nama}
                                 onError={(e) => {
                                   e.currentTarget.src = '/services/deep-clean.jpg';
                                 }}
-                                className="w-16 h-16 rounded-md object-cover bg-brand-100 border border-brand-200 shrink-0"
+                                className="w-full sm:w-16 h-24 sm:h-16 rounded-md object-cover bg-brand-100 border border-brand-200 shrink-0"
                               />
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-1.5 mb-1">
-                                  <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200">
+                              <div className="min-w-0 flex-1 w-full">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <span className="text-[9px] sm:text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200 truncate">
                                     {service.kategori}
                                   </span>
                                 </div>
                                 <h4 className="font-bold text-xs sm:text-sm text-brand-900 line-clamp-1">
                                   {service.nama}
                                 </h4>
-                                <p className="text-[11px] text-slate-wet line-clamp-1 mt-0.5">
+                                <p className="text-[10px] sm:text-[11px] text-slate-wet line-clamp-1 mt-0.5">
                                   {service.deskripsi}
                                 </p>
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-2 border-t border-brand-200/60 mt-auto">
-                              <div>
-                                <span className="text-xs sm:text-sm font-bold text-brand-600">
+                            <div className="flex items-center justify-between pt-2 border-t border-brand-200/60 mt-auto gap-1">
+                              <div className="min-w-0">
+                                <span className="text-[11px] sm:text-sm font-bold text-brand-600 block leading-tight">
                                   {formatPrice(service.harga)}
                                 </span>
-                                <span className="text-[11px] text-slate-wet">/{service.satuan}</span>
+                                <span className="text-[9px] sm:text-[11px] text-slate-wet block leading-none">/{service.satuan}</span>
                               </div>
 
-                              <div>
+                              <div className="shrink-0">
                                 {isSelected ? (
-                                  <div className="flex items-center gap-1.5 bg-white border border-brand-200 rounded-md p-0.5">
+                                  <div className="flex items-center gap-1 bg-white border border-brand-200 rounded-md p-0.5">
                                     <button
                                       type="button"
                                       onClick={() => handleQtyChange(service.id, -1)}
-                                      className="w-6 h-6 rounded-md bg-brand-100 text-brand-900 flex items-center justify-center hover:bg-brand-200 transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-brand-100 text-brand-900 flex items-center justify-center hover:bg-brand-200 transition-colors"
                                       aria-label="Kurangi kuantitas"
                                     >
-                                      <Minus size={12} weight="bold" />
+                                      <Minus size={10} weight="bold" />
                                     </button>
-                                    <span className="text-xs font-bold w-5 text-center text-brand-900">
+                                    <span className="text-[11px] sm:text-xs font-bold w-4 sm:w-5 text-center text-brand-900">
                                       {qty}
                                     </span>
                                     <button
                                       type="button"
                                       onClick={() => handleQtyChange(service.id, 1)}
-                                      className="w-6 h-6 rounded-md bg-brand-600 text-white flex items-center justify-center hover:bg-brand-900 transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-brand-600 text-white flex items-center justify-center hover:bg-brand-900 transition-colors"
                                       aria-label="Tambah kuantitas"
                                     >
-                                      <Plus size={12} weight="bold" />
+                                      <Plus size={10} weight="bold" />
                                     </button>
                                   </div>
                                 ) : (
                                   <button
                                     type="button"
                                     onClick={() => handleQtyChange(service.id, 1)}
-                                    className="px-3 py-1 rounded-md text-xs font-semibold bg-brand-100/60 hover:bg-brand-100 text-brand-900 border border-brand-200 transition-colors"
+                                    className="px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-semibold bg-brand-100/60 hover:bg-brand-100 text-brand-900 border border-brand-200 transition-colors whitespace-nowrap"
                                   >
                                     + Pilih
                                   </button>

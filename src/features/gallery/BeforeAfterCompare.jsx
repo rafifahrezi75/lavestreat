@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { CaretLeft, CaretRight, Sparkle } from '@phosphor-icons/react';
+import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { getImageFramingStyle } from '../../lib/framing';
 
 export function BeforeAfterCompare({
@@ -111,13 +111,11 @@ export function BeforeAfterCompare({
           </div>
         </div>
 
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+        <div className="absolute top-3 left-3 z-10 flex items-center bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
           <span>Sebelum</span>
         </div>
 
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
-          <Sparkle size={11} weight="fill" className="text-accent-gold" />
+        <div className="absolute top-3 right-3 z-10 flex items-center bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
           <span>Sesudah</span>
         </div>
 

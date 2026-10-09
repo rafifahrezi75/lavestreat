@@ -10,10 +10,9 @@ import {
 import { Truck, Tag as LucideTag, ArrowRight } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { ServiceCard } from '../../features/services/ServiceCard';
-import { BeforeAfterCompare } from '../../features/gallery/BeforeAfterCompare';
+import { getImageFramingStyle } from '../../lib/framing';
 import { TestimonialCard } from '../../features/testimonials/TestimonialCard';
 import { servicesApi, galleryApi, testimonialsApi, contentApi } from '../../lib/api';
-import { getImageFramingStyle } from '../../lib/framing';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -21,7 +20,7 @@ export function HomePage() {
   const [services, setServices] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [selectedGalleryIdx, setSelectedGalleryIdx] = useState(0);
+  const [shoeSlotIndices, setShoeSlotIndices] = useState([0, 0, 0]);
   const [currentTestiIndex, setCurrentTestiIndex] = useState(0);
   const [isTestiPaused, setIsTestiPaused] = useState(false);
   const [visibleTestiCards, setVisibleTestiCards] = useState(3);
@@ -73,6 +72,24 @@ export function HomePage() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (gallery.length === 0) return;
+    const interval = setInterval(() => {
+      setShoeSlotIndices((prev) => {
+        const displayed = gallery.slice(0, 3);
+        return displayed.map((shoe, idx) => {
+          const validSlots = (shoe.slots && shoe.slots.length > 0)
+            ? shoe.slots.filter((s) => s.before_url && s.after_url)
+            : [];
+          if (validSlots.length <= 1) return 0;
+          const current = prev[idx] || 0;
+          return (current + 1) % validSlots.length;
+        });
+      });
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [gallery]);
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-light page-smooth-enter">
@@ -230,178 +247,103 @@ export function HomePage() {
                   Hasil nyata pengerjaan teknisi workshop kami. Lihat dokumentasi lengkap sebelum dan sesudah perawatan.
                 </p>
               </div>
-              <Link
-                to="/galeri"
-                className="inline-flex items-center text-xs sm:text-sm font-semibold text-brand-600 hover:text-brand-900 transition-colors shrink-0"
-              >
-                Lihat Semua Galeri &rarr;
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-              <div className="lg:col-span-7 flex flex-col gap-3">
-                {gallery[selectedGalleryIdx] && (
-                  <>
-                    {gallery[selectedGalleryIdx].slots && gallery[selectedGalleryIdx].slots.length > 1 && (
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                        <span className="text-xs font-semibold text-slate-wet shrink-0 mr-1">Sudut Foto:</span>
-                        {gallery[selectedGalleryIdx].slots.map((s, sIdx) => {
-                          const isCurSlot = (gallery[selectedGalleryIdx].currentSlotIdx ?? 0) === sIdx;
-                          return (
-                            <button
-                              key={s.slot || sIdx}
-                              type="button"
-                              onClick={() => {
-                                setGallery((prev) =>
-                                  prev.map((g, gi) =>
-                                    gi === selectedGalleryIdx ? { ...g, currentSlotIdx: sIdx } : g
-                                  )
-                                );
-                              }}
-                              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                                isCurSlot
-                                  ? 'bg-brand-600 text-white shadow-xs'
-                                  : 'bg-white text-brand-900 border border-brand-200 hover:bg-brand-100'
-                              }`}
-                            >
-                              {s.label || `Sudut #${s.slot || sIdx + 1}`}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {(() => {
-                      const item = gallery[selectedGalleryIdx];
-                      const slotIdx = item.currentSlotIdx ?? 0;
-                      const activeSlot = item.slots?.[slotIdx];
-                      const bUrl = activeSlot?.before_url || item.before_url;
-                      const aUrl = activeSlot?.after_url || item.after_url;
-                      const isFeatured = !item.slots || (activeSlot?.slot === (item.featured_slot || 1));
-                      const objPos = isFeatured
-                        ? (item.object_position || `${item.pos_x ?? 50}% ${item.pos_y ?? 50}%`)
-                        : '50% 50%';
-
-                      return (
-                        <BeforeAfterCompare
-                          key={`${item.id}-${slotIdx}`}
-                          beforeUrl={bUrl}
-                          afterUrl={aUrl}
-                          beforeFraming={activeSlot?.framing_before || (isFeatured ? item.framing_before : null)}
-                          afterFraming={activeSlot?.framing_after || (isFeatured ? item.framing_after : null)}
-                          caption={item.caption}
-                          serviceTag={item.layanan_terkait}
-                          objectPosition={objPos}
-                          className="h-full rounded-lg"
-                          footer={
-                            <div className="pt-2.5 border-t border-brand-200/50 flex items-center justify-between">
-                              <span className="text-[11px] text-slate-wet">Workshop Lave Streat</span>
-                              <Link
-                                to={`/galeri/${item.id}`}
-                                className="text-xs font-semibold text-brand-600 hover:text-brand-900 inline-flex items-center gap-1 group/link"
-                              >
-                                <span>Buka Halaman Restorasi</span>
-                                <span className="group-hover/link:translate-x-0.5 transition-transform">&rarr;</span>
-                              </Link>
-                            </div>
-                          }
-                        />
-                      );
-                    })()}
-                  </>
-                )}
-              </div>
-
-              <div className="lg:col-span-5 bg-white p-5 sm:p-6 rounded-lg border border-brand-200 shadow-subtle flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-slate-wet uppercase tracking-wider block">
-                      Pilih Sampel Sepatu:
-                    </span>
-                    <span className="text-[11px] font-semibold text-brand-600">
-                      {selectedGalleryIdx + 1} dari {Math.min(4, gallery.length)}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5">
-                    {gallery.slice(0, 4).map((item, idx) => {
-                      const isSelected = selectedGalleryIdx === idx;
-                      const thumbPos = item.object_position || `${item.pos_x ?? 50}% ${item.pos_y ?? 50}%`;
-
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setSelectedGalleryIdx(idx)}
-                          className={`text-left p-2.5 sm:p-3 rounded-md border transition-all flex items-center gap-3.5 cursor-pointer ${
-                            isSelected
-                              ? 'bg-brand-50/80 border-brand-600 shadow-xs ring-1 ring-brand-600'
-                              : 'bg-white border-brand-200 hover:bg-slate-50'
-                          }`}
-                        >
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-md overflow-hidden shrink-0 relative border border-brand-200/80 bg-slate-100">
-                            <div className="absolute inset-0 grid grid-cols-2">
-                              <div className="relative overflow-hidden border-r border-white">
-                                <img
-                                  src={item.before_url}
-                                  alt=""
-                                  className="absolute inset-0 w-full h-full object-cover"
-                                  style={getImageFramingStyle(item, 'before')}
-                                />
-                              </div>
-                              <div className="relative overflow-hidden">
-                                <img
-                                  src={item.after_url}
-                                  alt=""
-                                  className="absolute inset-0 w-full h-full object-cover"
-                                  style={getImageFramingStyle(item, 'after')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col min-w-0 grow">
-                            <span className="text-xs sm:text-sm font-bold text-brand-900 line-clamp-1">
-                              {item.caption}
-                            </span>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[11px] font-semibold text-brand-600 truncate">
-                                {item.layanan_terkait}
-                              </span>
-                              {item.shoe_brand && (
-                                <span className="text-[10px] text-slate-500 font-medium truncate">
-                                  • {item.shoe_brand}
-                                </span>
-                              )}
-                            </div>
-                            {item.slots && item.slots.length > 1 && (
-                              <span className="text-[10px] text-slate-400 mt-0.5">
-                                {item.slots.length} sudut foto
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-brand-200/60 flex items-center justify-between text-xs text-slate-wet">
-                  <span>Dokumentasi riil workshop</span>
-                  <Link to="/galeri" className="font-semibold text-brand-600 hover:text-brand-900">
-                    Buka Galeri Lengkap ({gallery.length} foto) &rarr;
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-center">
-              <Link to="/galeri">
-                <Button variant="outline" size="md" className="flex items-center gap-2">
-                  <span>Buka Halaman Galeri Lengkap</span>
+              <Link to="/galeri" className="shrink-0">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="flex items-center gap-2 border-brand-300 text-brand-900 hover:bg-brand-50 shadow-2xs font-semibold"
+                >
+                  <span>Buka Halaman Galeri</span>
                   <ArrowRight className="w-4 h-4 text-brand-600" />
                 </Button>
               </Link>
+            </div>
+
+            <div className={`grid gap-6 items-stretch ${
+              gallery.length === 1
+                ? 'grid-cols-1 max-w-md mx-auto'
+                : gallery.length === 2
+                  ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+                  : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            }`}>
+              {gallery.slice(0, 3).map((item, idx) => {
+                const validSlots = (item.slots && item.slots.length > 0)
+                  ? item.slots.filter((s) => s.before_url && s.after_url)
+                  : [];
+                const slotIdx = validSlots.length > 0
+                  ? (shoeSlotIndices[idx] || 0) % validSlots.length
+                  : 0;
+                const activeSlot = validSlots.length > 0 ? validSlots[slotIdx] : null;
+
+                const bUrl = activeSlot?.before_url || item.before_url;
+                const aUrl = activeSlot?.after_url || item.after_url;
+                const targetObj = activeSlot ? { ...item, ...activeSlot } : item;
+                const bStyle = getImageFramingStyle(targetObj, 'before');
+                const aStyle = getImageFramingStyle(targetObj, 'after');
+
+                return (
+                  <Link
+                    key={item.id}
+                    to={`/galeri/${item.id}`}
+                    className="group relative bg-white rounded-xl border border-brand-200/90 overflow-hidden shadow-subtle hover:shadow-lg hover:border-brand-300 transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative w-full aspect-[4/3] min-h-[190px] overflow-hidden bg-slate-900">
+                      <div className="absolute inset-0 grid grid-cols-2">
+                        <div className="relative overflow-hidden border-r-2 border-white">
+                          <img
+                            src={bUrl}
+                            alt={`${item.caption} sebelum`}
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            style={bStyle}
+                          />
+                          <div className="absolute top-2.5 left-2.5 z-10 flex items-center bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
+                            <span>Sebelum</span>
+                          </div>
+                        </div>
+
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={aUrl}
+                            alt={`${item.caption} sesudah`}
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            style={aStyle}
+                          />
+                          <div className="absolute top-2.5 right-2.5 z-10 flex items-center bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md border border-white/20 uppercase tracking-wider shadow-sm pointer-events-none">
+                            <span>Sesudah</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex flex-col justify-between grow bg-white">
+                      <div>
+                        <h3 className="text-sm font-bold text-brand-900 leading-snug truncate group-hover:text-brand-600 transition-colors">
+                          {item.caption}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-semibold text-brand-600 truncate">
+                            {item.layanan_terkait}
+                          </span>
+                          {item.shoe_brand && (
+                            <span className="text-[11px] text-slate-500 font-medium truncate">
+                              • {item.shoe_brand}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-3 mt-3 border-t border-brand-200/50 flex items-center justify-between text-xs text-slate-wet">
+                        <span>Workshop Lave Streat</span>
+                        <span className="text-[11px] font-semibold text-brand-600 group-hover:translate-x-0.5 transition-transform">
+                          Lihat Detail &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

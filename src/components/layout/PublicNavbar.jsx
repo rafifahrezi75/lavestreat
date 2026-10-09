@@ -77,12 +77,6 @@ export function PublicNavbar() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/admin/login"
-              className="text-xs font-medium text-brand-200 hover:text-white px-3 py-2 rounded-lg transition-colors"
-            >
-              Admin Portal
-            </Link>
             <Link to="/pesan">
               <Button
                 size="md"
@@ -126,12 +120,6 @@ export function PublicNavbar() {
                 </Link>
               );
             })}
-            <Link
-              to="/admin/login"
-              className="px-4 py-2.5 rounded-lg text-xs text-brand-200 hover:text-white hover:bg-brand-800/40 font-medium"
-            >
-              Admin Portal
-            </Link>
           </nav>
 
           <div className="pt-2 border-t border-brand-800">

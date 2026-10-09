@@ -1,3 +1,6 @@
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+
 const formatRupiah = (val) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -417,4 +420,70 @@ export function printOrderReceipt(order) {
   }, 400);
 
   return true;
+}
+
+export async function downloadOrderReceiptPdf(order) {
+  if (!order) return false;
+  const html = generateReceiptHtml(order);
+
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = '794px';
+  iframe.style.height = '1123px';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+
+  try {
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    const element = doc.body;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#FFFFFF',
+      windowWidth: 794
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const imgWidth = 210;
+    const pageHeight = 297;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const filename = `Struk-LaveStreat-${order.id || 'order'}.pdf`;
+    pdf.save(filename);
+    return true;
+  } catch (error) {
+    return false;
+  } finally {
+    if (document.body.contains(iframe)) {
+      document.body.removeChild(iframe);
+    }
+  }
 }
