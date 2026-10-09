@@ -5,6 +5,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialSettings } from './mockData';
+import { DEFAULT_OUTLET_LOCATION } from '../constants';
 
 const SETTINGS_KEY = 'lavestreat_settings_general';
 
@@ -34,11 +35,18 @@ function normalizeSettings(data) {
   const workers = Array.isArray(data.workers) && data.workers.length > 0 ? data.workers : defaultWorkers;
   const primaryWorker = workers[0] || defaultWorkers[0];
 
+  const isLegacyPonti = typeof data.outlet_address === 'string' && data.outlet_address.includes('Ponti');
+  const outletLat = isLegacyPonti ? DEFAULT_OUTLET_LOCATION.lat : (Number(data.outlet_lat ?? data.outlet?.koordinat?.lat) || DEFAULT_OUTLET_LOCATION.lat);
+  const outletLng = isLegacyPonti ? DEFAULT_OUTLET_LOCATION.lng : (Number(data.outlet_lng ?? data.outlet?.koordinat?.lng) || DEFAULT_OUTLET_LOCATION.lng);
+  const outletAddress = (isLegacyPonti || !data.outlet_address) 
+    ? (data.outlet?.alamat || DEFAULT_OUTLET_LOCATION.address) 
+    : data.outlet_address;
+
   return {
     ...data,
-    outlet_lat: Number(data.outlet_lat ?? data.outlet?.koordinat?.lat) || -7.4338,
-    outlet_lng: Number(data.outlet_lng ?? data.outlet?.koordinat?.lng) || 112.7214,
-    outlet_address: data.outlet_address || data.outlet?.alamat || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo, Jawa Timur',
+    outlet_lat: outletLat,
+    outlet_lng: outletLng,
+    outlet_address: outletAddress,
     worker_lat: Number(data.worker_lat) || primaryWorker.lat,
     worker_lng: Number(data.worker_lng) || primaryWorker.lng,
     worker_address: data.worker_address || primaryWorker.address,

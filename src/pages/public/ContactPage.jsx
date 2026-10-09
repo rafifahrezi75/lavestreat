@@ -11,6 +11,7 @@ import { Button } from '../../components/common/Button';
 import { PageHeader } from '../../components/common/PageHeader';
 import { SliderCaptchaModal } from '../../components/common/SliderCaptchaModal';
 import { settingsApi } from '../../lib/api';
+import { DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 
 export function ContactPage() {
   const [settings, setSettings] = useState(null);
@@ -227,7 +228,7 @@ export function ContactPage() {
                   </div>
                   <div>
                     <strong className="block text-brand-900 font-semibold">Lokasi Workshop</strong>
-                    <span className="text-slate-wet">{settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}</span>
+                    <span className="text-slate-wet">{settings?.outlet_address || DEFAULT_OUTLET_LOCATION.address}</span>
                   </div>
                 </div>
 
@@ -278,7 +279,7 @@ export function ContactPage() {
               <div className="w-full min-h-[280px] grow rounded-lg overflow-hidden border border-brand-200 shadow-2xs relative bg-slate-100">
                 <iframe
                   title="Lokasi Workshop Lave Streat Google Maps"
-                  src={`https://maps.google.com/maps?q=${settings?.outlet_lat ?? -7.4478},${settings?.outlet_lng ?? 112.7183}&hl=id&z=16&output=embed`}
+                  src={`https://maps.google.com/maps?q=${settings?.outlet_lat ?? DEFAULT_OUTLET_LOCATION.lat},${settings?.outlet_lng ?? DEFAULT_OUTLET_LOCATION.lng}&hl=id&z=16&output=embed`}
                   className="w-full h-full min-h-[280px] border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -292,12 +293,12 @@ export function ContactPage() {
                         Lave Streat Shoe Care
                       </h4>
                       <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">
-                        {settings?.outlet_address || 'Jl. Raya Ponti No. 18, Sidoarjo, Jawa Timur 61213, Indonesia'}
+                        {settings?.outlet_address || DEFAULT_OUTLET_LOCATION.address}
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${settings?.outlet_lat ?? -7.4478},${settings?.outlet_lng ?? 112.7183}`}
+                        href={`https://www.google.com/maps/search/?api=1&query=${settings?.outlet_lat ?? DEFAULT_OUTLET_LOCATION.lat},${settings?.outlet_lng ?? DEFAULT_OUTLET_LOCATION.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Buka di Google Maps"
@@ -307,7 +308,7 @@ export function ContactPage() {
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                       <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${settings?.outlet_lat ?? -7.4478},${settings?.outlet_lng ?? 112.7183}`}
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${settings?.outlet_lat ?? DEFAULT_OUTLET_LOCATION.lat},${settings?.outlet_lng ?? DEFAULT_OUTLET_LOCATION.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Petunjuk Arah"

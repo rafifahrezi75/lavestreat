@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Sparkle, 
   Clock, 
   MapPin, 
   ChatCircleDots, 
@@ -143,14 +142,9 @@ export function ServicesPage() {
           )}
 
           <div className="mt-8 pt-6 border-t border-brand-200/60 bg-brand-light/30 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-8 rounded-b-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Sparkle size={18} weight="bold" />
-              </div>
-              <p className="text-xs sm:text-sm text-brand-900 font-medium">
-                Dapat dibeli satuan dengan pengiriman kurir langsung, atau digabungkan bersama paket treatment cuci sepatu Anda.
-              </p>
-            </div>
+            <p className="text-xs sm:text-sm text-brand-900 font-medium">
+              Dapat dibeli satuan dengan pengiriman kurir langsung, atau digabungkan bersama paket treatment cuci sepatu Anda.
+            </p>
             <Button
               onClick={() => navigate('/pesan')}
               size="sm"

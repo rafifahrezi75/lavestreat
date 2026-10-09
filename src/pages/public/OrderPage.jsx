@@ -9,7 +9,6 @@ import {
   Package, 
   ShieldCheck,
   ShoppingBag,
-  Sparkle,
   ArrowRight,
   ArrowLeft,
   Printer
@@ -23,7 +22,7 @@ import { SliderCaptchaModal } from '../../components/common/SliderCaptchaModal';
 import { PageHeader } from '../../components/common/PageHeader';
 import { useToast } from '../../context/ToastContext';
 import { servicesApi, ordersApi, settingsApi } from '../../lib/api';
-import { ORDER_METHODS } from '../../lib/constants';
+import { ORDER_METHODS, DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 import { printOrderReceipt, downloadOrderReceiptPdf } from '../../lib/orderReceiptPdf';
 
 function getLocalDateString(offsetDays = 0) {
@@ -67,8 +66,8 @@ export function OrderPage() {
   });
   const [pickupLocation, setPickupLocation] = useState({
     teks: '',
-    lat: -7.4478,
-    lng: 112.7183
+    lat: DEFAULT_OUTLET_LOCATION.lat,
+    lng: DEFAULT_OUTLET_LOCATION.lng
   });
 
   useEffect(() => {
@@ -694,7 +693,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                             Antar Sendiri ke Outlet
                           </div>
                           <p className="text-xs text-slate-wet leading-relaxed">
-                            Anda mengantar langsung ke studio Lave Streat di {settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}.
+                            Anda mengantar langsung ke studio Lave Streat di {settings?.outlet_address || DEFAULT_OUTLET_LOCATION.address}.
                           </p>
                         </button>
                       </>

@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { DEFAULT_OUTLET_LOCATION } from './constants';
 
 const formatRupiah = (val) => {
   return new Intl.NumberFormat('id-ID', {
@@ -33,7 +34,10 @@ export function generateReceiptHtml(order) {
   const jadwalSlot = order.jadwal_slot || order.jadwal?.slot || '';
   const jadwalText = jadwalSlot ? `${jadwalDate} (${jadwalSlot})` : jadwalDate;
 
-  const alamatTeks = order.alamat_jemput?.teks || order.alamat_antar?.teks || order.alamat || '-';
+  const fallbackOutletAlamat = (order.metode === 'antar_sendiri' || order.metode === 'ambil' || order.metode === 'ambil_sendiri') 
+    ? `Outlet: ${DEFAULT_OUTLET_LOCATION.address}` 
+    : '-';
+  const alamatTeks = order.alamat_jemput?.teks || order.alamat_antar?.teks || order.alamat || fallbackOutletAlamat;
   const metodeLabel = (order.metode || 'antar_sendiri').replace(/_/g, ' ').toUpperCase();
 
   const items = Array.isArray(order.items) ? order.items : [];

@@ -26,7 +26,7 @@ import { BeforeAfterCompare } from '../../features/gallery/BeforeAfterCompare';
 import { RouteMap } from '../../components/map/RouteMap';
 import { useToast } from '../../context/ToastContext';
 import { ordersApi, settingsApi, galleryApi } from '../../lib/api';
-import { STATUS_TRANSITIONS } from '../../lib/constants';
+import { STATUS_TRANSITIONS, DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 import { printOrderReceipt } from '../../lib/orderReceiptPdf';
 
 const SLOT_LABELS = {
@@ -249,9 +249,9 @@ export function OrderDetailPage() {
   const allowedTransitions = STATUS_TRANSITIONS[order.status] || [];
 
   const outletOrigin = {
-    lat: settings?.outlet_lat ?? -7.4478,
-    lng: settings?.outlet_lng ?? 112.7183,
-    address: settings?.outlet_address || 'Outlet Toko Lave Streat'
+    lat: settings?.outlet_lat ?? DEFAULT_OUTLET_LOCATION.lat,
+    lng: settings?.outlet_lng ?? DEFAULT_OUTLET_LOCATION.lng,
+    address: settings?.outlet_address || DEFAULT_OUTLET_LOCATION.address
   };
 
   const activeWorkerList = (settings?.workers || []).filter(w => w.aktif !== false);

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapPin, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { useToast } from '../../context/ToastContext';
+import { DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 
 const createCustomIcon = (color = '#2F6FED') => {
   return L.divIcon({
@@ -17,7 +18,7 @@ const createCustomIcon = (color = '#2F6FED') => {
 export function LocationPicker({
   value,
   onChange,
-  defaultCenter = { lat: -7.4478, lng: 112.7183 },
+  defaultCenter = { lat: DEFAULT_OUTLET_LOCATION.lat, lng: DEFAULT_OUTLET_LOCATION.lng },
   height = '320px',
   label = 'Pilih Titik Lokasi Penjemputan'
 }) {

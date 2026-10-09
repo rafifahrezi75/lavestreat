@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, EnvelopeSimple, InstagramLogo, Clock, ArrowRight } from '@phosphor-icons/react';
+import { DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 
 export function PublicFooter({ settings }) {
   const currentYear = new Date().getFullYear();
@@ -55,7 +56,7 @@ export function PublicFooter({ settings }) {
             <div className="flex flex-col gap-2.5 text-sm text-slate-400">
               <div className="flex items-start gap-2.5">
                 <MapPin size={17} className="text-slate-400 shrink-0 mt-0.5" />
-                <span>{settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}</span>
+                <span>{settings?.outlet_address || DEFAULT_OUTLET_LOCATION.address}</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Clock size={17} className="text-slate-400 shrink-0 mt-0.5" />

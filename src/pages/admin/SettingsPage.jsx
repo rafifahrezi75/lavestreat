@@ -6,6 +6,7 @@ import { LocationPicker } from '../../components/map/LocationPicker';
 import { useToast } from '../../context/ToastContext';
 import { settingsApi, seedFirestore } from '../../lib/api';
 import { isFirebaseConfigured } from '../../lib/firebase';
+import { DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 
 export function SettingsPage() {
   const { showToast } = useToast();
@@ -17,8 +18,8 @@ export function SettingsPage() {
   const [detectingWorkerGpsId, setDetectingWorkerGpsId] = useState(null);
 
   const [settings, setSettings] = useState({
-    outlet_lat: -7.4478,
-    outlet_lng: 112.7183,
+    outlet_lat: DEFAULT_OUTLET_LOCATION.lat,
+    outlet_lng: DEFAULT_OUTLET_LOCATION.lng,
     outlet_address: '',
     worker_lat: -7.4505,
     worker_lng: 112.7150,
@@ -223,7 +224,7 @@ export function SettingsPage() {
       label: 'Alamat Fisik Outlet',
       desc: 'Alamat outlet utama titik asal rute kurir jemput',
       value: settings.outlet_address,
-      placeholder: 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'
+      placeholder: DEFAULT_OUTLET_LOCATION.address
     }
   ];
 
@@ -352,7 +353,7 @@ export function SettingsPage() {
                           step="any"
                           value={settings.outlet_lat ?? ''}
                           onChange={(e) => handleFieldChange('outlet_lat', parseFloat(e.target.value))}
-                          placeholder="Lat (-7.4478)"
+                          placeholder="Lat (-7.4338)"
                           className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
                         />
                         <input
@@ -360,7 +361,7 @@ export function SettingsPage() {
                           step="any"
                           value={settings.outlet_lng ?? ''}
                           onChange={(e) => handleFieldChange('outlet_lng', parseFloat(e.target.value))}
-                          placeholder="Lng (112.7183)"
+                          placeholder="Lng (112.7214)"
                           className="w-1/2 px-3 py-1.5 rounded-md border border-brand-200 bg-white text-xs sm:text-sm text-brand-900 focus:outline-hidden focus:ring-2 focus:ring-brand-600"
                         />
                         <Button

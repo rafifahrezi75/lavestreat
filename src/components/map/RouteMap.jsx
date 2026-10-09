@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Path, Clock, MapPin } from '@phosphor-icons/react';
+import { DEFAULT_OUTLET_LOCATION } from '../../lib/constants';
 
 const createCustomIcon = (color = '#0A3D66', label = 'O') => {
   return L.divIcon({
@@ -14,8 +15,8 @@ const createCustomIcon = (color = '#0A3D66', label = 'O') => {
 };
 
 export function RouteMap({
-  origin = { lat: -7.4478, lng: 112.7183, address: 'Outlet Lave Streat' },
-  originLabel = 'Outlet Lave Streat',
+  origin = DEFAULT_OUTLET_LOCATION,
+  originLabel = DEFAULT_OUTLET_LOCATION.address,
   originType = 'outlet',
   destination,
   height = '360px'
