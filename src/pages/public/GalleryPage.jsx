@@ -293,7 +293,7 @@ export function GalleryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl text-left">
             <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight leading-snug">
-              Sepatu kotor atau warna mulai pudar?
+              Sepatu kotor atau butuh perawatan berkala?
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
               Jadwalkan penjemputan sekarang. Tim kurir kami siap menjemput dan merawat sepatu Anda di area Sidoarjo dan Surabaya.

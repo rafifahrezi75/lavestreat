@@ -11,11 +11,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialServices } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_services_data_v8';
+const STORAGE_KEY = 'lavestreat_services_data_v10';
 
 function getLocalServices() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || !data.includes('/services/shoe-cleaner.jpg')) {
+  if (!data || !data.includes('srv-easy')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialServices));
     return initialServices;
   }
@@ -27,15 +27,16 @@ function saveLocalServices(services) {
 }
 
 const defaultPhotoMap = {
-  'srv-1': '/services/deep-clean.jpg',
-  'srv-2': '/services/medium-clean.jpg',
-  'srv-3': '/services/white-clean.jpg',
-  'srv-4': '/services/white-clean.jpg',
-  'srv-5': '/services/white-clean.jpg',
-  'srv-6': '/services/suede-clean.jpg',
-  'srv-7': '/services/white-clean.jpg',
-  'srv-8': '/services/repaint.jpg',
-  'srv-9': '/services/shoe-cleaner.jpg'
+  'srv-easy': '/services/medium-clean.jpg',
+  'srv-medium': '/services/medium-clean.jpg',
+  'srv-deep': '/services/deep-clean.jpg',
+  'srv-white': '/services/white-clean.jpg',
+  'srv-leather': '/services/deep-clean.jpg',
+  'srv-suede': '/services/suede-clean.jpg',
+  'srv-boots': '/services/deep-clean.jpg',
+  'srv-kids': '/services/medium-clean.jpg',
+  'srv-express': '/services/white-clean.jpg',
+  'srv-shoe-cleaner': '/services/shoe-cleaner.jpg'
 };
 
 function normalizeService(service) {
@@ -50,6 +51,26 @@ function normalizeService(service) {
   };
 }
 
+function sortServices(list) {
+  const orderMap = {
+    'srv-easy': 1,
+    'srv-medium': 2,
+    'srv-deep': 3,
+    'srv-white': 4,
+    'srv-leather': 5,
+    'srv-suede': 6,
+    'srv-boots': 7,
+    'srv-kids': 8,
+    'srv-express': 9,
+    'srv-shoe-cleaner': 10
+  };
+  return [...list].sort((a, b) => {
+    const ordA = a.urutan || orderMap[a.id] || 99;
+    const ordB = b.urutan || orderMap[b.id] || 99;
+    return ordA - ordB;
+  });
+}
+
 export const servicesApi = {
   async getServices(onlyActive = true) {
     if (isFirebaseConfigured) {
@@ -58,7 +79,8 @@ export const servicesApi = {
         const q = onlyActive ? query(colRef, where('aktif', '==', true)) : colRef;
         const snap = await getDocs(q);
         if (!snap.empty) {
-          return snap.docs.map(d => normalizeService({ id: d.id, ...d.data() }));
+          const list = snap.docs.map(d => normalizeService({ id: d.id, ...d.data() }));
+          return sortServices(list);
         }
       } catch (err) {
         console.warn('Firestore services fallback:', err.message);
@@ -67,9 +89,9 @@ export const servicesApi = {
 
     const services = getLocalServices();
     if (onlyActive) {
-      return services.filter(s => s.aktif).map(normalizeService);
+      return sortServices(services.filter(s => s.aktif).map(normalizeService));
     }
-    return services.map(normalizeService);
+    return sortServices(services.map(normalizeService));
   },
 
   async getServiceById(id) {

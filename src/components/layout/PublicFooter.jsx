@@ -24,7 +24,7 @@ export function PublicFooter({ settings }) {
               </div>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Studio perawatan, repaint, dan restorasi sepatu profesional dengan layanan antar-jemput area Sidoarjo dan Surabaya. Bersih, higienis, dan terpercaya.
+              Layanan cuci dan perawatan sepatu berbasis reservasi online dengan antar-jemput area Sidoarjo dan Surabaya.
             </p>
           </div>
 
@@ -55,11 +55,11 @@ export function PublicFooter({ settings }) {
             <div className="flex flex-col gap-2.5 text-sm text-slate-400">
               <div className="flex items-start gap-2.5">
                 <MapPin size={17} className="text-slate-400 shrink-0 mt-0.5" />
-                <span>{settings?.outlet_address || 'Jl. Raya Ponti No. 18, Sidoarjo'}</span>
+                <span>{settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Clock size={17} className="text-slate-400 shrink-0 mt-0.5" />
-                <span>{settings?.jam_operasional || 'Setiap Hari: 09.00 - 21.00 WIB'}</span>
+                <span>{settings?.jam_operasional || 'Setiap Hari: 09.00 - 18.00 WIB'}</span>
               </div>
             </div>
           </div>
@@ -70,20 +70,20 @@ export function PublicFooter({ settings }) {
             </h4>
             <div className="flex flex-col gap-2.5 text-sm text-slate-400">
               <a
-                href={`https://wa.me/62${(settings?.contact_phone || '81234567890').replace(/^0/, '')}`}
+                href={`https://wa.me/62${(settings?.contact_phone || '85128024120').replace(/^(\+?62|0)/, '')}`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2.5 hover:text-white transition-colors"
               >
                 <Phone size={17} className="text-slate-400" />
-                <span>WhatsApp: {settings?.contact_phone || '081234567890'}</span>
+                <span>WhatsApp: {settings?.contact_phone || '+62 851-2802-4120'}</span>
               </a>
               <a
-                href={`mailto:${settings?.contact_email || 'halo@lavestreat.com'}`}
+                href={`mailto:${settings?.contact_email || 'lavestreat@gmail.com'}`}
                 className="flex items-center gap-2.5 hover:text-white transition-colors"
               >
                 <EnvelopeSimple size={17} className="text-slate-400" />
-                <span>{settings?.contact_email || 'halo@lavestreat.com'}</span>
+                <span>{settings?.contact_email || 'lavestreat@gmail.com'}</span>
               </a>
               <a
                 href={`https://instagram.com/${settings?.instagram || 'lave_streat'}`}

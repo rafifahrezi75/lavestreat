@@ -258,7 +258,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
         breadcrumb={[{ label: 'Pemesanan' }]}
         subtitle={createdOrder
           ? 'Terima kasih atas pesanan Anda. Tim teknisi dan kurir kami akan segera memproses.'
-          : 'Layanan cuci, repaint sepatu, dan sabun perawatan dengan fasilitas antar-jemput Sidoarjo dan Surabaya.'
+          : 'Layanan cuci, pembersihan mendalam, dan sabun perawatan sepatu dengan fasilitas antar-jemput Sidoarjo dan Surabaya.'
         }
         bgImage="/services/white-clean.jpg"
       />
@@ -430,8 +430,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                         <span className="font-bold text-brand-900">
                           {[
                             { id: 'all', label: 'Semua Layanan' },
-                            { id: 'cuci', label: 'Cuci Sepatu' },
-                            { id: 'repaint', label: 'Repaint & Unyellowing' },
+                            { id: 'cuci', label: 'Cuci & Treatment' },
                             { id: 'sabun', label: 'Produk Sabun' }
                           ].find((c) => c.id === activeCategory)?.label || 'Semua Layanan'}
                         </span>
@@ -452,8 +451,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                         <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-white rounded-md border border-brand-200 shadow-lg py-1 animate-in fade-in zoom-in-95 duration-150">
                           {[
                             { id: 'all', label: 'Semua Layanan' },
-                            { id: 'cuci', label: 'Cuci Sepatu' },
-                            { id: 'repaint', label: 'Repaint & Unyellowing' },
+                            { id: 'cuci', label: 'Cuci & Treatment' },
                             { id: 'sabun', label: 'Produk Sabun' }
                           ].map((opt) => {
                             const isSelected = activeCategory === opt.id;
@@ -584,7 +582,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       onClick={handleNextFromStep1}
                       className="w-full sm:w-auto rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
                     >
-                      <span>Lanjut ke Metode Penyerahan</span>
+                      <span>Lanjutkan</span>
                       <ArrowRight size={16} weight="bold" />
                     </Button>
                   </div>
@@ -646,7 +644,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                             Antar Sendiri ke Outlet
                           </div>
                           <p className="text-xs text-slate-wet leading-relaxed">
-                            Anda mengantar langsung ke studio Lave Streat di Jl. Raya Ponti No. 18, Sidoarjo.
+                            Anda mengantar langsung ke studio Lave Streat di {settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}.
                           </p>
                         </button>
                       </>
@@ -703,7 +701,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       className="rounded-md flex items-center gap-1.5"
                     >
                       <ArrowLeft size={16} weight="bold" />
-                      <span>Kembali ke Layanan</span>
+                      <span>Kembali</span>
                     </Button>
 
                     <Button
@@ -712,7 +710,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       onClick={handleNextFromStep2}
                       className="rounded-md font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
                     >
-                      <span>Lanjut ke Data & Waktu</span>
+                      <span>Lanjutkan</span>
                       <ArrowRight size={16} weight="bold" />
                     </Button>
                   </div>
@@ -811,7 +809,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       className="rounded-md flex items-center gap-1.5"
                     >
                       <ArrowLeft size={16} weight="bold" />
-                      <span>Kembali ke Metode</span>
+                      <span>Kembali</span>
                     </Button>
 
                     <Button
@@ -820,7 +818,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       onClick={handleNextFromStep3}
                       className="rounded-md font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-brand-600 hover:bg-brand-900 text-white"
                     >
-                      <span>Lanjut ke Ringkasan</span>
+                      <span>Lanjutkan</span>
                       <ArrowRight size={16} weight="bold" />
                     </Button>
                   </div>
@@ -951,7 +949,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       className="w-full sm:w-auto rounded-md flex items-center justify-center gap-1.5"
                     >
                       <ArrowLeft size={16} weight="bold" />
-                      <span>Kembali ke Data</span>
+                      <span>Kembali</span>
                     </Button>
 
                     <Button

@@ -11,25 +11,25 @@ import { contentApi } from '../../lib/api';
 
 const teamMembers = [
   {
-    name: 'Naufal Ghani',
+    name: 'Naufal Ghani Bekti',
     role: 'Chief Executive Officer (CEO)',
     badge: 'CEO',
     photo: '/team/naufal-ghani.png',
-    desc: 'Pemimpin visi strategis bisnis, pengembangan inovasi layanan, dan tata kelola kepemimpinan Lave Streat.'
+    desc: 'Strategi usaha, keputusan utama, pengawasan keuangan, dan evaluasi.'
   },
   {
-    name: 'M. Rafi Fahrezi',
+    name: 'Muhammad Rafi Fahrezi',
     role: 'Chief Operating Officer (COO)',
     badge: 'COO',
     photo: '/team/rafi-fahrezi.png',
-    desc: 'Penanggung jawab eksekusi operasional workshop harian, kontrol kualitas mutu perawatan, dan manajemen logistik.'
+    desc: 'Pengadaan bahan, perawatan, kontrol kualitas, pengemasan, dan jadwal antar-jemput.'
   },
   {
-    name: 'M. Raditya P. P.',
+    name: 'Mochammad Raditya Putra Pratama',
     role: 'Chief Marketing Officer (CMO)',
     badge: 'CMO',
     photo: '/team/raditya.png',
-    desc: 'Pengembang strategi pemasaran kreatif, komunikasi brand, serta perluasan jangkauan pelanggan Sidoarjo dan Surabaya.'
+    desc: 'Konten promosi, media sosial, komunikasi pelanggan, loyalty card, dan evaluasi pemasaran.'
   }
 ];
 
@@ -68,7 +68,7 @@ export function AboutPage() {
                 </h2>
                 <div className="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-4">
                   <p>
-                    {aboutData?.sejarah || 'Lave Streat berdiri di Sidoarjo berawal dari kecintaan terhadap budaya sneakers dan kebutuhan akan perawatan sepatu yang higienis serta aman. Bermula dari melayani teman-teman komunitas dan keluarga, kini Lave Streat hadir memberikan solusi perawatan sepatu terpercaya dengan kemudahan penjemputan untuk wilayah Sidoarjo dan Surabaya.'}
+                    {aboutData?.sejarah || 'Lave Streat (L.A.V.E Treatment) adalah layanan cuci dan perawatan sepatu berbasis reservasi online yang berawal dari Program Mahasiswa Wirausaha UPN “Veteran” Jawa Timur, dari kebutuhan mahasiswa yang padat kegiatan sehingga tidak sempat mencuci atau mengantar sepatu. Kini kami melayani Sidoarjo dan Surabaya dengan reservasi online, antar-jemput, dan dokumentasi sepatu sebelum dan sesudah perawatan.'}
                   </p>
                   <p>
                     Kami meyakini bahwa sepatu yang bersih bukan sekadar tampilan luar, melainkan tentang kenyamanan pemakaian sehari-hari, kesehatan kaki, serta merawat daya tahan material sepatu favorit Anda agar bertahan lebih lama tanpa merusak jahitan, lem, maupun serat bahan.
@@ -122,7 +122,7 @@ export function AboutPage() {
                   Visi Perusahaan
                 </h3>
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                  {aboutData?.visi || 'Menjadi studio perawatan dan restorasi sepatu paling terpercaya di Jawa Timur yang mengedepankan kualitas pengerjaan tangan detail, standar higienis tinggi, serta kemudahan akses penjemputan terpadu bagi masyarakat.'}
+                  {aboutData?.visi || 'Menjadi layanan perawatan sepatu berbasis reservasi online yang praktis, terjangkau, dan terpercaya bagi mahasiswa dan masyarakat di Sidoarjo dan Surabaya.'}
                 </p>
               </div>
             </div>
@@ -138,9 +138,35 @@ export function AboutPage() {
                 <h3 className="font-display font-bold text-xl sm:text-2xl text-brand-900 mb-4">
                   Misi Perusahaan
                 </h3>
-                <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                  {aboutData?.misi || 'Memberikan layanan penjemputan yang tepat waktu, mengedukasi perawatan sepatu yang ramah material, memformulasikan cairan pembersih berkualitas tanpa merusak serat, serta memberikan jaminan kepuasan pelanggan penuh.'}
-                </p>
+                {Array.isArray(aboutData?.misi) ? (
+                  <ul className="text-sm sm:text-base text-slate-700 leading-relaxed space-y-2.5">
+                    {aboutData.misi.map((m, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0" />
+                        <span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="text-sm sm:text-base text-slate-700 leading-relaxed space-y-2.5">
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0" />
+                      <span>Menyediakan layanan cuci dan perawatan sesuai tingkat kotoran dan material dengan harga terjangkau.</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0" />
+                      <span>Memudahkan pelanggan lewat reservasi online dan antar-jemput di Sidoarjo dan Surabaya.</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0" />
+                      <span>Menjaga transparansi lewat dokumentasi kondisi sepatu sebelum dan sesudah perawatan.</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0" />
+                      <span>Menjaga kualitas dan kepuasan pelanggan lewat komunikasi yang jelas dan tindak lanjut umpan balik.</span>
+                    </li>
+                  </ul>
+                )}
               </div>
             </div>
 

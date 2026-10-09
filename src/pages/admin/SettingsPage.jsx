@@ -223,7 +223,7 @@ export function SettingsPage() {
       label: 'Alamat Fisik Outlet',
       desc: 'Alamat outlet utama titik asal rute kurir jemput',
       value: settings.outlet_address,
-      placeholder: 'Jl. Raya Ponti No. 18, Magersari, Sidoarjo'
+      placeholder: 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'
     }
   ];
 

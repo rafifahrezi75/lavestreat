@@ -57,7 +57,7 @@ export function ServicesPage() {
       <PageHeader
         title="Layanan & Produk"
         breadcrumb={[{ label: 'Layanan & Produk' }]}
-        subtitle="Daftar lengkap layanan cuci tangan manual, repaint warna, dan produk perawatan sepatu untuk wilayah Sidoarjo dan Surabaya."
+        subtitle="Daftar lengkap layanan cuci tangan manual, pembersihan khusus material, dan produk perawatan sepatu untuk wilayah Sidoarjo dan Surabaya."
         bgImage="/services/deep-clean.jpg"
       />
 
@@ -72,7 +72,7 @@ export function ServicesPage() {
               Katalog Treatment Utama
             </h2>
             <p className="text-xs sm:text-sm text-slate-wet mt-2 leading-relaxed">
-              Pilihan pencucian mendalam, unyellowing, dan pewarnaan ulang sesuai jenis material sepatu Anda.
+              Pilihan pencucian mendalam, pembersihan khusus material, dan unyellowing sesuai jenis material sepatu Anda.
             </p>
           </div>
 
@@ -236,7 +236,7 @@ export function ServicesPage() {
               </div>
               <div className="pt-4 border-t border-brand-200/80">
                 <span className="text-[11px] text-slate-wet block">Tarif Kurir</span>
-                <span className="text-xl font-bold font-display text-brand-600">+Rp 5.000</span>
+                <span className="text-xl font-bold font-display text-brand-600">Gratis (Termasuk)</span>
               </div>
             </div>
 
@@ -254,7 +254,7 @@ export function ServicesPage() {
               </div>
               <div className="pt-4 border-t border-brand-200/80">
                 <span className="text-[11px] text-slate-wet block">Tarif Kurir</span>
-                <span className="text-xl font-bold font-display text-brand-600">+Rp 10.000</span>
+                <span className="text-xl font-bold font-display text-brand-600">Gratis (Termasuk)</span>
               </div>
             </div>
 

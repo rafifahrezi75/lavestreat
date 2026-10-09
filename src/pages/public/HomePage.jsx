@@ -113,11 +113,11 @@ export function HomePage() {
             <div className="lg:col-span-6 flex flex-col justify-between py-1">
               <div className="flex flex-col items-start gap-2.5 sm:gap-5 lg:gap-6">
                 <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white leading-tight lg:leading-[1.12] tracking-tight">
-                  {content?.hero_title || 'Perawatan & Restorasi Sepatu Spesialis Sidoarjo'}
+                  {content?.hero_title || 'Perawatan Sepatu Spesialis Sidoarjo & Surabaya'}
                 </h1>
 
                 <p className="text-xs sm:text-sm lg:text-base text-brand-100/90 max-w-lg leading-relaxed font-normal">
-                  {content?.hero_subtitle || 'Layanan cuci mendalam, repaint restoratif, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.'}
+                  {content?.hero_subtitle || 'Layanan cuci mendalam, pembersihan khusus material, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.'}
                 </p>
 
                 <div className="flex flex-row items-center gap-2.5 sm:gap-3 pt-0.5 sm:pt-1 w-full sm:w-auto">
@@ -142,15 +142,15 @@ export function HomePage() {
               <div className="hidden lg:flex pt-8 mt-8 border-t border-white/15 flex-wrap items-center gap-6 text-xs text-brand-100">
                 <div className="flex items-center gap-2 font-medium">
                   <CheckCircle size={16} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Antar-Jemput Sidoarjo & Surabaya</span>
+                  <span>Antar-Jemput Gratis Sidoarjo & Surabaya</span>
                 </div>
                 <div className="flex items-center gap-2 font-medium">
                   <CheckCircle size={16} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Pengerjaan Manual 2-3 Hari</span>
+                  <span>Estimasi 1-4 Hari</span>
                 </div>
                 <div className="flex items-center gap-2 font-medium">
                   <CheckCircle size={16} weight="fill" className="text-accent-gold shrink-0" />
-                  <span>Garansi Cuci Ulang</span>
+                  <span>Dokumentasi Before-After</span>
                 </div>
               </div>
             </div>
@@ -186,11 +186,11 @@ export function HomePage() {
                 </div>
                 <div className="flex items-center justify-center gap-1 font-medium">
                   <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
-                  <span className="leading-tight">Manual 2-3 Hari</span>
+                  <span className="leading-tight">Estimasi 1-4 Hari</span>
                 </div>
                 <div className="flex items-center justify-center gap-1 font-medium">
                   <CheckCircle size={13} weight="fill" className="text-accent-gold shrink-0" />
-                  <span className="leading-tight">Garansi Cuci</span>
+                  <span className="leading-tight">Before-After</span>
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export function HomePage() {
 
       <section className="py-16 sm:py-20 bg-white border-b border-brand-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 block mb-1">
                 Katalog Pilihan
@@ -214,13 +214,13 @@ export function HomePage() {
             </div>
             <Link
               to="/layanan"
-              className="inline-flex items-center text-xs sm:text-sm font-semibold text-brand-600 hover:text-brand-900 transition-colors"
+              className="hidden md:inline-flex items-center text-xs sm:text-sm font-semibold text-brand-600 hover:text-brand-900 transition-colors"
             >
               Lihat Semua Layanan &rarr;
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {services.slice(0, 6).map((service) => (
               <ServiceCard
                 key={service.id}
@@ -229,13 +229,22 @@ export function HomePage() {
               />
             ))}
           </div>
+
+          <div className="mt-8 flex justify-center md:hidden">
+            <Link
+              to="/layanan"
+              className="inline-flex items-center text-xs sm:text-sm font-semibold text-brand-600 hover:text-brand-900 transition-colors"
+            >
+              Lihat Semua Layanan &rarr;
+            </Link>
+          </div>
         </div>
       </section>
 
       {gallery.length > 0 && (
         <section className="py-16 sm:py-20 bg-sand-100/50 border-b border-brand-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 block mb-1">
                   Bukti Pengerjaan
@@ -247,7 +256,7 @@ export function HomePage() {
                   Hasil nyata pengerjaan teknisi workshop kami. Lihat dokumentasi lengkap sebelum dan sesudah perawatan.
                 </p>
               </div>
-              <Link to="/galeri" className="shrink-0">
+              <Link to="/galeri" className="hidden md:inline-flex shrink-0">
                 <Button
                   variant="outline"
                   size="md"
@@ -345,6 +354,19 @@ export function HomePage() {
                 );
               })}
             </div>
+
+            <div className="mt-8 flex justify-center md:hidden">
+              <Link to="/galeri">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="flex items-center gap-2 border-brand-300 text-brand-900 hover:bg-brand-50 shadow-2xs font-semibold"
+                >
+                  <span>Buka Halaman Galeri</span>
+                  <ArrowRight className="w-4 h-4 text-brand-600" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       )}
@@ -359,7 +381,7 @@ export function HomePage() {
               Standar Layanan yang Membedakan Kami
             </h2>
             <p className="text-xs sm:text-sm text-slate-wet mt-3 max-w-2xl mx-auto leading-relaxed">
-              Dedikasi pengerjaan manual profesional, formula ramah material, dan fasilitas antar-jemput yang memberikan kenyamanan maksimal bagi Anda.
+              Dedikasi pengerjaan manual profesional, formula ramah material, dan fasilitas antar-jemput di area Sidoarjo dan Surabaya.
             </p>
           </div>
 
@@ -383,10 +405,10 @@ export function HomePage() {
                   <Drop size={22} weight="fill" className="text-brand-200" />
                 </div>
                 <h3 className="font-display font-bold text-base sm:text-lg text-brand-900 mb-2 leading-snug">
-                  Formula Khusus Ramah Bahan
+                  Bahan Disesuaikan Material
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-wet leading-relaxed">
-                  Cairan pembersih ramah lingkungan ber-pH netral yang aman untuk segala jenis material, dari kanvas, suede, hingga kulit asli.
+                  Pembersih dan kondisioner disesuaikan material sepatu, seperti leather lotion khusus kulit dan suede lotion khusus suede agar tekstur tetap lembut dan awet.
                 </p>
               </div>
             </div>
@@ -402,28 +424,28 @@ export function HomePage() {
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 grid grid-cols-3 gap-1.5 sm:gap-2">
                   <div className="bg-white/95 backdrop-blur-md rounded-xl p-2 sm:p-2.5 border border-brand-200/90 shadow-md text-center flex flex-col justify-center">
                     <span className="font-display font-extrabold text-sm sm:text-base text-brand-900 leading-none">
-                      3+ Thn
+                      23
                     </span>
                     <span className="text-[9px] sm:text-[10px] font-bold text-brand-600 uppercase tracking-tight mt-1">
-                      Pengalaman
+                      Pesanan Terlayani
                     </span>
                   </div>
 
                   <div className="bg-white/95 backdrop-blur-md rounded-xl p-2 sm:p-2.5 border border-brand-200/90 shadow-md text-center flex flex-col justify-center">
                     <span className="font-display font-extrabold text-sm sm:text-base text-brand-900 leading-none">
-                      5.000+
+                      5
                     </span>
                     <span className="text-[9px] sm:text-[10px] font-bold text-brand-600 uppercase tracking-tight mt-1">
-                      Sepatu
+                      Jenis Treatment
                     </span>
                   </div>
 
                   <div className="bg-white/95 backdrop-blur-md rounded-xl p-2 sm:p-2.5 border border-brand-200/90 shadow-md text-center flex flex-col justify-center">
                     <span className="font-display font-extrabold text-sm sm:text-base text-brand-900 leading-none">
-                      8+
+                      3
                     </span>
                     <span className="text-[9px] sm:text-[10px] font-bold text-brand-600 uppercase tracking-tight mt-1">
-                      Pekerja
+                      Anggota Tim
                     </span>
                   </div>
                 </div>
@@ -448,10 +470,10 @@ export function HomePage() {
                   <CheckCircle size={22} weight="fill" className="text-brand-200" />
                 </div>
                 <h3 className="font-display font-bold text-base sm:text-lg text-brand-900 mb-2 leading-snug">
-                  Garansi Cuci Ulang 100%
+                  Dokumentasi Before-After
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-wet leading-relaxed">
-                  Kepuasan Anda terjamin. Apabila hasil pengerjaan dirasa belum optimal, kami bersihkan ulang tuntas tanpa biaya tambahan.
+                  Transparansi pengerjaan melalui dokumentasi foto kondisi sepatu sebelum dan sesudah perawatan demi menjaga kepercayaan pelanggan.
                 </p>
               </div>
             </div>
@@ -550,7 +572,7 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl text-left">
             <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight leading-snug">
-              Sepatu kotor atau warna mulai pudar?
+              Sepatu kotor atau butuh perawatan berkala?
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
               Jadwalkan penjemputan sekarang. Tim kurir kami siap menjemput dan merawat sepatu Anda di area Sidoarjo dan Surabaya.

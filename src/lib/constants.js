@@ -1,8 +1,7 @@
 export const SERVICE_CATEGORIES = [
   { id: 'all', label: 'Semua Layanan' },
-  { id: 'cuci', label: 'Cuci Sepatu' },
-  { id: 'repaint', label: 'Repaint Sepatu' },
-  { id: 'sabun', label: 'Sabun & Perawatan' }
+  { id: 'cuci', label: 'Cuci & Perawatan' },
+  { id: 'sabun', label: 'Sabun & Produk' }
 ];
 
 export const ORDER_METHODS = {
@@ -39,7 +38,7 @@ export const STATUS_TRANSITIONS = {
 };
 
 export const DEFAULT_OUTLET_LOCATION = {
-  lat: -7.4478,
-  lng: 112.7183,
-  address: 'Jl. Raya Ponti No. 18, Magersari, Sidoarjo, Jawa Timur'
+  lat: -7.4338,
+  lng: 112.7214,
+  address: 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo, Jawa Timur'
 };

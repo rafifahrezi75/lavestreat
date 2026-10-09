@@ -36,16 +36,16 @@ function normalizeSettings(data) {
 
   return {
     ...data,
-    outlet_lat: Number(data.outlet_lat ?? data.outlet?.koordinat?.lat) || -7.4478,
-    outlet_lng: Number(data.outlet_lng ?? data.outlet?.koordinat?.lng) || 112.7183,
-    outlet_address: data.outlet_address || data.outlet?.alamat || 'Jl. Raya Ponti No. 18, Magersari, Sidoarjo',
+    outlet_lat: Number(data.outlet_lat ?? data.outlet?.koordinat?.lat) || -7.4338,
+    outlet_lng: Number(data.outlet_lng ?? data.outlet?.koordinat?.lng) || 112.7214,
+    outlet_address: data.outlet_address || data.outlet?.alamat || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo, Jawa Timur',
     worker_lat: Number(data.worker_lat) || primaryWorker.lat,
     worker_lng: Number(data.worker_lng) || primaryWorker.lng,
     worker_address: data.worker_address || primaryWorker.address,
     contact_phone: data.contact_phone || data.kontak?.whatsapp || '085128024120',
-    contact_email: data.contact_email || data.kontak?.email || 'halo@lavestreat.com',
-    instagram: data.instagram || data.kontak?.instagram || 'lavestreat',
-    jam_operasional: data.jam_operasional || (data.operasional ? `${data.operasional.hari}: ${data.operasional.jam}` : 'Senin - Sabtu: 09.00 - 20.00 WIB'),
+    contact_email: data.contact_email || data.kontak?.email || 'lavestreat@gmail.com',
+    instagram: data.instagram || data.kontak?.instagram || 'lave_streat',
+    jam_operasional: data.jam_operasional || (data.operasional ? `${data.operasional.hari}: ${data.operasional.jam}` : 'Setiap Hari: 09.00 - 18.00 WIB'),
     default_route_origin: data.default_route_origin || 'outlet',
     workers: workers.map(w => ({
       id: w.id || 'wkr-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
@@ -88,10 +88,10 @@ export const settingsApi = {
       worker_address: primaryWorker.address,
       workers: norm.workers,
       default_route_origin: payload.default_route_origin || 'outlet',
-      contact_email: payload.contact_email || 'halo@lavestreat.com',
+      contact_email: payload.contact_email || 'lavestreat@gmail.com',
       contact_phone: payload.contact_phone || '085128024120',
-      instagram: payload.instagram || 'lavestreat',
-      jam_operasional: payload.jam_operasional || 'Senin - Sabtu: 09.00 - 20.00 WIB',
+      instagram: payload.instagram || 'lave_streat',
+      jam_operasional: payload.jam_operasional || 'Setiap Hari: 09.00 - 18.00 WIB',
       updated_at: new Date().toISOString()
     };
 

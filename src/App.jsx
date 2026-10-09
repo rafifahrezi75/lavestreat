@@ -138,7 +138,7 @@ function PublicWrapper() {
   return (
     <div className="flex flex-col min-h-screen">
       <PublicNavbar />
-      <div className="grow pb-16 md:pb-0">
+      <div className="grow">
         <Suspense fallback={<PageLoader />}>
           <Outlet />
         </Suspense>

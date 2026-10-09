@@ -56,9 +56,9 @@ export function ContactPage() {
   };
 
   const handleCaptchaSuccess = () => {
-    const outletPhone = settings?.phone || '081234567890';
+    const outletPhone = settings?.contact_phone || settings?.phone || '085128024120';
     const cleanPhone = outletPhone.replace(/[^0-9]/g, '').replace(/^0/, '62');
-    const outletEmail = settings?.email || 'kontak@lavestreat.com';
+    const outletEmail = settings?.contact_email || settings?.email || 'lavestreat@gmail.com';
 
     if (captchaAction === 'wa') {
       const text = `Halo Lave Streat, saya ${form.nama} (${form.kontak}). Saya ingin konsultasi ${form.kebutuhan} untuk sepatu ${form.jenisSepatu}.${form.catatan ? ' Catatan: ' + form.catatan : ''}`;
@@ -227,7 +227,7 @@ export function ContactPage() {
                   </div>
                   <div>
                     <strong className="block text-brand-900 font-semibold">Lokasi Workshop</strong>
-                    <span className="text-slate-wet">{settings?.outlet_address || 'Jl. Raya Ponti No. 18, Sidoarjo'}</span>
+                    <span className="text-slate-wet">{settings?.outlet_address || 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo'}</span>
                   </div>
                 </div>
 
@@ -237,7 +237,7 @@ export function ContactPage() {
                   </div>
                   <div>
                     <strong className="block text-brand-900 font-semibold">Jam Operasional</strong>
-                    <span className="text-slate-wet">{settings?.opening_hours || 'Setiap Hari: 09.00 - 21.00 WIB'}</span>
+                    <span className="text-slate-wet">{settings?.jam_operasional || settings?.opening_hours || 'Setiap Hari: 09.00 - 18.00 WIB'}</span>
                   </div>
                 </div>
 
@@ -247,7 +247,7 @@ export function ContactPage() {
                   </div>
                   <div>
                     <strong className="block text-brand-900 font-semibold">Telepon & CS</strong>
-                    <span className="text-slate-wet">{settings?.phone || '0812-3456-7890'}</span>
+                    <span className="text-slate-wet">{settings?.contact_phone || settings?.phone || '+62 851-2802-4120'}</span>
                   </div>
                 </div>
 
@@ -323,7 +323,7 @@ export function ContactPage() {
                     <span className="font-bold text-slate-900">5.0</span>
                     <span className="text-amber-500 font-bold">&#9733;</span>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${settings?.outlet_lat ?? -7.4478},${settings?.outlet_lng ?? 112.7183}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${settings?.outlet_lat ?? -7.4338},${settings?.outlet_lng ?? 112.7214}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"

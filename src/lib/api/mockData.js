@@ -1,99 +1,120 @@
 export const initialServices = [
   {
-    "id": "srv-1",
-    "nama": "Deep Clean",
+    "id": "srv-easy",
+    "nama": "Easy Clean",
     "kategori": "cuci",
-    "deskripsi": "Pencucian menyeluruh mencakup upper, midsole, outsole, insole, dan tali sepatu untuk berbagai jenis material.",
-    "harga": 25000,
-    "satuan": "per pasang",
-    "foto": "/services/deep-clean.jpg",
-    "aktif": true,
-    "created_at": "2026-01-10T00:00:00.000Z"
-  },
-  {
-    "id": "srv-2",
-    "nama": "Medium Clean",
-    "kategori": "cuci",
-    "deskripsi": "Pembersihan cepat bagian luar (upper dan midsole), solusi praktis saat butuh sepatu bersih dalam waktu singkat.",
-    "harga": 20000,
+    "deskripsi": "Pembersihan ringan untuk bagian upper dan midsole dengan tingkat kotoran minimal. Cocok untuk perawatan rutin.",
+    "harga": 15000,
+    "estimasi": "2 hari",
     "satuan": "per pasang",
     "foto": "/services/medium-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-10T00:00:00.000Z"
   },
   {
-    "id": "srv-3",
-    "nama": "Deep Clean + White",
+    "id": "srv-medium",
+    "nama": "Medium Clean",
     "kategori": "cuci",
-    "deskripsi": "Treatment khusus mengembalikan midsole dan bodi sepatu yang menguning menjadi putih bersih kembali.",
+    "deskripsi": "Pembersihan cepat bagian luar (upper dan midsole), solusi praktis saat butuh sepatu bersih dan segar kembali.",
+    "harga": 20000,
+    "estimasi": "3 hari",
+    "satuan": "per pasang",
+    "foto": "/services/medium-clean.jpg",
+    "aktif": true,
+    "created_at": "2026-01-10T00:00:00.000Z"
+  },
+  {
+    "id": "srv-deep",
+    "nama": "Deep Clean",
+    "kategori": "cuci",
+    "deskripsi": "Pencucian menyeluruh mencakup upper, midsole, outsole, insole, dan tali sepatu untuk berbagai jenis material.",
+    "harga": 25000,
+    "estimasi": "4 hari",
+    "satuan": "per pasang",
+    "foto": "/services/deep-clean.jpg",
+    "aktif": true,
+    "created_at": "2026-01-10T00:00:00.000Z"
+  },
+  {
+    "id": "srv-white",
+    "nama": "White Clean",
+    "kategori": "cuci",
+    "deskripsi": "Treatment khusus mengembalikan bodi dan midsole sepatu putih agar kembali cerah dan bebas noda kusam.",
     "harga": 35000,
+    "estimasi": "4 hari",
     "satuan": "per pasang",
     "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-11T00:00:00.000Z"
   },
   {
-    "id": "srv-4",
-    "nama": "Medium + White",
+    "id": "srv-leather",
+    "nama": "Leather Clean",
     "kategori": "cuci",
-    "deskripsi": "Pembersihan luar express disertai treatment pemutih midsole untuk menjaga estetika harian.",
-    "harga": 30000,
+    "deskripsi": "Perawatan khusus material kulit menggunakan leather lotion untuk membersihkan sekaligus menjaga kelenturan bahan.",
+    "harga": 45000,
+    "estimasi": "4 hari",
     "satuan": "per pasang",
-    "foto": "/services/white-clean.jpg",
+    "foto": "/services/deep-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-11T00:00:00.000Z"
   },
   {
-    "id": "srv-5",
-    "nama": "White Clean & Unyellowing",
+    "id": "srv-suede",
+    "nama": "Suede Clean",
     "kategori": "cuci",
-    "deskripsi": "Restorasi khusus warna putih pada material canvas, mesh, dan midsole agar cerah seperti baru.",
-    "harga": 35000,
-    "satuan": "per pasang",
-    "foto": "/services/white-clean.jpg",
-    "aktif": true,
-    "created_at": "2026-01-11T00:00:00.000Z"
-  },
-  {
-    "id": "srv-6",
-    "nama": "Suede Treatment & Clean",
-    "kategori": "cuci",
-    "deskripsi": "Perawatan khusus bahan suede dan nubuck agar tekstur tetap lembut, bersih dari debu, dan warna tidak pudar.",
+    "deskripsi": "Perawatan khusus bahan suede dan nubuck menggunakan suede lotion agar tekstur tetap lembut dan warna tidak pudar.",
     "harga": 50000,
+    "estimasi": "4 hari",
     "satuan": "per pasang",
     "foto": "/services/suede-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-12T00:00:00.000Z"
   },
   {
-    "id": "srv-7",
-    "nama": "Express White Clean",
+    "id": "srv-boots",
+    "nama": "Boots Clean",
     "kategori": "cuci",
-    "deskripsi": "Layanan cepat pembersihan sepatu putih dengan waktu pengerjaan 24 jam untuk kebutuhan mendesak.",
-    "harga": 45000,
+    "deskripsi": "Pencucian mendalam untuk sepatu jenis boots dengan teknik dan formula khusus material tebal dan kokoh.",
+    "harga": 50000,
+    "estimasi": "3 hari",
+    "satuan": "per pasang",
+    "foto": "/services/deep-clean.jpg",
+    "aktif": true,
+    "created_at": "2026-01-12T00:00:00.000Z"
+  },
+  {
+    "id": "srv-kids",
+    "nama": "Kids Shoes",
+    "kategori": "cuci",
+    "deskripsi": "Perawatan dan pencucian higienis khusus untuk sepatu anak-anak dengan formula yang aman dan ramah material.",
+    "harga": 30000,
+    "estimasi": "2 hari",
+    "satuan": "per pasang",
+    "foto": "/services/medium-clean.jpg",
+    "aktif": true,
+    "created_at": "2026-01-12T00:00:00.000Z"
+  },
+  {
+    "id": "srv-express",
+    "nama": "Express Clean",
+    "kategori": "cuci",
+    "deskripsi": "Layanan cepat pembersihan sepatu dengan waktu pengerjaan 1 hari untuk kebutuhan mendesak.",
+    "harga": 35000,
+    "estimasi": "1 hari",
     "satuan": "per pasang",
     "foto": "/services/white-clean.jpg",
     "aktif": true,
     "created_at": "2026-01-12T00:00:00.000Z"
   },
   {
-    "id": "srv-8",
-    "nama": "Repaint + Deep Clean",
-    "kategori": "repaint",
-    "deskripsi": "Pengecatan ulang canvas atau leather untuk mengembalikan kesegaran warna sepatu sekaligus pencucian menyeluruh.",
-    "harga": 50000,
-    "satuan": "per pasang",
-    "foto": "/services/repaint.jpg",
-    "aktif": true,
-    "created_at": "2026-01-12T00:00:00.000Z"
-  },
-  {
-    "id": "srv-9",
-    "nama": "Sabun Cuci Sepatu Premium (Shoe Cleaner)",
+    "id": "srv-shoe-cleaner",
+    "nama": "Shoe Cleaner 100 ml",
     "kategori": "sabun",
-    "deskripsi": "Formula pembersih khusus berbahan alami yang aman untuk semua jenis material sepatu, tidak merusak warna atau serat.",
-    "harga": 35000,
-    "satuan": "per botol 250ml",
+    "deskripsi": "Formula pembersih khusus 100 ml berbahan aman untuk semua jenis material sepatu, merawat warna dan serat.",
+    "harga": 30000,
+    "estimasi": "Ready stock",
+    "satuan": "per botol 100ml",
     "foto": "/services/shoe-cleaner.jpg",
     "aktif": true,
     "created_at": "2026-01-13T00:00:00.000Z"
@@ -7499,61 +7520,62 @@ export const initialOrders = [
 ];
 
 export const initialHomeContent = {
-  hero_title: 'Perawatan & Restorasi Sepatu Spesialis Sidoarjo',
-  hero_subtitle: 'Layanan cuci mendalam, repaint restoratif, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.',
+  hero_title: 'Perawatan Sepatu Spesialis Sidoarjo & Surabaya',
+  hero_subtitle: 'Layanan cuci mendalam, pembersihan khusus material, dan unyellowing sepatu profesional dengan standar pengerjaan manual. Kurir kami menjemput dan mengantar langsung ke alamat Anda di wilayah Sidoarjo dan Surabaya.',
   promo: {
     aktif: false,
-    judul: 'Diskon 20% Paket Restorasi',
-    deskripsi: 'Dapatkan potongan 20% untuk treatment Deep Clean + Repaint minimal 2 pasang sepatu.',
-    periode: 'Berlaku s/d Akhir Bulan'
+    judul: 'Paket Perawatan Hemat',
+    deskripsi: 'Dapatkan harga khusus untuk pencucian minimal 2 pasang sepatu.',
+    periode: 'Setiap Hari'
   },
   keunggulan: [
     {
-      icon: 'ShieldCheck',
-      title: 'Formula Bahan Aman',
-      desc: 'Pembersih berstandar khusus yang ramah serat sepatu, menjaga warna asli tidak pudar dan sol tidak rusak.'
+      icon: 'Sparkle',
+      title: '100% Pengerjaan Manual',
+      desc: 'Pembersihan teliti bagian demi bagian tanpa mesin cuci otomatis yang berisiko merusak lem, jahitan, dan serat sepatu.'
+    },
+    {
+      icon: 'Drop',
+      title: 'Bahan Disesuaikan Material',
+      desc: 'Pembersih dan kondisioner disesuaikan material sepatu, seperti leather lotion khusus kulit dan suede lotion khusus suede.'
     },
     {
       icon: 'CheckCircle',
-      title: 'Detailing Presisi',
-      desc: 'Setiap bagian dari upper, sol, hingga insole dibersihkan secara teliti sesuai jenis material sepatu.'
-    },
-    {
-      icon: 'Clock',
-      title: 'Proses Tepat Waktu',
-      desc: 'Penyelesaian tepat jadwal dengan pelacakan status pengerjaan yang jelas dari konfirmasi hingga selesai.'
+      title: 'Dokumentasi Before-After',
+      desc: 'Transparansi pengerjaan melalui dokumentasi foto kondisi sepatu sebelum dan sesudah perawatan demi menjaga kepercayaan pelanggan.'
     }
   ]
 };
 
 export const initialAboutContent = {
-  foto: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1200&auto=format&fit=crop&q=80',
-  sejarah: 'Lave Streat berdiri di Sidoarjo berawal dari kecintaan terhadap budaya sneakers dan kebutuhan akan perawatan sepatu yang higienis serta aman. Bermula dari melayani teman-teman komunitas dan keluarga, kini Lave Streat hadir memberikan solusi perawatan sepatu terpercaya dengan kemudahan penjemputan untuk wilayah Sidoarjo dan Surabaya.',
-  visi: 'Menjadi penyedia layanan perawatan dan restorasi sepatu nomor satu di Jawa Timur yang mengedepankan kualitas, higienitas, dan kepuasan pelanggan.',
+  foto: '/about-shoes-cleaning.jpg',
+  sejarah: 'Lave Streat (L.A.V.E Treatment) adalah layanan cuci dan perawatan sepatu berbasis reservasi online yang berawal dari Program Mahasiswa Wirausaha UPN “Veteran” Jawa Timur, dari kebutuhan mahasiswa yang padat kegiatan sehingga tidak sempat mencuci atau mengantar sepatu. Kini kami melayani Sidoarjo dan Surabaya dengan reservasi online, antar-jemput, dan dokumentasi sepatu sebelum dan sesudah perawatan.',
+  visi: 'Menjadi layanan perawatan sepatu berbasis reservasi online yang praktis, terjangkau, dan terpercaya bagi mahasiswa dan masyarakat di Sidoarjo dan Surabaya.',
   misi: [
-    'Memberikan standar pembersihan sepatu terbaik menggunakan chemical ramah serat material.',
-    'Menyediakan kemudahan layanan antar-jemput tepat waktu untuk wilayah Sidoarjo dan Surabaya.',
-    'Mengutamakan transparansi dokumentasi kondisi sepatu sebelum dan sesudah pengerjaan.'
+    'Menyediakan layanan cuci dan perawatan sesuai tingkat kotoran dan material dengan harga terjangkau.',
+    'Memudahkan pelanggan lewat reservasi online dan antar-jemput di Sidoarjo dan Surabaya.',
+    'Menjaga transparansi lewat dokumentasi kondisi sepatu sebelum dan sesudah perawatan.',
+    'Menjaga kualitas dan kepuasan pelanggan lewat komunikasi yang jelas dan tindak lanjut umpan balik.'
   ]
 };
 
 export const initialGeneralSettings = {
   outlet: {
     nama: 'Lave Streat Workshop Sidoarjo',
-    alamat: 'Jl. Pahlawan No. 45, Sidoarjo, Jawa Timur',
+    alamat: 'Perumahan Jl. Pd. Jati No.2 BM 55, Sidoarjo, Jawa Timur',
     koordinat: {
-      lat: -7.4533,
-      lng: 112.7167
+      lat: -7.4338,
+      lng: 112.7214
     }
   },
   kontak: {
     whatsapp: '6285128024120',
-    email: 'info@lavestreat.com',
+    email: 'lavestreat@gmail.com',
     instagram: 'lave_streat'
   },
   operasional: {
-    hari: 'Senin - Sabtu',
-    jam: '09:00 - 20:00 WIB'
+    hari: 'Setiap Hari',
+    jam: '09.00 - 18.00 WIB'
   }
 };
 
