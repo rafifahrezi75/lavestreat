@@ -7,12 +7,12 @@ const KR = 9;
 const TOL = 16;
 
 const CAPTCHA_IMAGES = [
-  'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=640&q=80',
-  'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=640&q=80',
-  'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=640&q=80',
-  'https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=640&q=80',
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80',
-  'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=640&q=80'
+  '/services/deep-clean.jpg',
+  '/services/medium-clean.jpg',
+  '/services/white-clean.jpg',
+  '/services/suede-clean.jpg',
+  '/services/leather-clean.jpg',
+  '/services/repaint.jpg'
 ];
 
 function drawPuzzlePath(ctx, x, y) {

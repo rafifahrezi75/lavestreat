@@ -127,7 +127,7 @@ export function RouteMap({
         mapInstanceRef.current = null;
       }
     };
-  }, [origin, destination, originType, originLabel]);
+  }, [origin?.lat, origin?.lng, origin?.address, destination?.lat, destination?.lng, originType, originLabel]);
 
   if (!destination || !destination.lat || !destination.lng) {
     return (

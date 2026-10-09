@@ -541,11 +541,11 @@ export function OrderDetailPage() {
                 </div>
               </div>
 
-              {order.alamat_jemput?.teks && (
+              {(order.alamat_jemput?.teks || order.alamat_antar?.teks) && (
                 <div className="pt-3 border-t border-brand-200/60 text-sm">
                   <span className="text-slate-wet block mb-1 text-xs font-medium">Alamat Penjemputan / Pengantaran</span>
                   <p className="font-medium text-brand-900 leading-relaxed bg-brand-100/40 p-3 rounded-lg border border-brand-200 text-xs sm:text-sm">
-                    {order.alamat_jemput.teks}
+                    {order.alamat_jemput?.teks || order.alamat_antar?.teks}
                   </p>
                 </div>
               )}
@@ -883,7 +883,7 @@ export function OrderDetailPage() {
                 origin={activeOrigin}
                 originType={routeOriginType}
                 originLabel={activeOrigin.address}
-                destination={order.alamat_jemput}
+                destination={order.alamat_jemput || order.alamat_antar}
                 height="300px"
               />
             </Card>

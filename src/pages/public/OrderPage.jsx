@@ -22,9 +22,20 @@ import { LocationPicker } from '../../components/map/LocationPicker';
 import { SliderCaptchaModal } from '../../components/common/SliderCaptchaModal';
 import { PageHeader } from '../../components/common/PageHeader';
 import { useToast } from '../../context/ToastContext';
-import { servicesApi, ordersApi } from '../../lib/api';
+import { servicesApi, ordersApi, settingsApi } from '../../lib/api';
 import { ORDER_METHODS } from '../../lib/constants';
 import { printOrderReceipt, downloadOrderReceiptPdf } from '../../lib/orderReceiptPdf';
+
+function getLocalDateString(offsetDays = 0) {
+  const d = new Date();
+  if (offsetDays) {
+    d.setDate(d.getDate() + offsetDays);
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export function OrderPage() {
   const [searchParams] = useSearchParams();
@@ -33,6 +44,7 @@ export function OrderPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [services, setServices] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [loadingServices, setLoadingServices] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -50,7 +62,7 @@ export function OrderPage() {
     catatan: ''
   });
   const [schedule, setSchedule] = useState({
-    tanggal: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    tanggal: getLocalDateString(1),
     slot: 'pagi'
   });
   const [pickupLocation, setPickupLocation] = useState({
@@ -63,11 +75,45 @@ export function OrderPage() {
     async function loadData() {
       setLoadingServices(true);
       try {
-        const list = await servicesApi.getServices(true);
+        const [list, sets] = await Promise.all([
+          servicesApi.getServices(true),
+          settingsApi.getSettings().catch(() => null)
+        ]);
         setServices(list);
+        if (sets) {
+          setSettings(sets);
+        }
 
-        if (preselectedServiceId && list.some(s => s.id === preselectedServiceId)) {
-          setSelectedItems({ [preselectedServiceId]: 1 });
+        if (preselectedServiceId) {
+          const decoded = decodeURIComponent(preselectedServiceId).trim().toLowerCase();
+          const matched = list.find(s =>
+            s.id === preselectedServiceId ||
+            s.nama.toLowerCase() === decoded ||
+            s.nama.toLowerCase().includes(decoded) ||
+            decoded.includes(s.nama.toLowerCase())
+          );
+          if (matched) {
+            setSelectedItems({ [matched.id]: 1 });
+          } else if (preselectedServiceId === 'srv-unyellowing') {
+            setCustomer(c => ({
+              ...c,
+              catatan: c.catatan ? c.catatan : 'Permintaan Add-on: Unyellowing Treat (+Rp25.000)'
+            }));
+          } else if (preselectedServiceId === 'srv-fast-track') {
+            setCustomer(c => ({
+              ...c,
+              catatan: c.catatan ? c.catatan : 'Permintaan Add-on: Fast Track (+Rp15.000)'
+            }));
+          }
+        }
+
+        const brandParam = searchParams.get('brand');
+        if (brandParam) {
+          const decodedBrand = decodeURIComponent(brandParam).trim();
+          setCustomer(c => ({
+            ...c,
+            catatan: c.catatan ? `${c.catatan} (Sepatu: ${decodedBrand})` : `Sepatu: ${decodedBrand}`
+          }));
         }
       } catch {
         showToast('Gagal memuat katalog layanan.', 'danger');
@@ -77,15 +123,19 @@ export function OrderPage() {
     }
 
     loadData();
-  }, [preselectedServiceId, showToast]);
+  }, [preselectedServiceId, searchParams, showToast]);
 
   const hasShoeTreatment = Object.keys(selectedItems).some(id => {
     const s = services.find(item => item.id === id);
     return s && (s.kategori === 'cuci' || s.kategori === 'repaint');
   });
 
+  const validMethods = hasShoeTreatment
+    ? [ORDER_METHODS.DIJEMPUT, ORDER_METHODS.ANTAR_SENDIRI]
+    : [ORDER_METHODS.DIKIRIM, ORDER_METHODS.AMBIL_SENDIRI];
+
   const defaultMethod = hasShoeTreatment ? ORDER_METHODS.DIJEMPUT : ORDER_METHODS.DIKIRIM;
-  const currentMethod = method || defaultMethod;
+  const currentMethod = (method && validMethods.includes(method)) ? method : defaultMethod;
 
   const handleQtyChange = (serviceId, delta) => {
     setSelectedItems(prev => {
@@ -218,7 +268,7 @@ ${itemLines}
 
 Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya. Terima kasih!`;
 
-    const targetWaNumber = '6285128024120';
+    const targetWaNumber = (settings?.outlet_whatsapp || '6285128024120').replace(/\D/g, '');
     const waUrl = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(waMessage)}`;
     setWaRedirectUrl(waUrl);
 
@@ -228,8 +278,8 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
         pelanggan: customer,
         items: itemsPayload,
         metode: currentMethod,
-        alamat_jemput: needsAddress ? pickupLocation : null,
-        alamat_antar: needsAddress ? pickupLocation : null,
+        alamat_jemput: currentMethod === ORDER_METHODS.DIJEMPUT ? pickupLocation : null,
+        alamat_antar: (currentMethod === ORDER_METHODS.DIJEMPUT || currentMethod === ORDER_METHODS.DIKIRIM) ? pickupLocation : null,
         jadwal_tanggal: schedule.tanggal,
         jadwal_slot: schedule.slot,
         catatan: customer.catatan
@@ -317,7 +367,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
               </Button>
 
               <a
-                href={waRedirectUrl || `https://wa.me/6285128024120?text=${encodeURIComponent(
+                href={waRedirectUrl || `https://wa.me/${(settings?.outlet_whatsapp || '6285128024120').replace(/\D/g, '')}?text=${encodeURIComponent(
                   `Halo Lave Streat, saya membuat pesanan di website dengan nomor tiket ${createdOrder.id} atas nama ${customer.nama}. Mohon konfirmasinya.`
                 )}`}
                 target="_blank"
@@ -770,7 +820,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                       <Input
                         label="Pilih Tanggal"
                         type="date"
-                        min={new Date().toISOString().split('T')[0]}
+                        min={getLocalDateString(0)}
                         value={schedule.tanggal}
                         onChange={(e) => setSchedule({ ...schedule, tanggal: e.target.value })}
                         required

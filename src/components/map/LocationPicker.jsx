@@ -92,6 +92,19 @@ export function LocationPicker({
     };
   }, []);
 
+  useEffect(() => {
+    if (value?.teks && value.teks !== addressText) {
+      setAddressText(value.teks);
+    }
+    if (value?.lat && value?.lng && (value.lat !== coordinates.lat || value.lng !== coordinates.lng)) {
+      setCoordinates({ lat: value.lat, lng: value.lng });
+      if (mapInstanceRef.current && markerRef.current) {
+        mapInstanceRef.current.setView([value.lat, value.lng], mapInstanceRef.current.getZoom() || 14);
+        markerRef.current.setLatLng([value.lat, value.lng]);
+      }
+    }
+  }, [value?.teks, value?.lat, value?.lng]);
+
   const reverseGeocode = async (lat, lng) => {
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);

@@ -80,6 +80,10 @@ export const ordersApi = {
       throw new Error('Alamat penjemputan wajib diisi');
     }
 
+    if (payload.metode === 'dikirim' && (!payload.alamat_antar || !payload.alamat_antar.teks)) {
+      throw new Error('Alamat pengiriman wajib diisi');
+    }
+
     const allServices = await servicesApi.getServices(false);
     const serviceMap = new Map(allServices.map(s => [s.id, s]));
 
