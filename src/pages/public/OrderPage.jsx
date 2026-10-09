@@ -479,10 +479,10 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                         <span className="text-slate-wet text-xs">Filter Kategori:</span>
                         <span className="font-bold text-brand-900">
                           {[
-                            { id: 'all', label: 'Semua Layanan' },
+                            { id: 'all', label: 'Semua Layanan & Produk' },
                             { id: 'cuci', label: 'Cuci & Treatment' },
-                            { id: 'sabun', label: 'Produk Sabun' }
-                          ].find((c) => c.id === activeCategory)?.label || 'Semua Layanan'}
+                            { id: 'sabun', label: 'Produk Perawatan' }
+                          ].find((c) => c.id === activeCategory)?.label || 'Semua Layanan & Produk'}
                         </span>
                       </div>
                       <ChevronDown
@@ -500,9 +500,9 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                         />
                         <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-white rounded-md border border-brand-200 shadow-lg py-1 animate-in fade-in zoom-in-95 duration-150">
                           {[
-                            { id: 'all', label: 'Semua Layanan' },
+                            { id: 'all', label: 'Semua Layanan & Produk' },
                             { id: 'cuci', label: 'Cuci & Treatment' },
-                            { id: 'sabun', label: 'Produk Sabun' }
+                            { id: 'sabun', label: 'Produk Perawatan' }
                           ].map((opt) => {
                             const isSelected = activeCategory === opt.id;
                             return (
@@ -561,7 +561,7 @@ Mohon konfirmasi dan informasi tindak lanjut penjemputan/pengerjaan sepatu saya.
                               <div className="min-w-0 flex-1 w-full">
                                 <div className="flex items-center gap-1 mb-1">
                                   <span className="text-[9px] sm:text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-brand-100 text-brand-900 border border-brand-200 truncate">
-                                    {service.kategori}
+                                    {service.kategori === 'sabun' ? 'Produk' : service.kategori}
                                   </span>
                                 </div>
                                 <h4 className="font-bold text-xs sm:text-sm text-brand-900 line-clamp-1">

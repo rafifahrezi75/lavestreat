@@ -184,7 +184,7 @@ export function GalleryPage() {
     if (item.kategori) return item.kategori.toLowerCase();
     const txt = `${item.layanan_terkait || ''} ${item.caption || ''}`.toLowerCase();
     if (txt.includes('repaint')) return 'repaint';
-    if (txt.includes('sabun') || txt.includes('cleaner')) return 'sabun';
+    if (txt.includes('sabun') || txt.includes('cleaner') || txt.includes('refresher')) return 'sabun';
     return 'cuci';
   };
 

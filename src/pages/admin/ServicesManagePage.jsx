@@ -123,7 +123,7 @@ export function ServicesManagePage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 capitalize font-medium text-slate-wet text-xs whitespace-nowrap">
-                      {service.kategori}
+                      {service.kategori === 'sabun' ? 'Produk Perawatan' : service.kategori}
                     </td>
                     <td className="px-4 py-3 font-bold text-brand-900 text-sm whitespace-nowrap">
                       {formatPrice(service.harga)}

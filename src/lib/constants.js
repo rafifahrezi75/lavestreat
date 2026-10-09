@@ -1,7 +1,7 @@
 export const SERVICE_CATEGORIES = [
-  { id: 'all', label: 'Semua Layanan' },
-  { id: 'cuci', label: 'Cuci & Perawatan' },
-  { id: 'sabun', label: 'Sabun & Produk' }
+  { id: 'all', label: 'Semua Layanan & Produk' },
+  { id: 'cuci', label: 'Cuci & Treatment' },
+  { id: 'sabun', label: 'Produk Perawatan' }
 ];
 
 export const ORDER_METHODS = {

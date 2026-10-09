@@ -109,13 +109,25 @@ export const initialServices = [
   },
   {
     "id": "srv-shoe-cleaner",
-    "nama": "Shoe Cleaner 100 ml",
+    "nama": "Shoe Cleaner",
     "kategori": "sabun",
-    "deskripsi": "Formula pembersih khusus 100 ml berbahan aman untuk semua jenis material sepatu, merawat warna dan serat.",
-    "harga": 30000,
+    "deskripsi": "Formula pembersih khusus berbahan aman untuk semua jenis material sepatu, merawat warna dan mengangkat noda membandel.",
+    "harga": 15000,
     "estimasi": "Ready stock",
     "satuan": "per botol 100ml",
     "foto": "/services/shoe-cleaner.jpg",
+    "aktif": true,
+    "created_at": "2026-01-13T00:00:00.000Z"
+  },
+  {
+    "id": "srv-shoe-refresher",
+    "nama": "Shoe Refresher",
+    "kategori": "sabun",
+    "deskripsi": "Spray antibakteri dan pewangi khusus sepatu untuk menetralisir bau apek serta memberikan kesegaran instan tahan lama.",
+    "harga": 20000,
+    "estimasi": "Ready stock",
+    "satuan": "per botol 100ml",
+    "foto": "/services/shoe-refresher.jpg",
     "aktif": true,
     "created_at": "2026-01-13T00:00:00.000Z"
   }

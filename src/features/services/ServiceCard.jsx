@@ -12,7 +12,7 @@ export function ServiceCard({ service, onSelect, selected = false }) {
   const categoryLabels = {
     cuci: 'Cuci Sepatu',
     repaint: 'Repaint Sepatu',
-    sabun: 'Sabun & Perawatan'
+    sabun: 'Produk Perawatan'
   };
 
   return (
@@ -47,12 +47,14 @@ export function ServiceCard({ service, onSelect, selected = false }) {
 
         <div className="pt-2.5 sm:pt-3 border-t border-brand-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-auto">
           <div>
-            <span className="text-[9px] sm:text-[11px] text-slate-wet block leading-none mb-0.5 sm:mb-1">Biaya Layanan</span>
+            <span className="text-[9px] sm:text-[11px] text-slate-wet block leading-none mb-0.5 sm:mb-1">
+              {service.kategori === 'sabun' ? 'Harga Produk' : 'Biaya Layanan'}
+            </span>
             <span className="text-xs sm:text-base md:text-lg font-bold text-brand-900">
               {formattedPrice}
             </span>
             <span className="text-[10px] sm:text-xs text-slate-wet font-normal ml-0.5 sm:ml-1">
-              /{service.satuan || 'pasang'}
+              /{service.satuan || (service.kategori === 'sabun' ? 'botol' : 'pasang')}
             </span>
           </div>
 
@@ -71,7 +73,7 @@ export function ServiceCard({ service, onSelect, selected = false }) {
               ) : (
                 <>
                   <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  <span>Pesan</span>
+                  <span>{service.kategori === 'sabun' ? 'Beli Produk' : 'Pesan'}</span>
                 </>
               )}
             </Button>

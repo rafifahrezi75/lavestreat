@@ -167,7 +167,7 @@ export function ServiceFormPage() {
                   options={[
                     { value: 'cuci', label: 'Cuci Sepatu' },
                     { value: 'repaint', label: 'Repaint Sepatu' },
-                    { value: 'sabun', label: 'Sabun & Perawatan' }
+                    { value: 'sabun', label: 'Produk Perawatan (Cleaner / Refresher)' }
                   ]}
                   required
                 />

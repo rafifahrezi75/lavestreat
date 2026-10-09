@@ -41,7 +41,8 @@ export function ServicesPage() {
 
   const addOnIds = ['srv-unyellowing', 'srv-fast-track'];
 
-  const coreServices = services.filter(s => !addOnIds.includes(s.id));
+  const coreServices = services.filter(s => s.kategori !== 'sabun' && !addOnIds.includes(s.id));
+  const productServices = services.filter(s => s.kategori === 'sabun');
   const addOnServices = services.filter(s => addOnIds.includes(s.id));
 
   const formatPrice = (val) => {
@@ -72,7 +73,7 @@ export function ServicesPage() {
               Katalog Treatment Utama
             </h2>
             <p className="text-xs sm:text-sm text-slate-wet mt-2 leading-relaxed">
-              Pilihan pencucian mendalam, pembersihan khusus material, dan unyellowing sesuai jenis material sepatu Anda.
+              Pilihan pencucian mendalam, pembersihan khusus material, dan perawatan sesuai jenis material sepatu Anda.
             </p>
           </div>
 
@@ -98,6 +99,67 @@ export function ServicesPage() {
             </div>
           )}
         </div>
+
+        <section className="bg-white rounded-3xl border border-brand-200 p-6 sm:p-10 shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-brand-200">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-brand-600 block mb-1">
+                CARE PRODUCTS
+              </span>
+              <h2 className="font-display font-bold text-2xl sm:text-3xl text-brand-900 tracking-tight">
+                Produk Perawatan Sepatu
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-wet mt-1 max-w-2xl">
+                Formula khusus pembersih dan penyegar sepatu racikan Lave Streat untuk perawatan mandiri di rumah. Praktis, aman untuk berbagai jenis material, dan siap dikirim langsung ke alamat Anda.
+              </p>
+            </div>
+            <Link to="/pesan">
+              <Button size="sm" variant="secondary" className="shrink-0 flex items-center gap-1.5">
+                <span>Pesan Produk</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          ) : productServices.length === 0 ? (
+            <div className="text-center py-12 text-slate-wet bg-slate-50 rounded-xl border border-brand-200">
+              Belum ada produk perawatan yang tersedia saat ini.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {productServices.map((product) => (
+                <ServiceCard
+                  key={product.id}
+                  service={product}
+                  onSelect={() => navigate(`/pesan?service=${product.id}`)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="mt-8 pt-6 border-t border-brand-200/60 bg-brand-light/30 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-8 rounded-b-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkle size={18} weight="bold" />
+              </div>
+              <p className="text-xs sm:text-sm text-brand-900 font-medium">
+                Dapat dibeli satuan dengan pengiriman kurir langsung, atau digabungkan bersama paket treatment cuci sepatu Anda.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/pesan')}
+              size="sm"
+              className="bg-brand-600 hover:bg-brand-500 text-white shrink-0"
+            >
+              Order Produk Sekarang
+            </Button>
+          </div>
+        </section>
 
         <section className="bg-white rounded-3xl border border-brand-200 p-6 sm:p-10 shadow-xs">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-brand-200">

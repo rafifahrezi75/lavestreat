@@ -46,7 +46,7 @@ Perawatan sepatu spesialis berbasis pengerjaan manual 100% (*hand-detailing*) ya
 
 - **Data Transaksi Asli**: 20 pesanan riil dengan total 42 pasang sepatu dan omset tercatat Rp 1.260.000 tersimpan di Firestore.
 - **Dokumentasi Galeri Riil**: 41 pasang foto Before-After beresolusi tinggi yang ter-host di Cloudinary mencakup berbagai tipe sneaker (Nike, Adidas, Brodo, NB, Converse, dsb.).
-- **Katalog Layanan**: Tarif resmi untuk Deep Clean, White Clean, Fast Clean, Suede Clean, Unyellowing, Repaint, serta produk Shoe Cleaner.
+- **Katalog Layanan**: Tarif resmi untuk Deep Clean, White Clean, Fast Clean, Suede Clean, Unyellowing, Repaint, serta produk perawatan Shoe Cleaner dan Shoe Refresher.
 
 ## Product Principles
 

@@ -69,7 +69,7 @@ export function DashboardPage() {
       else if (lower.includes('deep')) normalized = 'Deep Clean';
       else if (lower.includes('medium')) normalized = 'Medium Clean';
       else if (lower.includes('fast')) normalized = 'Fast Clean';
-      else if (lower.includes('sabun') || lower.includes('cleaner')) normalized = 'Produk Sabun & Care';
+      else if (lower.includes('sabun') || lower.includes('cleaner') || lower.includes('refresher')) normalized = 'Produk Sabun & Care';
 
       serviceStatsMap[normalized] = (serviceStatsMap[normalized] || 0) + qty;
     });

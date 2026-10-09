@@ -11,11 +11,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { initialServices } from './mockData';
 
-const STORAGE_KEY = 'lavestreat_services_data_v10';
+const STORAGE_KEY = 'lavestreat_services_data_v11';
 
 function getLocalServices() {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data || !data.includes('srv-easy')) {
+  if (!data || !data.includes('srv-shoe-refresher')) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initialServices));
     return initialServices;
   }
@@ -36,7 +36,8 @@ const defaultPhotoMap = {
   'srv-boots': '/services/deep-clean.jpg',
   'srv-kids': '/services/medium-clean.jpg',
   'srv-express': '/services/white-clean.jpg',
-  'srv-shoe-cleaner': '/services/shoe-cleaner.jpg'
+  'srv-shoe-cleaner': '/services/shoe-cleaner.jpg',
+  'srv-shoe-refresher': '/services/shoe-refresher.jpg'
 };
 
 function normalizeService(service) {
@@ -62,7 +63,8 @@ function sortServices(list) {
     'srv-boots': 7,
     'srv-kids': 8,
     'srv-express': 9,
-    'srv-shoe-cleaner': 10
+    'srv-shoe-cleaner': 10,
+    'srv-shoe-refresher': 11
   };
   return [...list].sort((a, b) => {
     const ordA = a.urutan || orderMap[a.id] || 99;
